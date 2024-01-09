@@ -1,0 +1,7 @@
+robotpy
+robotpy-commands-v2
+robotpy-navx
+robotpy-apriltag
+robotpy-pathplannerlib
+photonlibpy
+phoenix6
