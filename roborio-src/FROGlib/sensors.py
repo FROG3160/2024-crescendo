@@ -1,6 +1,7 @@
 import math
 from navx import AHRS
 from wpimath.geometry import Rotation2d
+from phoenix6.configs.cancoder_configs import CANcoderConfiguration, AbsoluteSensorRangeValue, SensorDirectionValue
 
 class FROGGyro:
     
@@ -69,3 +70,11 @@ class FROGGyro:
 
     def getAngleAdjustment(self):
         return self.gyro.getAngleAdjustment()
+    
+
+class FROGCANCoderConfig(CANcoderConfiguration):
+    def __init__(self, steer_offset):
+        super.__init__()
+        self.magnet_sensor.absolute_sensor_range = AbsoluteSensorRangeValue.SIGNED_PLUS_MINUS_HALF
+        self.magnet_sensor.magnet_offset = steer_offset
+        self.magnet_sensor.sensor_direction(SensorDirectionValue.COUNTER_CLOCKWISE_POSITIVE)
