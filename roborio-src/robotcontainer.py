@@ -13,6 +13,8 @@ import commands2.cmd
 
 import constants
 
+from FROGlib.xbox import FROGXboxDriver
+
 
 class RobotContainer:
     """
@@ -37,9 +39,7 @@ class RobotContainer:
         # )
 
         # The driver's controller
-        # self.driverController = commands2.button.CommandPS4Controller(
-        #     constants.kDriverControllerPort
-        # )
+        self.driverController = FROGXboxDriver(0)
 
         # Configure the button bindings
         self.configureButtonBindings()
