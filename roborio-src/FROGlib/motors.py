@@ -15,7 +15,7 @@ class FROGTalonFXConfig(TalonFXConfiguration):
         # self.allowableClosedloopError
 
 class FROGTalonFXMotor(TalonFX):
-    def __init__(self, id=None, motor_config=FROGFXMotorConfig()):
+    def __init__(self, id=None, motor_config=FROGTalonFXConfig()):
         super.__init__(device_id=id)
         self.config = motor_config
         self.configurator.apply(self.config)
