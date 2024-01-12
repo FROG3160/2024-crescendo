@@ -19,8 +19,9 @@ class FROGXboxDriver(XboxController):
         self.timer = Timer()
         self.deadband = deadband
         self.debounce_period = debouncePeriod
-        self.translation_slew = translationSlew
-        self.rotSlew = rotSlew
+        self.xSlew = SlewRateLimiter(translationSlew)
+        self.ySlew = SlewRateLimiter(translationSlew)
+        self.rotSlew = SlewRateLimiter(rotSlew)
 
     def getFieldHeading(self) -> float:
         """Get the desired robot heading from the Xbox's right
