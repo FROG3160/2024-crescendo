@@ -10,17 +10,18 @@ class FROGXboxDriver(XboxController):
     """Custom Xbox Controller class for the driver controller specifically
     for field-oriented swerve drive control.
     """
-    DEADBAND = 0.15
-    DEBOUNCE_PERIOD = 0.5
+
     MODE = 0  # run auto routines
 
-    def __init__(self, channel):
+    def __init__(self, channel, deadband, debouncePeriod, translationSlew, rotSlew):
         super().__init__(channel)
         self.button_latest = {}
         self.timer = Timer()
-        self.xSlew = SlewRateLimiter(1.5)
-        self.ySlew = SlewRateLimiter(1.5)
-        self.rotSlew = SlewRateLimiter(1.5)
+        self.deadband = deadband
+        self.debounce_period = debouncePeriod
+        self.xSlew = SlewRateLimiter(translationSlew)
+        self.ySlew = SlewRateLimiter(translationSlew)
+        self.rotSlew = SlewRateLimiter(rotSlew)
 
     def getFieldHeading(self) -> float:
         """Get the desired robot heading from the Xbox's right
@@ -41,7 +42,7 @@ class FROGXboxDriver(XboxController):
         Returns:
             float: rotational speed factor from -1 to 1 with CCW being positive
         """
-        return applyDeadband(-self.getRightX(), self.DEADBAND)
+        return applyDeadband(-self.getRightX(), self.deadband)
         
     def getSlewLimitedFieldRotation(self) -> float:
         return self.rotSlew.calculate(
@@ -49,7 +50,7 @@ class FROGXboxDriver(XboxController):
         )
 
     def getFieldForward(self):
-        return applyDeadband(-self.getLeftY(), self.DEADBAND)
+        return applyDeadband(-self.getLeftY(), self.deadband)
     
     def getSlewLimitedFieldForward(self):
         return self.xSlew.calculate(
@@ -57,7 +58,7 @@ class FROGXboxDriver(XboxController):
         )
 
     def getFieldLeft(self):
-        return applyDeadband(-self.getLeftX(), self.DEADBAND)
+        return applyDeadband(-self.getLeftX(), self.deadband)
     
     def getSlewLimitedFieldLeft(self):
         return self.ySlew.calculate(
@@ -72,10 +73,10 @@ class FROGXboxDriver(XboxController):
         now = self.timer.getFPGATimestamp()
         pov = self.getPOV()
         if pov > -1:
-            if (now - self.button_latest.get("POV", 0)) > self.DEBOUNCE_PERIOD:
+            if (now - self.button_latest.get("POV", 0)) > self.debounce_period:
                 self.button_latest["POV"] = now
                 val = pov
-        if (now - self.button_latest.get("POV", 0)) < self.DEBOUNCE_PERIOD:
+        if (now - self.button_latest.get("POV", 0)) < self.debounce_period:
             self.setRumble(RIGHT_RUMBLE, 1)
         else:
             self.setRumble(RIGHT_RUMBLE, 0)
