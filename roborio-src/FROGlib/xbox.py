@@ -53,7 +53,7 @@ class FROGXboxDriver(XboxController):
         return applyDeadband(-self.getLeftY(), self.deadband)
     
     def getSlewLimitedFieldForward(self):
-        return self.translation_slew(0).calculate(
+        return self.xSlew.calculate(
             self.getFieldForward()
         )
 
@@ -61,7 +61,7 @@ class FROGXboxDriver(XboxController):
         return applyDeadband(-self.getLeftX(), self.deadband)
     
     def getSlewLimitedFieldLeft(self):
-        return self.translation_slew(1).calculate(
+        return self.ySlew.calculate(
             self.getFieldLeft()
         )
 
