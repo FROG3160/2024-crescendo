@@ -12,6 +12,7 @@
 import math
 import wpilib
 from wpimath import feetToMeters
+from wpimath.filter import SlewRateLimiter
 
 # Swerve Drive Motor/Encoder IDs
 kFrontLeftDriveID = 11
@@ -41,3 +42,9 @@ kVoltageCompensation = 10.5
 
 kDriverControllerPort = 0
 kOperatorControllerPort = 1
+
+#Xbox controller constants
+deadband = 0.15
+debouncePeriod = 0.5
+translationSlew = (SlewRateLimiter(1.5), SlewRateLimiter(1.5)) #(Xslew, ySlew)
+rotSlew = SlewRateLimiter(1.5)
