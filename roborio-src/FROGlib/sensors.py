@@ -2,6 +2,7 @@ import math
 from navx import AHRS
 from wpimath.geometry import Rotation2d
 from phoenix6.configs.cancoder_configs import CANcoderConfiguration, AbsoluteSensorRangeValue, SensorDirectionValue
+from phoenix6.hardware.cancoder import CANcoder
 
 class FROGGyro:
     '''Gyro class that creates and instance of the NavX gyro and uses it to get AHRS data,
@@ -83,3 +84,8 @@ class FROGCANCoderConfig(CANcoderConfiguration):
         self.magnet_sensor.absolute_sensor_range = AbsoluteSensorRangeValue.SIGNED_PLUS_MINUS_HALF
         self.magnet_sensor.magnet_offset = steer_offset
         self.magnet_sensor.sensor_direction(SensorDirectionValue.COUNTER_CLOCKWISE_POSITIVE)
+
+class FROGCanCoder(CANcoder):
+    def __init__(self, id, config: FROGCANCoderConfig):
+        super.__init__(id)
+        self.configurator.apply(config)
