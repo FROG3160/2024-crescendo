@@ -1,3 +1,4 @@
+import math
 from phoenix6 import TalonFXConfiguration, TalonFX
 from phoenix6.configs.talon_fx_configs import FeedbackSensorSourceValue
 
