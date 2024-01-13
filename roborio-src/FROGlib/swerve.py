@@ -3,23 +3,30 @@ from wpimath.kinematics import SwerveModuleState, SwerveModulePosition
 from phoenix6 import TalonFX, CANcoder, PositionDutyCycle, VelocityDutyCycle, TalonFXConfiguration
 from utils import DriveUnit
 from wpimath.units import radiansToRotations
-
+from motors import FROGTalonFX, FROGTalonFXConfig
+from sensors import FROGCANCoderConfig, FROGCanCoder
 class SwerveModule:
     def __init__(
         self,
         name: str,
         location: Translation2d,
         gearing: list,
-        wheel_diameter: float
+        wheel_diameter: float,
+        drive_id: int,
+        drive_config: FROGTalonFXConfig,
+        steer_id: int,
+        steer_confing: FROGTalonFXConfig,
+        cancoder_id: int,
+        cancoder_config: FROGCANCoderConfig
     ):
         # set initial states for the component
 
         #create/configure drive motor
-        self.drive = TalonFXConfiguration()
+        self.drive = FROGTalonFX(drive_id, drive_config)
         #create/configure steer motor
-        self.steer = TalonFXConfiguration()
+        self.steer = FROGTalonFX(steer_id, steer_confing)
         #create/configure cancoder
-        self.encoder = CANcoder()
+        self.encoder = FROGCanCoder(cancoder_id, cancoder_config)
 
         #set module location
         self.location = location
