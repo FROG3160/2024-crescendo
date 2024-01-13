@@ -15,8 +15,11 @@ class SwerveModule:
         # set initial states for the component
 
         #create/configure drive motor
+        self.drive = TalonFXConfiguration()
         #create/configure steer motor
+        self.steer = TalonFXConfiguration()
         #create/configure cancoder
+        self.encoder = CANcoder()
 
         #set module location
         self.location = location
