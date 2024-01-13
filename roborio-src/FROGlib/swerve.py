@@ -2,7 +2,7 @@ from wpimath.geometry import Translation2d, Rotation2d
 from wpimath.kinematics import SwerveModuleState, SwerveModulePosition
 from phoenix6 import TalonFX, CANcoder, PositionDutyCycle, VelocityDutyCycle, TalonFXConfiguration
 from utils import DriveUnit
-from wpimath.units import radiansToRotations
+from wpimath.units import radiansToRotations, rotationsToRadians
 from motors import FROGTalonFX, FROGTalonFXConfig
 from sensors import FROGCANCoderConfig, FROGCanCoder
 class SwerveModule:
@@ -51,12 +51,12 @@ class SwerveModule:
     def enable(self):
         self.enabled = True
 
-    def getEncoderAzimuthDegrees(self) -> float:
+    def getEncoderAzimuthRotations(self) -> float:
         """gets the absolute position from the CANCoder
         Returns:
             float: position of the sensor in degrees (-180 to 180)
         """
-        return self.encoder.getAbsolutePosition()
+        return self.encoder.get_absolute_position()
 
     def getCurrentAzimuth(self) -> Rotation2d:
         """Gets the Azimuth of the swerve wheel.
@@ -64,10 +64,10 @@ class SwerveModule:
         Returns:
             Rotation2d: The robot-relative Azimuth of the swerve wheel.
         """        
-        if degrees := self.getEncoderAzimuthDegrees():
-            return Rotation2d.fromDegrees(degrees)
+        if rotations := self.getEncoderAzimuthRotations():
+            return Rotation2d(rotationsToRadians(rotations))
         else:
-            return Rotation2d.fromDegrees(0)
+            return Rotation2d(0)
 
     def getCurrentDistance(self) -> float:
         """Gets distance traveled by the system.
