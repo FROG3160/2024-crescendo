@@ -1,6 +1,6 @@
 from wpimath.geometry import Translation2d, Rotation2d
 from wpimath.kinematics import SwerveModuleState, SwerveModulePosition
-from phoenix6 import TalonFX, CANcoder, PositionDutyCycle, VelocityDutyCycle, TalonFXConfiguration
+from phoenix6.controls import PositionDutyCycle, VelocityDutyCycle
 from utils import DriveUnit
 from wpimath.units import radiansToRotations, rotationsToRadians
 from motors import FROGTalonFX, FROGTalonFXConfig
