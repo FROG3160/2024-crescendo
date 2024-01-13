@@ -10,7 +10,7 @@ class SwerveModule:
         self,
         name: str,
         location: Translation2d,
-        gearing: list,
+        drive_gearing: list,
         wheel_diameter: float,
         drive_id: int,
         drive_config: FROGTalonFXConfig,
@@ -36,7 +36,7 @@ class SwerveModule:
 
         #
         self.drive_unit = DriveUnit(
-            gearing, wheel_diameter
+            drive_gearing, wheel_diameter
         )
         self.configModuleComponents()
         self.useMinSpeed = True
