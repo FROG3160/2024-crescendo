@@ -127,7 +127,7 @@ class SwerveChassis:
 
     logger: Logger
 
-    fieldLayout: FROGFieldLayout
+    # fieldLayout: FROGFieldLayout *not used for final 2023 code
     
     # limelight: FROGLimeLightVision
 
