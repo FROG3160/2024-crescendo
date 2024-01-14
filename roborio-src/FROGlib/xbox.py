@@ -13,8 +13,8 @@ class FROGXboxDriver(XboxController):
 
     MODE = 0  # run auto routines
 
-    def __init__(self, channel, deadband, debouncePeriod, translationSlew, rotSlew):
-        super().__init__(channel)
+    def __init__(self, port, deadband, debouncePeriod, translationSlew, rotSlew):
+        super().__init__(port)
         self.button_latest = {}
         self.timer = Timer()
         self.deadband = deadband
