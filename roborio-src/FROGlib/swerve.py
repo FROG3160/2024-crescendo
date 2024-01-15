@@ -188,7 +188,7 @@ class SwerveChassis:
         )
         # TODO: Adjust the stdDevs
         self.estimator.setVisionMeasurementStdDevs((0.5, 0.5, math.pi/2))
-        self.field = Field2d()
+        # self.field = Field2d() *not used for final 2023 code
 
     def disable(self):
         self.enabled = False
