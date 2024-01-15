@@ -1,11 +1,15 @@
+import math
 from logging import Logger
-from wpimath.geometry import Translation2d, Rotation2d
-from wpimath.kinematics import SwerveModuleState, SwerveModulePosition
+from wpimath.geometry import Translation2d, Rotation2d, Pose2d
+from wpimath.kinematics import SwerveModuleState, SwerveModulePosition, ChassisSpeeds, SwerveDrive4Kinematics
+from wpimath.trajectory import TrajectoryConfig
+from wpimath.estimator import SwerveDrive4PoseEstimator
 from phoenix6.controls import PositionDutyCycle, VelocityDutyCycle
-from utils import DriveUnit
 from wpimath.units import radiansToRotations, rotationsToRadians
-from motors import FROGTalonFX, FROGTalonFXConfig
+from utils import remap
+from motors import FROGTalonFX, FROGTalonFXConfig, DriveUnit
 from sensors import FROGCANCoderConfig, FROGCanCoder, FROGGyro
+from constants import kMaxMetersPerSecond, kMaxChassisRadiansPerSec, kMaxTrajectorySpeed, kMaxTrajectoryAccel
 
 
 class SwerveModule:
@@ -127,7 +131,7 @@ class SwerveChassis:
 
     logger: Logger
 
-    fieldLayout: FROGFieldLayout
+    # fieldLayout: FROGFieldLayout *not used for final 2023 code
     
     # limelight: FROGLimeLightVision
 
@@ -169,7 +173,7 @@ class SwerveChassis:
         )
 
         self.trajectoryConfig = TrajectoryConfig(
-            MAX_TRAJECTORY_SPEED, MAX_TRAJECTORY_ACCEL
+            kMaxTrajectorySpeed, kMaxTrajectoryAccel
         )
         self.trajectoryConfig.setKinematics(self.kinematics)
 
@@ -188,7 +192,7 @@ class SwerveChassis:
         )
         # TODO: Adjust the stdDevs
         self.estimator.setVisionMeasurementStdDevs((0.5, 0.5, math.pi/2))
-        self.field = Field2d()
+        # self.field = Field2d() *not used for final 2023 code
 
     def disable(self):
         self.enabled = False
@@ -233,14 +237,14 @@ class SwerveChassis:
     def setStatesFromSpeeds(self):
         states = self.kinematics.toSwerveModuleStates(self.chassisSpeeds, self.center)
         states = self.kinematics.desaturateWheelSpeeds(
-            states, config.MAX_METERS_PER_SEC
+            states, kMaxMetersPerSecond
         )
         self.moduleStates = states
 
     def fieldOrientedDrive(self, vX: float, vY: float, vT: float, throttle=1.0):
-        xSpeed = vX * config.MAX_METERS_PER_SEC * throttle
-        ySpeed = vY * config.MAX_METERS_PER_SEC * throttle
-        rotSpeed = vT * config.MAX_CHASSIS_RADIANS_SEC * throttle
+        xSpeed = vX * kMaxMetersPerSecond * throttle
+        ySpeed = vY * kMaxMetersPerSecond * throttle
+        rotSpeed = vT * kMaxChassisRadiansPerSec * throttle
         self.chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
             xSpeed, ySpeed, rotSpeed, self.gyro.getRotation2d()
         )
