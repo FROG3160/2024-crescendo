@@ -1,7 +1,8 @@
+phoenix6
+photonlibpy
 robotpy
+robotpy-apriltag
 robotpy-commands-v2
 robotpy-navx
-robotpy-apriltag
 robotpy-pathplannerlib
-photonlibpy
-phoenix6
+robotpy-rev
