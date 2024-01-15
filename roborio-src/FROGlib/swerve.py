@@ -1,15 +1,13 @@
 import math
 from logging import Logger
-from wpimath.geometry import Translation2d, Rotation2d, Pose2d
+from typing import Tuple
+from wpimath.geometry import Translation2d, Rotation2d
 from wpimath.kinematics import SwerveModuleState, SwerveModulePosition, ChassisSpeeds, SwerveDrive4Kinematics
-from wpimath.trajectory import TrajectoryConfig
-from wpimath.estimator import SwerveDrive4PoseEstimator
 from phoenix6.controls import PositionDutyCycle, VelocityDutyCycle
 from wpimath.units import radiansToRotations, rotationsToRadians
-from utils import remap
 from motors import FROGTalonFX, FROGTalonFXConfig, DriveUnit
 from sensors import FROGCANCoderConfig, FROGCanCoder, FROGGyro
-from constants import kMaxMetersPerSecond, kMaxChassisRadiansPerSec, kMaxTrajectorySpeed, kMaxTrajectoryAccel
+from constants import kMaxMetersPerSecond, kMaxChassisRadiansPerSec
 
 
 class SwerveModule:
@@ -124,33 +122,15 @@ class SwerveModule:
 
 
 class SwerveChassis:
-    moduleFrontLeft: SwerveModule
-    moduleFrontRight: SwerveModule
-    moduleBackLeft: SwerveModule
-    moduleBackRight: SwerveModule
 
-    logger: Logger
-
-    # fieldLayout: FROGFieldLayout *not used for final 2023 code
-    
-    # limelight: FROGLimeLightVision
-
-    gyro: FROGGyro
-
-    def __init__(self):
+    def __init__(self, modules: Tuple[SwerveModule], gyro:FROGGyro):
+        # need each of the swerve modules
         self.enabled = False
 
         self.center = Translation2d(0, 0)
+        self.modules = modules
+        self.gyro = gyro
 
-
-    def setup(self):
-
-        self.modules = (
-            self.moduleFrontLeft,
-            self.moduleFrontRight,
-            self.moduleBackLeft,
-            self.moduleBackRight,
-        )
 
         self.moduleStates = (
             SwerveModuleState(),
@@ -172,67 +152,71 @@ class SwerveChassis:
             *[m.location for m in self.modules]
         )
 
-        self.trajectoryConfig = TrajectoryConfig(
-            kMaxTrajectorySpeed, kMaxTrajectoryAccel
-        )
-        self.trajectoryConfig.setKinematics(self.kinematics)
-
         self.gyro.resetGyro()
 
         self.chassisSpeeds = ChassisSpeeds(0, 0, 0)
-        self.startingPose2d = Pose2d()
-
-        self.estimator = SwerveDrive4PoseEstimator(
-            self.kinematics,
-            self.gyro.getRotation2d(),
-            tuple(
-                [SwerveModulePosition(0, x.getCurrentRotation()) for x in self.modules]
-            ),
-            self.startingPose2d,
-        )
-        # TODO: Adjust the stdDevs
-        self.estimator.setVisionMeasurementStdDevs((0.5, 0.5, math.pi/2))
-        # self.field = Field2d() *not used for final 2023 code
 
     def disable(self):
         self.enabled = False
         for module in self.modules:
             module.disable()
 
-    def disableMinSpeed(self):
-        for module in self.modules:
-            module.disableMinSpeed()
-
-    def enableMinSpeed(self):
-        for module in self.modules:
-            module.enableMinSpeed()
-
     def enable(self):
         self.enabled = True
         for module in self.modules:
             module.enable()
 
-    def lockChassis(self):
-        self.moduleFrontLeft.setState(SwerveModuleState(0, Rotation2d.fromDegrees(45)))
-        self.moduleBackRight.setState(SwerveModuleState(0, Rotation2d.fromDegrees(45)))
-        self.moduleFrontRight.setState(SwerveModuleState(0, Rotation2d.fromDegrees(-45)))
-        self.moduleBackLeft.setState(SwerveModuleState(0, Rotation2d.fromDegrees(-45)))
+    def fieldOrientedDrive(self, vX: float, vY: float, vT: float, throttle=1.0):
+        """Calculates the necessary chassis speeds given the commanded field-oriented
+        x, y, and rotational speeds.  An optional throttle value adjusts all inputs
+        proportionally.
+
+        Args:
+            vX (float): velocity requested in the X direction, downfield, away from
+                the driver station.  A proportion of the maximum speed.  (-1 to 1)
+            vY (float): velocity requested in the Y direction, to the left when at the
+                driver station facing the field.  A proportion of the maximum speed.  (-1 to 1)
+            vT (float): rotational velocity requested, CCW positive (-1 to 1)
+                throttle (float, optional): a proportion of all 3 speeds commanded. Defaults to 1.0.
+        """        
+        xSpeed = vX * kMaxMetersPerSecond * throttle
+        ySpeed = vY * kMaxMetersPerSecond * throttle
+        rotSpeed = vT * kMaxChassisRadiansPerSec * throttle
+        self.chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+            xSpeed, ySpeed, rotSpeed, self.gyro.getRotation2d()
+        )
+    
+    def getChassisVelocityFPS(self):
+        return math.sqrt( self.chassisSpeeds.vx_fps**2 + self.chassisSpeeds.vy_fps**2)
+    
+    def getHeadingRadians(self):
+        return math.atan2( self.chassisSpeeds.vy, self.chassisSpeeds.vx )
+    
+    def getModulePositions(self):
+        return [module.getCurrentPosition() for module in self.modules]
+    
+    def getModuleStates(self):
+        return [module.getCurrentState() for module in self.modules]
+    
+    # lockChassis needs to be rewritten to use the tuple self.modules
+    # I think the correct angle can be caclulated/derived from the translation2d
+    # of the module's location on the robot.
+    
+    # def lockChassis(self):
+    #     """Commands each SwerveModule to point it's wheel in toward the center of the robot
+    #     to keep it from moving on the field.
+    #     """        
+    #     self.moduleFrontLeft.setState(SwerveModuleState(0, Rotation2d.fromDegrees(45)))
+    #     self.moduleBackRight.setState(SwerveModuleState(0, Rotation2d.fromDegrees(45)))
+    #     self.moduleFrontRight.setState(SwerveModuleState(0, Rotation2d.fromDegrees(-45)))
+    #     self.moduleBackLeft.setState(SwerveModuleState(0, Rotation2d.fromDegrees(-45)))
+
+    def robotOrientedDrive(self, vX, vY, vT):
+        self.logger.info(f'Velocities: {vX}, {vY}, {vT}')
+        self.chassisSpeeds = ChassisSpeeds(vX, vY, vT)
 
     def setModuleStates(self, states):
         self.moduleStates = states
-
-    def setFieldPosition(self, pose: Pose2d):
-        self.estimator.resetPosition(
-            self.gyro.getRotation2d(),
-            tuple(self.getModulePositions()),
-            pose,
-        )
-
-    def getModuleStates(self):
-        return [module.getCurrentState() for module in self.modules]
-
-    def getModulePositions(self):
-        return [module.getCurrentPosition() for module in self.modules]
 
     def setStatesFromSpeeds(self):
         states = self.kinematics.toSwerveModuleStates(self.chassisSpeeds, self.center)
@@ -241,26 +225,10 @@ class SwerveChassis:
         )
         self.moduleStates = states
 
-    def fieldOrientedDrive(self, vX: float, vY: float, vT: float, throttle=1.0):
-        xSpeed = vX * kMaxMetersPerSecond * throttle
-        ySpeed = vY * kMaxMetersPerSecond * throttle
-        rotSpeed = vT * kMaxChassisRadiansPerSec * throttle
-        self.chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-            xSpeed, ySpeed, rotSpeed, self.gyro.getRotation2d()
-        )
-
-    def getChassisVelocityFPS(self):
-        return math.sqrt( self.chassisSpeeds.vx_fps**2 + self.chassisSpeeds.vy_fps**2)
-    
-    def getHeadingRadians(self):
-        return math.atan2( self.chassisSpeeds.vy, self.chassisSpeeds.vx )
 
     def holonomicDrive(self, chassisSpeeds) -> None:
         self.chassisSpeeds = chassisSpeeds
 
-    def robotOrientedDrive(self, vX, vY, vT):
-        self.logger.info(f'Velocities: {vX}, {vY}, {vT}')
-        self.chassisSpeeds = ChassisSpeeds(vX, vY, vT)
 
     def execute(self):
         if self.enabled:
@@ -268,21 +236,3 @@ class SwerveChassis:
 
             for module, state in zip(self.modules, self.moduleStates):
                 module.setState(state)
-        self.periodic()
-
-    def periodic(self) -> None:
-        self.estimatorPose = self.estimator.update(
-            Rotation2d.fromDegrees(self.gyro.getYawCCW()),
-            tuple(self.getModulePositions()),
-        )
-        visionPose, visionTime = self.limelight.getBotPoseEstimateForAlliance()
-        if visionPose:
-            if (
-                abs(visionPose.x - self.estimatorPose.x) < 0.5
-                and abs(visionPose.y - self.estimatorPose.y) < 0.5
-            ):
-                stddevupdate = remap(visionPose.x,2.0, 8.0, 0.3, 2.0)
-                self.estimator.addVisionMeasurement(
-                    visionPose.toPose2d(), visionTime,
-                    (stddevupdate, stddevupdate, math.pi/2)
-                )
