@@ -11,7 +11,7 @@
 
 import math
 import wpilib
-from wpimath import feetToMeters
+from wpimath.units import feetToMeters
 
 # Swerve Drive Motor/Encoder IDs
 kFrontLeftDriveID = 11
@@ -39,6 +39,11 @@ kMaxMetersPerSecond = feetToMeters(12) #max fps for L1=13.5, L2=16.3, L3=18
 kMaxChassisRadiansPerSec = 2 * math.tau # revolutions per sec * tau
 kVoltageCompensation = 10.5
 
+# Swerve Drive Trajectory Constraints
+kMaxTrajectorySpeed = feetToMeters(5) # Unit: m/s, around 1.524 m/s, same value used 2023
+kMaxTrajectoryAccel = feetToMeters(5) # Unit: m/s/s, around 1.524 m/s/s, same value used 2023
+
+# Xbox controller ports
 kDriverControllerPort = 0
 kOperatorControllerPort = 1
 
