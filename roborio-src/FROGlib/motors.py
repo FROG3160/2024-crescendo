@@ -11,6 +11,9 @@ class FROGTalonFXConfig(TalonFXConfiguration):
         TalonFXConfiguration.__init__(self)
         self.feedback.feedback_sensor_source = feedback_sensor_source
         self.feedback.feedback_remote_sensor_id = feedback_remote_sensor_id
+        # TODO: Add this in if it makes steering the motor easier
+        # self.feedback.rotor_to_sensor_ratio = 
+        # self.feedback.sensor_to_mechanism_ratio = 
         self.slot0.k_p = k_p
         self.slot0.k_i = k_i
         self.slot0.k_d = k_d

@@ -59,9 +59,11 @@ class SwerveModule:
     def getEncoderAzimuthRotations(self) -> float:
         """gets the absolute position from the CANCoder
         Returns:
-            float: position of the sensor in degrees (-180 to 180)
+            float: absolute position of the sensor in rotations
         """
         return self.encoder.get_absolute_position()
+    
+
 
     def getCurrentAzimuth(self) -> Rotation2d:
         """Gets the Azimuth of the swerve wheel.
@@ -98,10 +100,11 @@ class SwerveModule:
             self.getCurrentDistance(), self.getCurrentAzimuth()
         )
 
-    def configModuleComponents(self):
-        # configure CANCoder
-        pass
-
+    # TODO: See if it would be better to use steer position instead
+    # of CANCoder position
+    # def getSteerRotations(self) -> float:
+    #     return self.steer.get_position()
+    
     def setState(self, requested_state: SwerveModuleState):
         if self.enabled:
             self.requestedState = SwerveModuleState.optimize(
