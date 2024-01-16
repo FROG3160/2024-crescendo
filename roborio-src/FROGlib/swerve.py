@@ -197,19 +197,20 @@ class SwerveChassis:
     
     def getModuleStates(self):
         return [module.getCurrentState() for module in self.modules]
-    
-    # lockChassis needs to be rewritten to use the tuple self.modules
-    # I think the correct angle can be caclulated/derived from the translation2d
-    # of the module's location on the robot.
-    
+
+    def lockChassis(self):
+        moduleAngles = [y.location.angle() for y in self.modules]
+        for module, moduleAngle in zip(self.modules, moduleAngles):
+                module.setState(SwerveModuleState(0, moduleAngle))
+ 
     # def lockChassis(self):
-    #     """Commands each SwerveModule to point it's wheel in toward the center of the robot
-    #     to keep it from moving on the field.
-    #     """        
-    #     self.moduleFrontLeft.setState(SwerveModuleState(0, Rotation2d.fromDegrees(45)))
-    #     self.moduleBackRight.setState(SwerveModuleState(0, Rotation2d.fromDegrees(45)))
-    #     self.moduleFrontRight.setState(SwerveModuleState(0, Rotation2d.fromDegrees(-45)))
-    #     self.moduleBackLeft.setState(SwerveModuleState(0, Rotation2d.fromDegrees(-45)))
+    #      """Commands each SwerveModule to point it's wheel in toward the center of the robot
+    #      to keep it from moving on the field.
+    #      """        
+    #      self.moduleFrontLeft.setState(SwerveModuleState(0, Rotation2d.fromDegrees(45)))
+    #      self.moduleBackRight.setState(SwerveModuleState(0, Rotation2d.fromDegrees(45)))
+    #      self.moduleFrontRight.setState(SwerveModuleState(0, Rotation2d.fromDegrees(-45)))
+    #      self.moduleBackLeft.setState(SwerveModuleState(0, Rotation2d.fromDegrees(-45)))
 
     def robotOrientedDrive(self, vX, vY, vT):
         self.logger.info(f'Velocities: {vX}, {vY}, {vT}')
