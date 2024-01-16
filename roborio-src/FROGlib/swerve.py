@@ -5,9 +5,8 @@ from wpimath.geometry import Translation2d, Rotation2d
 from wpimath.kinematics import SwerveModuleState, SwerveModulePosition, ChassisSpeeds, SwerveDrive4Kinematics
 from phoenix6.controls import PositionDutyCycle, VelocityDutyCycle
 from wpimath.units import radiansToRotations, rotationsToRadians
-from motors import FROGTalonFX, FROGTalonFXConfig, DriveUnit
-from sensors import FROGCANCoderConfig, FROGCanCoder, FROGGyro
-from constants import kMaxMetersPerSecond, kMaxChassisRadiansPerSec
+from .motors import FROGTalonFX, FROGTalonFXConfig, DriveUnit
+from .sensors import FROGCANCoderConfig, FROGCanCoder, FROGGyro
 
 
 class SwerveModule:
@@ -123,21 +122,19 @@ class SwerveModule:
 
 class SwerveChassis:
 
-    def __init__(self, modules: Tuple[SwerveModule], gyro:FROGGyro):
+    def __init__(self, modules: Tuple[SwerveModule], gyro:FROGGyro, max_speed:float, max_rotation_speed:float):
         # need each of the swerve modules
         self.enabled = False
 
         self.center = Translation2d(0, 0)
         self.modules = modules
         self.gyro = gyro
+        self.max_speed = max_speed
+        self.max_rotation_speed = max_rotation_speed
 
+        # creates a tuple of 4 SwerveModuleState objects
+        self.moduleStates = (SwerveModuleState(),)*4
 
-        self.moduleStates = (
-            SwerveModuleState(),
-            SwerveModuleState(),
-            SwerveModuleState(),
-            SwerveModuleState(),
-        )
         self.current_speeds = ChassisSpeeds(0, 0, 0)
 
         self.kinematics = SwerveDrive4Kinematics(
@@ -179,9 +176,9 @@ class SwerveChassis:
             vT (float): rotational velocity requested, CCW positive (-1 to 1)
                 throttle (float, optional): a proportion of all 3 speeds commanded. Defaults to 1.0.
         """        
-        xSpeed = vX * kMaxMetersPerSecond * throttle
-        ySpeed = vY * kMaxMetersPerSecond * throttle
-        rotSpeed = vT * kMaxChassisRadiansPerSec * throttle
+        xSpeed = vX * self.max_speed * throttle
+        ySpeed = vY * self.max_speed * throttle
+        rotSpeed = vT * self.max_rotation_speed * throttle
         self.chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
             xSpeed, ySpeed, rotSpeed, self.gyro.getRotation2d()
         )
@@ -222,7 +219,7 @@ class SwerveChassis:
     def setStatesFromSpeeds(self):
         states = self.kinematics.toSwerveModuleStates(self.chassisSpeeds, self.center)
         states = self.kinematics.desaturateWheelSpeeds(
-            states, kMaxMetersPerSecond
+            states, self.max_speed
         )
         self.moduleStates = states
 
