@@ -1,6 +1,7 @@
 import math
 from logging import Logger
 from typing import Tuple
+from commands2 import Subsystem
 from wpimath.geometry import Translation2d, Rotation2d
 from wpimath.kinematics import SwerveModuleState, SwerveModulePosition, ChassisSpeeds, SwerveDrive4Kinematics
 from phoenix6.controls import PositionDutyCycle, VelocityDutyCycle
@@ -120,9 +121,10 @@ class SwerveModule:
             self.drive.set(0)
 
 
-class SwerveChassis:
+class SwerveChassis(Subsystem):
 
     def __init__(self, modules: Tuple[SwerveModule], gyro:FROGGyro, max_speed:float, max_rotation_speed:float):
+        Subsystem.__init__()
         # need each of the swerve modules
         self.enabled = False
 
@@ -195,6 +197,9 @@ class SwerveChassis:
     def getModuleStates(self):
         return [module.getCurrentState() for module in self.modules]
 
+    def holonomicDrive(self, chassisSpeeds) -> None:
+        self.chassisSpeeds = chassisSpeeds
+
     def lockChassis(self):
         # getting the "angle" of each module location on the robot.
         # this gives us the angle back to the center of the robot from 
@@ -206,6 +211,13 @@ class SwerveChassis:
         for module, moduleAngle in zip(self.modules, moduleAngles):
                 module.setState(SwerveModuleState(0, moduleAngle))
  
+    def periodic(self):
+        if self.enabled:
+            self.setStatesFromSpeeds()#apply chassis Speeds
+
+            for module, state in zip(self.modules, self.moduleStates):
+                module.setState(state)
+                
     def robotOrientedDrive(self, vX, vY, vT):
         self.logger.info(f'Velocities: {vX}, {vY}, {vT}')
         self.chassisSpeeds = ChassisSpeeds(vX, vY, vT)
@@ -220,14 +232,3 @@ class SwerveChassis:
         )
         self.moduleStates = states
 
-
-    def holonomicDrive(self, chassisSpeeds) -> None:
-        self.chassisSpeeds = chassisSpeeds
-
-
-    def execute(self):
-        if self.enabled:
-            self.setStatesFromSpeeds()#apply chassis Speeds
-
-            for module, state in zip(self.modules, self.moduleStates):
-                module.setState(state)
