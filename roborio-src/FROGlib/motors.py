@@ -8,7 +8,7 @@ class FROGTalonFXConfig(TalonFXConfiguration):
     during instantiation instead of creating an instance and then setting attributes.'''
     def __init__(self, feedback_sensor_source=FeedbackSensorSourceValue.ROTOR_SENSOR,
                  feedback_remote_sensor_id=None, k_p=0, k_i=0, k_d=0, k_v=0):
-        super.__init__()
+        TalonFXConfiguration.__init__(self)
         self.feedback.feedback_sensor_source = feedback_sensor_source
         self.feedback.feedback_remote_sensor_id = feedback_remote_sensor_id
         self.slot0.k_p = k_p
@@ -22,7 +22,13 @@ class FROGTalonFX(TalonFX):
     '''A subclass of TalonFX that allows us to pass in the config and apply it during
     instantiation.
     '''
-    def __init__(self, id:int=None, motor_config:FROGTalonFXConfig=None):
+    def __init__(self, id:int=0, motor_config:FROGTalonFXConfig=FROGTalonFXConfig()):
+        """Creates a TalonFX motor object with applied configuration
+
+        Args:
+            id (int, required): The CAN ID assigned to the motor.
+            motor_config (FROGTalonFXConfig, required): The configuration to apply to the motor.
+        """        
         super.__init__(device_id=id)
         self.config = motor_config
         self.configurator.apply(self.config)
