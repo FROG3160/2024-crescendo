@@ -196,19 +196,16 @@ class SwerveChassis:
         return [module.getCurrentState() for module in self.modules]
 
     def lockChassis(self):
+        # getting the "angle" of each module location on the robot.
+        # this gives us the angle back to the center of the robot from 
+        # the module
         moduleAngles = [y.location.angle() for y in self.modules]
+        # now we tell each module to steer the wheel to that angle.
+        # with each angle turned to the center of the robot, the chassis
+        # is effectively "locked" in position on the field.
         for module, moduleAngle in zip(self.modules, moduleAngles):
                 module.setState(SwerveModuleState(0, moduleAngle))
  
-    # def lockChassis(self):
-    #      """Commands each SwerveModule to point it's wheel in toward the center of the robot
-    #      to keep it from moving on the field.
-    #      """        
-    #      self.moduleFrontLeft.setState(SwerveModuleState(0, Rotation2d.fromDegrees(45)))
-    #      self.moduleBackRight.setState(SwerveModuleState(0, Rotation2d.fromDegrees(45)))
-    #      self.moduleFrontRight.setState(SwerveModuleState(0, Rotation2d.fromDegrees(-45)))
-    #      self.moduleBackLeft.setState(SwerveModuleState(0, Rotation2d.fromDegrees(-45)))
-
     def robotOrientedDrive(self, vX, vY, vT):
         self.logger.info(f'Velocities: {vX}, {vY}, {vT}')
         self.chassisSpeeds = ChassisSpeeds(vX, vY, vT)
