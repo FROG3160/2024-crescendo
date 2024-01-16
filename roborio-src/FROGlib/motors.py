@@ -1,5 +1,6 @@
 import math
-from phoenix6 import TalonFXConfiguration, TalonFX
+from phoenix6.configs.talon_fx_configs import TalonFXConfiguration
+from phoenix6.hardware.talon_fx import TalonFX
 from phoenix6.configs.talon_fx_configs import FeedbackSensorSourceValue
 
 class FROGTalonFXConfig(TalonFXConfiguration):
@@ -21,7 +22,7 @@ class FROGTalonFX(TalonFX):
     '''A subclass of TalonFX that allows us to pass in the config and apply it during
     instantiation.
     '''
-    def __init__(self, id=None, motor_config=FROGTalonFXConfig()):
+    def __init__(self, id:int=None, motor_config:FROGTalonFXConfig=None):
         super.__init__(device_id=id)
         self.config = motor_config
         self.configurator.apply(self.config)
