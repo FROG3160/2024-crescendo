@@ -15,6 +15,7 @@ import constants
 from constants import kDriverControllerPort, kDeadband, kDebouncePeriod, kTranslationSlew, kRotSlew
 
 from FROGlib.xbox import FROGXboxDriver
+from subsystems.drivetrain import DriveTrain
 
 
 class RobotContainer:
@@ -41,6 +42,7 @@ class RobotContainer:
 
         # The driver's controller
         self.driverController = FROGXboxDriver(kDriverControllerPort, kDeadband, kDebouncePeriod, kTranslationSlew, kRotSlew)
+        self.driveSubsytem = DriveTrain()
 
         # Configure the button bindings
         self.configureButtonBindings()
@@ -51,9 +53,10 @@ class RobotContainer:
             # A split-stick arcade command, with forward/backward controlled by the left
             # hand, and turning controlled by the right.
             commands2.cmd.run(
-                lambda: self.driveSubsystem.arcadeDrive(
-                    -self.driverController.getLeftY(),
-                    -self.driverController.getRightX(),
+                lambda: self.driveSubsystem.fieldOrientedDrive(
+                    self.driverController.getFieldForward(),
+                    self.driverController.getFieldLeft(),
+                    self.driverController.getFieldRotation()
                 ),
                 self.driveSubsystem,
             )
