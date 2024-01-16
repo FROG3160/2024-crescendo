@@ -11,7 +11,7 @@
 
 import math
 import wpilib
-from wpimath.units import feetToMeters
+from wpimath.units import feetToMeters, inchesToMeters
 
 # Swerve Drive Motor/Encoder IDs
 kFrontLeftDriveID = 11
@@ -28,8 +28,8 @@ kBackRightSteerID = 24
 kBackRightSensorID = 34
 
 # Swerve Drive Physical Attributes
-kTrackWidthFeet = 21.5/12
-kWheelBaseFeet = 21.5/12
+kTrackWidthMeters = inchesToMeters(21.5)
+kWheelBaseMeters = inchesToMeters(21.5)
 kWheelDiameter = 0.1000125 # 3 15/16 inches in meters
 kSwerveDriveGearing = [(14 / 50), (25 / 19), (15 / 45)]
 
