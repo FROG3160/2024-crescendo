@@ -13,6 +13,19 @@ import math
 import wpilib
 from wpimath.units import feetToMeters, inchesToMeters
 
+# CANCoder offsets
+kFrontLeftOffset = -0.246338
+kFrontRightOffset = 0.036377
+kBackLeftOffset = 0.478027
+kBackRightOffset = 0.207031
+
+# steer motor gains
+kSteerP = 2.402346
+kSteerI = 0.200195
+
+# drive motor gains
+kDriveFeedForward = 0.53
+
 # Swerve Drive Motor/Encoder IDs
 kFrontLeftDriveID = 11
 kFrontLeftSteerID = 21
@@ -34,10 +47,8 @@ kWheelDiameter = 0.1000125 # 3 15/16 inches in meters
 kSwerveDriveGearing = [(14 / 50), (25 / 19), (15 / 45)]
 
 # Swerve Drive Performance
-kMaxMetersPerSecond = feetToMeters(12) #max fps for L1=13.5, L2=16.3, L3=18
-# kMinMetersPerSecond = 0.55 #TODO:  Determine if this is needed
+kMaxMetersPerSecond = feetToMeters(13) #max fps for L1=13.5, L2=16.3, L3=18
 kMaxChassisRadiansPerSec = 2 * math.tau # revolutions per sec * tau
-kVoltageCompensation = 10.5
 
 # Swerve Drive Trajectory Constraints
 kMaxTrajectorySpeed = feetToMeters(5) # Unit: m/s, around 1.524 m/s, same value used 2023
