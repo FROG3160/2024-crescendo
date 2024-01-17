@@ -2,22 +2,26 @@ import math
 from phoenix6.configs.talon_fx_configs import TalonFXConfiguration
 from phoenix6.hardware.talon_fx import TalonFX
 from phoenix6.configs.talon_fx_configs import FeedbackSensorSourceValue
+from phoenix6.configs.config_groups import Slot0Configs, Slot1Configs, FeedbackConfigs
+
+class FROGFeedbackConfig(FeedbackConfigs):
+    def __init__(self, remote_sensor_id=0, 
+                 sensor_source=FeedbackSensorSourceValue.ROTOR_SENSOR):
+        self.feedback_remote_sensor_id=remote_sensor_id
+        self.feedback_sensor_source=sensor_source,
+        #TODO: Add this in if it makes sense
+        #self.rotor_to_sensor_ratio = 
+        #self.sensor_to_mechanism_ratio =
 
 class FROGTalonFXConfig(TalonFXConfiguration):
     '''A subclass of TalonFXConfiguration that adds the ability to pass parameters to __init__
     during instantiation instead of creating an instance and then setting attributes.'''
-    def __init__(self, feedback_sensor_source=FeedbackSensorSourceValue.ROTOR_SENSOR,
-                 feedback_remote_sensor_id=None, k_p=0, k_i=0, k_d=0, k_v=0):
+    def __init__(self, feedback_config=FROGFeedbackConfig(), slot0gains=Slot0Configs(),
+                 slot1gains=Slot1Configs()):
         TalonFXConfiguration.__init__(self)
-        self.feedback.feedback_sensor_source = feedback_sensor_source
-        self.feedback.feedback_remote_sensor_id = feedback_remote_sensor_id
-        # TODO: Add this in if it makes steering the motor easier
-        # self.feedback.rotor_to_sensor_ratio = 
-        # self.feedback.sensor_to_mechanism_ratio = 
-        self.slot0.k_p = k_p
-        self.slot0.k_i = k_i
-        self.slot0.k_d = k_d
-        self.slot0.k_v = k_v
+        self.feedback = feedback_config,
+        self.slot0 = slot0gains
+        self.slot1 = slot1gains
         #TODO Research and test setting allowableClosedloopError for phoenix6 Library #33
         # self.allowableClosedloopError
 
@@ -101,3 +105,4 @@ class DriveUnit:
         """
         wheel_rotations = self.gearing.fromMotor(rotations)
         return wheel_rotations * self.circumference
+# %%
