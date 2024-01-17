@@ -20,7 +20,7 @@ class SwerveModule:
         drive_id: int,
         drive_config: FROGTalonFXConfig,
         steer_id: int,
-        steer_confing: FROGTalonFXConfig,
+        steer_config: FROGTalonFXConfig,
         cancoder_id: int,
         cancoder_config: FROGCANCoderConfig
     ):
@@ -29,7 +29,7 @@ class SwerveModule:
         #create/configure drive motor
         self.drive = FROGTalonFX(drive_id, drive_config)
         #create/configure steer motor
-        self.steer = FROGTalonFX(steer_id, steer_confing)
+        self.steer = FROGTalonFX(steer_id, steer_config)
         #create/configure cancoder
         self.encoder = FROGCanCoder(cancoder_id, cancoder_config)
 
