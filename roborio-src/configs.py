@@ -5,7 +5,7 @@ from FROGlib.sensors import FROGCANCoderConfig
 from phoenix6.configs.config_groups import Slot0Configs, Slot1Configs
 from phoenix6.signals.spn_enums import FeedbackSensorSourceValue
 
-steerGains = Slot0Configs.with_kp(constants.kSteerP).with_ki(constants.kSteerI)
+steerGains = Slot0Configs.with_k_p(constants.kSteerP).with_k_i(constants.kSteerI)
 driveDutyCycleGains = Slot0Configs()
 driveVoltageGains = Slot1Configs()
 
