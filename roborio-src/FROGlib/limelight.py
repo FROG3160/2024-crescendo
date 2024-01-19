@@ -1,8 +1,7 @@
 from typing import Tuple, Any
 
-import config #? what does that mean
+import constants
 import wpilib
-from components.field import FROGFieldLayout #? what
 from ntcore import NetworkTableInstance
 from wpimath.geometry import Pose3d, Rotation3d, Translation3d
 from wpimath.filter import MedianFilter
@@ -28,10 +27,10 @@ class FROGLimeLightVision:
     def __init__(self):
         # self.fieldLayout = fieldLayout
         self.ll_grabberTable = NetworkTableInstance.getDefault().getTable(
-            key=config.LIMELIGHT_GRABBER
+            key=constants.LIMELIGHT_GRABBER
         )
         self.ll_upperTable = NetworkTableInstance.getDefault().getTable(
-            key=config.LIMELIGHT_UPPER
+            key=constants.LIMELIGHT_UPPER
         )
         self.grabberTclass = self.ll_grabberTable.getStringTopic("tclass").subscribe(
             "None"
