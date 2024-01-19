@@ -187,6 +187,9 @@ class SwerveChassis(Subsystem):
         self.chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
             xSpeed, ySpeed, rotSpeed, self.gyro.getRotation2d()
         )
+
+    def getRobotRelativeSpeeds(self):
+        return self.chassisSpeeds
     
     def getChassisVelocityFPS(self):
         return math.sqrt( self.chassisSpeeds.vx_fps**2 + self.chassisSpeeds.vy_fps**2)
