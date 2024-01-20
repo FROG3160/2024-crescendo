@@ -1,7 +1,8 @@
 import math
 from navx import AHRS
 from wpimath.geometry import Rotation2d
-from phoenix6.configs.cancoder_configs import CANcoderConfiguration, AbsoluteSensorRangeValue, SensorDirectionValue
+from phoenix6.configs.cancoder_configs import CANcoderConfiguration
+from phoenix6.signals.spn_enums import AbsoluteSensorRangeValue, SensorDirectionValue
 from phoenix6.hardware.cancoder import CANcoder
 
 class FROGGyro:
@@ -80,12 +81,12 @@ class FROGCANCoderConfig(CANcoderConfiguration):
     '''Inheretis from CANcoderConfiguration and add the ability to pass in steer offset
     during instantiation.'''
     def __init__(self, steer_offset):
-        super.__init__()
+        super().__init__()
         self.magnet_sensor.absolute_sensor_range = AbsoluteSensorRangeValue.SIGNED_PLUS_MINUS_HALF
         self.magnet_sensor.magnet_offset = steer_offset
-        self.magnet_sensor.sensor_direction(SensorDirectionValue.COUNTER_CLOCKWISE_POSITIVE)
+        self.magnet_sensor.sensor_direction = SensorDirectionValue.COUNTER_CLOCKWISE_POSITIVE
 
 class FROGCanCoder(CANcoder):
     def __init__(self, id, config: FROGCANCoderConfig):
-        super.__init__(id)
+        super().__init__(id)
         self.configurator.apply(config)

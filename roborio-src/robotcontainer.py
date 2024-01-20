@@ -11,7 +11,6 @@ import commands2
 import commands2.button
 import commands2.cmd
 
-import constants
 from constants import kDriverControllerPort, kDeadband, kDebouncePeriod, kTranslationSlew, kRotSlew
 
 from FROGlib.xbox import FROGXboxDriver
@@ -42,7 +41,7 @@ class RobotContainer:
 
         # The driver's controller
         self.driverController = FROGXboxDriver(kDriverControllerPort, kDeadband, kDebouncePeriod, kTranslationSlew, kRotSlew)
-        self.driveSubsytem = DriveTrain()
+        self.driveSubsystem = DriveTrain()
 
         # Configure the button bindings
         self.configureButtonBindings()

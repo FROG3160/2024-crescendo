@@ -3,12 +3,15 @@ from phoenix6.configs.talon_fx_configs import TalonFXConfiguration
 from phoenix6.hardware.talon_fx import TalonFX
 from phoenix6.configs.talon_fx_configs import FeedbackSensorSourceValue
 from phoenix6.configs.config_groups import Slot0Configs, Slot1Configs, FeedbackConfigs
+from phoenix6.signals.spn_enums import GravityTypeValue
+
 
 class FROGFeedbackConfig(FeedbackConfigs):
     def __init__(self, remote_sensor_id=0, 
                  sensor_source=FeedbackSensorSourceValue.ROTOR_SENSOR):
+        super().__init__()
         self.feedback_remote_sensor_id=remote_sensor_id
-        self.feedback_sensor_source=sensor_source,
+        self.feedback_sensor_source=sensor_source
         #TODO: Add this in if it makes sense
         #self.rotor_to_sensor_ratio = 
         #self.sensor_to_mechanism_ratio =
@@ -18,8 +21,8 @@ class FROGTalonFXConfig(TalonFXConfiguration):
     during instantiation instead of creating an instance and then setting attributes.'''
     def __init__(self, feedback_config=FROGFeedbackConfig(), slot0gains=Slot0Configs(),
                  slot1gains=Slot1Configs()):
-        TalonFXConfiguration.__init__(self)
-        self.feedback = feedback_config,
+        super().__init__()
+        self.feedback = feedback_config
         self.slot0 = slot0gains
         self.slot1 = slot1gains
         #TODO Research and test setting allowableClosedloopError for phoenix6 Library #33
@@ -36,7 +39,7 @@ class FROGTalonFX(TalonFX):
             id (int, required): The CAN ID assigned to the motor.
             motor_config (FROGTalonFXConfig, required): The configuration to apply to the motor.
         """        
-        super.__init__(device_id=id)
+        super().__init__(device_id=id)
         self.config = motor_config
         self.configurator.apply(self.config)
 

@@ -6,7 +6,7 @@ import configs
 
 class DriveTrain(SwerveChassis):
     def __init__(self):
-        SwerveChassis.__init__(
+        super().__init__(
             modules=(
                 SwerveModule(**configs.swerveModuleFrontLeft),
                 SwerveModule(**configs.swerveModuleFrontRight),

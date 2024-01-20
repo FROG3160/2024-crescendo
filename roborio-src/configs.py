@@ -5,9 +5,9 @@ from FROGlib.sensors import FROGCANCoderConfig
 from phoenix6.configs.config_groups import Slot0Configs, Slot1Configs
 from phoenix6.signals.spn_enums import FeedbackSensorSourceValue
 
-steerGains = Slot0Configs.with_k_p(constants.kSteerP).with_k_i(constants.kSteerI)
-driveDutyCycleGains = Slot0Configs()
-driveVoltageGains = Slot1Configs()
+steerGains = Slot0Configs().with_k_p(constants.kSteerP).with_k_i(constants.kSteerI)
+driveDutyCycleGains = Slot0Configs().with_k_s(constants.kDutyCycleDriveS).with_k_v(constants.kDutyCycleDriveV)
+driveVoltageGains = Slot1Configs().with_k_s(constants.kVoltageDriveS).with_k_v(constants.kVoltageDriveV)
 
 swerveModuleFrontLeft = {
     'name':'FrontLeft',
@@ -17,7 +17,10 @@ swerveModuleFrontLeft = {
     'drive_gearing':constants.kSwerveDriveGearing,
     'wheel_diameter':constants.kWheelDiameter,
     'drive_id':constants.kFrontLeftDriveID,
-    'drive_config':FROGTalonFXConfig(),
+    'drive_config':FROGTalonFXConfig(
+        slot0gains=driveDutyCycleGains,
+        slot1gains=driveVoltageGains
+    ),
     'steer_id':constants.kFrontLeftSteerID,
     'steer_config':FROGTalonFXConfig(
         feedback_config=(
@@ -37,7 +40,10 @@ swerveModuleFrontRight = {
     'drive_gearing':constants.kSwerveDriveGearing,
     'wheel_diameter':constants.kWheelDiameter,
     'drive_id':constants.kFrontRightDriveID,
-    'drive_config':FROGTalonFXConfig(),
+    'drive_config':FROGTalonFXConfig(
+        slot0gains=driveDutyCycleGains,
+        slot1gains=driveVoltageGains
+    ),
     'steer_id':constants.kFrontRightSteerID,
     'steer_config':FROGTalonFXConfig(
         feedback_config=(
@@ -57,7 +63,10 @@ swerveModuleBackLeft = {
     'drive_gearing':constants.kSwerveDriveGearing,
     'wheel_diameter':constants.kWheelDiameter,
     'drive_id':constants.kBackLeftDriveID,
-    'drive_config':FROGTalonFXConfig(),
+    'drive_config':FROGTalonFXConfig(
+        slot0gains=driveDutyCycleGains,
+        slot1gains=driveVoltageGains
+    ),
     'steer_id':constants.kBackLeftSteerID,
     'steer_config':FROGTalonFXConfig(
         feedback_config=(
@@ -77,7 +86,10 @@ swerveModuleBackRight = {
     'drive_gearing':constants.kSwerveDriveGearing,
     'wheel_diameter':constants.kWheelDiameter,
     'drive_id':constants.kBackRightDriveID,
-    'drive_config':FROGTalonFXConfig(),
+    'drive_config':FROGTalonFXConfig(
+        slot0gains=driveDutyCycleGains,
+        slot1gains=driveVoltageGains
+    ),
     'steer_id':constants.kBackRightSteerID,
     'steer_config':FROGTalonFXConfig(
         feedback_config=(
