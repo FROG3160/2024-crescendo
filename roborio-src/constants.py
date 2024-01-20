@@ -47,9 +47,12 @@ kBackRightSensorID = 34
 # Swerve Drive Physical Attributes
 kTrackWidthMeters = inchesToMeters(21.5)
 kWheelBaseMeters = inchesToMeters(21.5)
-kDriveBaseRadius = math.sqrt(((kTrackWidthMeters / 2) ** 2) + ((kWheelBaseMeters / 2) ** 2))
 kWheelDiameter = 0.1000125 # 3 15/16 inches in meters
 kSwerveDriveGearing = [(14 / 50), (25 / 19), (15 / 45)]
+# kDriveBaseRadius is the distance from the center of the robot
+# to the farthest module. This is needed for the construction 
+# of Autobuilder in the drivetrain init method.
+kDriveBaseRadius = math.sqrt(((kTrackWidthMeters / 2) ** 2) + ((kWheelBaseMeters / 2) ** 2))
 
 # Swerve Drive Performance
 kMaxMetersPerSecond = feetToMeters(13) #max fps for L1=13.5, L2=16.3, L3=18
