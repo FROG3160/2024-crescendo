@@ -126,7 +126,7 @@ class SwerveModule:
 class SwerveChassis(Subsystem):
 
     def __init__(self, modules: Tuple[SwerveModule], gyro:FROGGyro, max_speed:float, max_rotation_speed:float):
-        super.__init__()
+        super().__init__()
         # need each of the swerve modules
         self.enabled = False
 
