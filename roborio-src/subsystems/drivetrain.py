@@ -1,7 +1,7 @@
 # High level objects that control our drivetrain
 from FROGlib.swerve import SwerveChassis, SwerveModule
 from FROGlib.sensors import FROGGyro
-from constants import kMaxChassisRadiansPerSec, kMaxMetersPerSecond
+from constants import kMaxChassisRadiansPerSec, kMaxMetersPerSecond, kDriveBaseRadius
 import configs
 # Objects needed for Auto setup (AutoBuilder)
 from pathplannerlib.auto import AutoBuilder
@@ -28,12 +28,18 @@ class DriveTrain(SwerveChassis):
             self.getRobotRelativeSpeeds, # ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
             self.robotOrientedDrive, # Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
             HolonomicPathFollowerConfig( # HolonomicPathFollowerConfig, this should likely live in your Constants class
-                PIDConstants(5.0, 0.0, 0.0), # Translation PID constants
+                PIDConstants(0.0, 0.0, 0.0), # Translation PID constants
                 PIDConstants(5.0, 0.0, 0.0), # Rotation PID constants
-                4.5, # Max module speed, in m/s
-                0.4, # Drive base radius in meters. Distance from robot center to furthest module.
+                kMaxMetersPerSecond, # Max module speed, in m/s
+                kDriveBaseRadius, # Drive base radius in meters. Distance from robot center to furthest module.
                 ReplanningConfig() # Default path replanning config. See the API for the options here
             ),
             self.shouldFlipPath, # Supplier to control path flipping based on alliance color
             self # Reference to this subsystem to set requirements
         )
+
+    def shouldFlipPath():
+        # Boolean supplier that controls when the path will be mirrored for the red alliance
+        # This will flip the path being followed to the red side of the field.
+        # THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+        return DriverStation.getAlliance() == DriverStation.Alliance.kRed

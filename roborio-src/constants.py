@@ -43,6 +43,7 @@ kBackRightSensorID = 34
 # Swerve Drive Physical Attributes
 kTrackWidthMeters = inchesToMeters(21.5)
 kWheelBaseMeters = inchesToMeters(21.5)
+kDriveBaseRadius = math.sqrt(((kTrackWidthMeters / 2) ** 2) + ((kWheelBaseMeters / 2) ** 2))
 kWheelDiameter = 0.1000125 # 3 15/16 inches in meters
 kSwerveDriveGearing = [(14 / 50), (25 / 19), (15 / 45)]
 
