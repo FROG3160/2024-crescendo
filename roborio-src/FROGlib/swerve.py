@@ -43,7 +43,6 @@ class SwerveModule:
         self.drive_unit = DriveUnit(
             drive_gearing, wheel_diameter
         )
-        self.configModuleComponents()
         self.useMinSpeed = True
 
         # self.velocity = 0
@@ -127,7 +126,7 @@ class SwerveModule:
 class SwerveChassis(Subsystem):
 
     def __init__(self, modules: Tuple[SwerveModule], gyro:FROGGyro, max_speed:float, max_rotation_speed:float):
-        Subsystem.__init__()
+        super().__init__()
         # need each of the swerve modules
         self.enabled = False
 
