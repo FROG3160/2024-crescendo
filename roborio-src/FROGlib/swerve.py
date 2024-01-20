@@ -198,15 +198,19 @@ class SwerveChassis(Subsystem):
         self.chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
             xSpeed, ySpeed, rotSpeed, self.gyro.getRotation2d()
         )
-
+    # Returns a ChassisSpeeds object representing the speeds in the robot's frame
+    # of reference.
     def getRobotRelativeSpeeds(self):
         return self.chassisSpeeds
     
+    # Returns the current pose of the robot as a Pose2d.
     def getPose(self) -> Pose2d:
         translation = self.estimator.getEstimatedPosition().translation()
         rotation = self.gyro.getRotation2d()
         return Pose2d(translation, rotation)
     
+    # Resets the pose by resetting the gyro and running 
+    # the resetPosition method of the estimator.
     def resetPose(self, pose: Pose2d):
         self.gyro.resetGyro()
         self.estimator.resetPosition(
