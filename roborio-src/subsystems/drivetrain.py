@@ -31,7 +31,6 @@ class DriveTrain(SwerveChassis):
             self.robotOrientedDrive, # Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
             HolonomicPathFollowerConfig( # HolonomicPathFollowerConfig, this should likely live in your Constants class
                 PIDConstants(0.0, 0.0, 0.0), # Translation PID constants
-                #ISSUE #37 Replace filler steer PID constants with the calculated ones
                 PIDConstants(kSteerP, kSteerI, 0.0), # Rotation PID constants
                 kMaxMetersPerSecond, # Max module speed, in m/s
                 kDriveBaseRadius, # Drive base radius in meters. Distance from robot center to furthest module.
