@@ -4,6 +4,8 @@ from typing import Tuple
 from commands2 import Subsystem
 from wpimath.geometry import Translation2d, Rotation2d
 from wpimath.kinematics import SwerveModuleState, SwerveModulePosition, ChassisSpeeds, SwerveDrive4Kinematics
+from wpimath.estimator import SwerveDrive4PoseEstimator
+from wpimath.geometry import Pose2d
 from phoenix6.controls import PositionDutyCycle, VelocityDutyCycle
 from wpimath.units import radiansToRotations, rotationsToRadians
 from .motors import FROGTalonFX, FROGTalonFXConfig, DriveUnit
@@ -157,6 +159,15 @@ class SwerveChassis(Subsystem):
 
         self.chassisSpeeds = ChassisSpeeds(0, 0, 0)
 
+        self.estimator = SwerveDrive4PoseEstimator(
+            self.kinematics,
+            self.gyro.getRotation2d(),
+            tuple(
+                [SwerveModulePosition(0, x.getCurrentAzimuth()) for x in self.modules]
+            ),
+            self.startingPose2d,
+        )
+
     def disable(self):
         self.enabled = False
         for module in self.modules:
@@ -186,7 +197,29 @@ class SwerveChassis(Subsystem):
         self.chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
             xSpeed, ySpeed, rotSpeed, self.gyro.getRotation2d()
         )
+    # Returns a ChassisSpeeds object representing the speeds in the robot's frame
+    # of reference.
+    def getRobotRelativeSpeeds(self):
+        return self.chassisSpeeds
     
+    # Returns the current pose of the robot as a Pose2d.
+    def getPose(self) -> Pose2d:
+        translation = self.estimator.getEstimatedPosition().translation()
+        rotation = self.gyro.getRotation2d()
+        return Pose2d(translation, rotation)
+    
+    # Resets the pose by resetting the gyro and running 
+    # the resetPosition method of the estimator.
+    def resetPose(self, pose: Pose2d):
+        self.gyro.resetGyro()
+        self.estimator.resetPosition(
+            self.gyro.getRotation2d(),
+            tuple(
+                [SwerveModulePosition(0, x.getCurrentAzimuth()) for x in self.modules]
+            ),
+            pose
+        )
+
     def getChassisVelocityFPS(self):
         return math.sqrt( self.chassisSpeeds.vx_fps**2 + self.chassisSpeeds.vy_fps**2)
     
