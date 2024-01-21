@@ -62,7 +62,7 @@ class SwerveModule:
         Returns:
             float: absolute position of the sensor in rotations
         """
-        return self.encoder.get_absolute_position()
+        return self.encoder.get_absolute_position().value
     
 
 
@@ -165,7 +165,9 @@ class SwerveChassis(Subsystem):
             tuple(
                 [SwerveModulePosition(0, x.getCurrentAzimuth()) for x in self.modules]
             ),
-            self.startingPose2d,
+            Pose2d() #TODO:  Determine if we want vision data to supply initial pose
+            # last year, setFieldPosition was called and passed the vision pose during
+            # robotInit()
         )
 
     def disable(self):
