@@ -84,11 +84,13 @@ class SwerveModule:
             float: distance in meters
         """
         return self.drive_unit.positionToDistance(
-            self.drive.getSelectedSensorPosition()
+            self.drive.get_position().value
         )
 
     def getCurrentSpeed(self) -> float:
-        return self.drive_unit.velocityToSpeed(self.drive.getSelectedSensorVelocity())
+        return self.drive_unit.velocityToSpeed(
+            self.drive.get_velocity().value
+        )
 
     def getCurrentState(self):
         return SwerveModuleState(

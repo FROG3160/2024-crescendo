@@ -7,6 +7,7 @@ import configs
 from pathplannerlib.auto import AutoBuilder
 from pathplannerlib.config import HolonomicPathFollowerConfig, ReplanningConfig, PIDConstants
 from wpilib import DriverStation
+from wpimath.geometry import Pose2d
 
 class DriveTrain(SwerveChassis):
     def __init__(self):
@@ -36,6 +37,13 @@ class DriveTrain(SwerveChassis):
             ),
             self.shouldFlipPath, # Supplier to control path flipping based on alliance color
             self # Reference to this subsystem to set requirements
+        )
+
+    def setFieldPosition(self, pose: Pose2d):
+        self.estimator.resetPosition(
+            self.gyro.getRotation2d(),
+            tuple(self.getModulePositions()),
+            pose,
         )
 
     def shouldFlipPath():
