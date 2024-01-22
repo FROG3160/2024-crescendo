@@ -28,10 +28,10 @@ class DriveTrain(SwerveChassis):
             self.getPose, # Robot pose supplier
             self.resetPose, # Method to reset odometry (will be called if your auto has a starting pose)
             self.getRobotRelativeSpeeds, # ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-            self.robotOrientedDrive, # Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+            self.setChassisSpeeds, # Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
             HolonomicPathFollowerConfig( # HolonomicPathFollowerConfig, this should likely live in your Constants class
-                PIDConstants(0.0, 0.0, 0.0), # Translation PID constants
-                PIDConstants(kSteerP, kSteerI, 0.0), # Rotation PID constants
+                configs.holonomicTranslationPID, # Translation PID constants
+                configs.holonomicTranslationPID, # Rotation PID constants
                 kMaxMetersPerSecond, # Max module speed, in m/s
                 kDriveBaseRadius, # Drive base radius in meters. Distance from robot center to furthest module.
                 ReplanningConfig() # Default path replanning config. See the API for the options here
@@ -47,7 +47,7 @@ class DriveTrain(SwerveChassis):
             pose,
         )
 
-    def shouldFlipPath():
+    def shouldFlipPath(self):
         # Boolean supplier that controls when the path will be mirrored for the red alliance
         # This will flip the path being followed to the red side of the field.
         # THE ORIGIN WILL REMAIN ON THE BLUE SIDE

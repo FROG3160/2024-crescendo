@@ -4,10 +4,14 @@ from FROGlib.motors import FROGTalonFXConfig, FROGFeedbackConfig
 from FROGlib.sensors import FROGCANCoderConfig
 from phoenix6.configs.config_groups import Slot0Configs, Slot1Configs
 from phoenix6.signals.spn_enums import FeedbackSensorSourceValue
+from pathplannerlib.config import PIDConstants
 
 steerGains = Slot0Configs().with_k_p(constants.kSteerP).with_k_i(constants.kSteerI)
 driveDutyCycleGains = Slot0Configs().with_k_s(constants.kDutyCycleDriveS).with_k_v(constants.kDutyCycleDriveV)
 driveVoltageGains = Slot1Configs().with_k_s(constants.kVoltageDriveS).with_k_v(constants.kVoltageDriveV)
+
+holonomicTranslationPID = PIDConstants(5.0, 0.0, 0.0)
+holonomicRotationPID = PIDConstants(5.0, 0.0, 0.0)
 
 swerveModuleFrontLeft = {
     'name':'FrontLeft',

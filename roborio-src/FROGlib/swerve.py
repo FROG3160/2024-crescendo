@@ -261,6 +261,9 @@ class SwerveChassis(Subsystem):
         self.logger.info(f'Velocities: {vX}, {vY}, {vT}')
         self.chassisSpeeds = ChassisSpeeds(vX, vY, vT)
 
+    def setChassisSpeeds(self, chassis_speeds):
+        self.chassisSpeeds = chassis_speeds
+
     def setModuleStates(self, states):
         self.moduleStates = states
 
