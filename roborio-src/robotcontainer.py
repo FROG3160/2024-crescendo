@@ -3,7 +3,7 @@
 # Open Source Software; you can modify and/or share it under the terms of
 # the WPILib BSD license file in the root directory of this project.
 #
-
+import os
 import wpilib
 from wpilib.interfaces import GenericHID
 
@@ -15,6 +15,7 @@ from constants import kDriverControllerPort, kDeadband, kDebouncePeriod, kTransl
 
 from FROGlib.xbox import FROGXboxDriver
 from subsystems.drivetrain import DriveTrain
+from pathplannerlib.auto import PathPlannerAuto, NamedCommands
 
 
 class RobotContainer:
@@ -64,12 +65,20 @@ class RobotContainer:
         # Chooser
         self.chooser = wpilib.SendableChooser()
 
+        autosPath = os.path.join(wpilib.getDeployDirectory(), 'pathplanner', 'autos')
+        for autoFile in os.listdir(autosPath):
+            autoName = autoFile.split('.')[0]
+            ppAuto = PathPlannerAuto(autoName)
+            wpilib.SmartDashboard.putData(f"autos/{autoName}", ppAuto)
+            self.chooser.addOption(autoName, ppAuto)
+
+
         # Add commands to the autonomous command chooser
         # self.chooser.setDefaultOption("Simple Auto", self.simpleAuto)
         # self.chooser.addOption("Complex Auto", self.complexAuto)
 
         # Put the chooser on the dashboard
-        wpilib.SmartDashboard.putData("Autonomous", self.chooser)
+        wpilib.SmartDashboard.putData("PathPlanner Autos", self.chooser)
 
     def configureButtonBindings(self):
         """
@@ -91,3 +100,8 @@ class RobotContainer:
 
     def getAutonomousCommand(self) -> commands2.Command:
         return self.chooser.getSelected()
+# %%
+wpilib.getDeployDirectory()
+# %%
+import wpilib
+# %%
