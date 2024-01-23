@@ -236,9 +236,6 @@ class SwerveChassis(Subsystem):
     def getModuleStates(self):
         return [module.getCurrentState() for module in self.modules]
 
-    def holonomicDrive(self, chassisSpeeds) -> None:
-        self.chassisSpeeds = chassisSpeeds
-
     def lockChassis(self):
         # getting the "angle" of each module location on the robot.
         # this gives us the angle back to the center of the robot from 
