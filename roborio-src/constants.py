@@ -76,3 +76,4 @@ kLimelightGrabber = 'limelight'
 kLimelightUpper = 'limelight-at'
 
 kAprilTagsFilename = r"2024-crescendo.json"
+kPhotonCameraName = 'testCamera'
