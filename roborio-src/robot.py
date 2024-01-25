@@ -42,7 +42,7 @@ class MyRobot(commands2.TimedCommandRobot):
     def autonomousInit(self) -> None:
         """This autonomous runs the autonomous command selected by your RobotContainer class."""
         self.autonomousCommand = self.container.getAutonomousCommand()
-
+        self.container.driveSubsystem.enable()
         if self.autonomousCommand:
             self.autonomousCommand.schedule()
 
@@ -56,6 +56,7 @@ class MyRobot(commands2.TimedCommandRobot):
         # this line or comment it out.
         if self.autonomousCommand:
             self.autonomousCommand.cancel()
+        self.container.driveSubsystem.enable()
 
     def teleopPeriodic(self) -> None:
         """This function is called periodically during operator control"""
