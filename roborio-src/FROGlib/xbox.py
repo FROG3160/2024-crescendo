@@ -67,6 +67,12 @@ class FROGXboxDriver(XboxController):
 
     def getFieldThrottle(self):
         return applyDeadband(self.getRightTriggerAxis(), 0)
+    
+    def getIntakeWheelSpeed(self):
+        return applyDeadband(self.getLeftTriggerAxis(), 0)
+    
+    def getTransferWheelSpeed(self):
+        return applyDeadband(self.getRightTriggerAxis(), 0)
 
     def getPOVDebounced(self):
         val = -1

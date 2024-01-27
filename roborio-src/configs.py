@@ -8,6 +8,7 @@ from phoenix6.signals.spn_enums import FeedbackSensorSourceValue
 from pathplannerlib.config import PIDConstants
 from wpimath.units import inchesToMeters
 
+
 steerGains = Slot0Configs().with_k_p(constants.kSteerP).with_k_i(constants.kSteerI)
 driveDutyCycleGains = Slot0Configs().with_k_s(constants.kDutyCycleDriveS).with_k_v(constants.kDutyCycleDriveV)
 driveVoltageGains = Slot1Configs().with_k_s(constants.kVoltageDriveS).with_k_v(constants.kVoltageDriveV)
