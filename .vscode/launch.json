@@ -30,14 +30,14 @@
             "request": "launch",
             "module": "robotpy",
             "cwd": "${workspaceFolder}/roborio-src",
-            "args": ["deploy"],
+            "args": ["deploy", "--skip-tests"],
             "console": "integratedTerminal"
         },
         {
             "name": "Robot Create Physics",
             "type": "python",
             "request": "launch",
-            "module": "robotpy",
+            "module": "robotpy",, ,
             "cwd": "${workspaceFolder}/roborio-src",
             "args": ["create-physics"],
             "console": "integratedTerminal"
