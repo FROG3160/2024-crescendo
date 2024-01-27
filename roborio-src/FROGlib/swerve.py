@@ -34,7 +34,9 @@ class SwerveModule:
         #create/configure steer motor
         self.steer = FROGTalonFX(steer_id, steer_config)
         #set continuous wrap to wrap around the 180 degree point
-        self.steer.config.closed_loop_general = ClosedLoopGeneralConfigs().continuous_wrap = True
+        closed_loop_config = ClosedLoopGeneralConfigs()
+        closed_loop_config.continuous_wrap = True
+        self.steer.config.closed_loop_general = closed_loop_config
         #create/configure cancoder
         self.encoder = FROGCanCoder(cancoder_id, cancoder_config)
 
