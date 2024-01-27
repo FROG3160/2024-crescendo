@@ -11,7 +11,7 @@ import commands2
 from wpimath.geometry import Pose2d
 
 from robotcontainer import RobotContainer
-
+from subsystems.intake import Intake
 
 class MyRobot(commands2.TimedCommandRobot):
     """
@@ -32,6 +32,7 @@ class MyRobot(commands2.TimedCommandRobot):
         self.container = RobotContainer()
 
         self.startingPose2d = Pose2d(0,0,0)
+        self.intake = Intake()
 
     def disabledInit(self) -> None:
         """This function is called once each time the robot enters Disabled mode."""
@@ -59,6 +60,8 @@ class MyRobot(commands2.TimedCommandRobot):
 
     def teleopPeriodic(self) -> None:
         """This function is called periodically during operator control"""
+        # Temporary Intake control
+        self.intake.intakeWheelController
 
     def testInit(self) -> None:
         # Cancels all running commands at the start of test mode

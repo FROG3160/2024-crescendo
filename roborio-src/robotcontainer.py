@@ -16,6 +16,7 @@ from constants import kDriverControllerPort, kDeadband, kDebouncePeriod, kTransl
 from FROGlib.xbox import FROGXboxDriver
 from subsystems.drivetrain import DriveTrain
 from pathplannerlib.auto import PathPlannerAuto, NamedCommands
+from subsystems.intake import Intake
 
 
 class RobotContainer:
