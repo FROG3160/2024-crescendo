@@ -10,5 +10,5 @@ class Intake(Subsystem):
         
         self.intakeWheelController = CANSparkMax(kIntakeWheelsControllerID, CANSparkMax.MotorType.kBrushless)
         self.transferWheelController = CANSparkMax(kTransferWheelsID, CANSparkMax.MotorType.kBrushless)
+        #self.rollerBarController = CANSparkMax(kRollerBarControllerID, CANSparkMax.MotorType.kBrushed)
 
-    

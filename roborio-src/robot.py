@@ -61,7 +61,8 @@ class MyRobot(commands2.TimedCommandRobot):
     def teleopPeriodic(self) -> None:
         """This function is called periodically during operator control"""
         # Temporary Intake control
-        self.intake.intakeWheelController
+        self.intake.intakeWheelController.set(self.container.driverController.getIntakeWheelSpeed())
+        self.intake.transferWheelController.set(self.container.driverController.getTransferWheelSpeed())
 
     def testInit(self) -> None:
         # Cancels all running commands at the start of test mode
