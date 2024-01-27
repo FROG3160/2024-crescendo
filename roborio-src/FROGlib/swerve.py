@@ -6,7 +6,7 @@ from wpimath.geometry import Translation2d, Rotation2d
 from wpimath.kinematics import SwerveModuleState, SwerveModulePosition, ChassisSpeeds, SwerveDrive4Kinematics
 from wpimath.estimator import SwerveDrive4PoseEstimator
 from wpimath.geometry import Pose2d
-from phoenix6.controls import PositionDutyCycle, VelocityDutyCycle
+from phoenix6.controls import PositionDutyCycle, VelocityDutyCycle, VelocityVoltage, PositionVoltage
 from wpimath.units import radiansToRotations, rotationsToRadians
 from .motors import FROGTalonFX, FROGTalonFXConfig, DriveUnit
 from .sensors import FROGCANCoderConfig, FROGCanCoder, FROGGyro
@@ -114,18 +114,27 @@ class SwerveModule:
                 requested_state, self.getCurrentAzimuth()
             )
 
-            self.steer.set(
-                PositionDutyCycle,
-                radiansToRotations(requested_state.angle.radians)
+            self.steer.set_control(
+                PositionDutyCycle(
+                    position=radiansToRotations(self.requestedState.angle.radians()),
+                    slot=0 #Duty Cycle gains for steer
+                )
             )
-
-            self.drive.set(
-                VelocityDutyCycle,
-                self.drive_unit.speedToVelocity(self.requestedState.speed),
+            self.drive.set_control(
+                VelocityVoltage(
+                    velocity=self.drive_unit.speedToVelocity(self.requestedState.speed),
+                    slot=1 #Voltage gains for drive
+                )
             )
         else:
-            self.drive.set(0)
-        
+
+            #stop the drive motor, steer motor can stay where it is
+            self.drive.set_control(
+                VelocityVoltage(
+                    velocity=0,
+                    slot=1)
+            )
+
 
 class SwerveChassis(Subsystem):
 
