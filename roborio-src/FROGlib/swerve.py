@@ -10,6 +10,7 @@ from phoenix6.controls import PositionDutyCycle, VelocityDutyCycle, VelocityVolt
 from wpimath.units import radiansToRotations, rotationsToRadians
 from .motors import FROGTalonFX, FROGTalonFXConfig, DriveUnit
 from .sensors import FROGCANCoderConfig, FROGCanCoder, FROGGyro
+from phoenix6.configs.config_groups import ClosedLoopGeneralConfigs
 
 
 class SwerveModule:
@@ -32,6 +33,11 @@ class SwerveModule:
         self.drive = FROGTalonFX(drive_id, drive_config)
         #create/configure steer motor
         self.steer = FROGTalonFX(steer_id, steer_config)
+        #set continuous wrap to wrap around the 180 degree point
+        closed_loop_config = ClosedLoopGeneralConfigs()
+        closed_loop_config.continuous_wrap = True
+        #self.steer.config.closed_loop_general = closed_loop_config
+        self.steer.configurator.apply(closed_loop_config)
         #create/configure cancoder
         self.encoder = FROGCanCoder(cancoder_id, cancoder_config)
 
