@@ -16,7 +16,7 @@ from constants import kDriverControllerPort, kDeadband, kDebouncePeriod, kTransl
 from FROGlib.xbox import FROGXboxDriver
 from subsystems.drivetrain import DriveTrain
 from pathplannerlib.auto import PathPlannerAuto, NamedCommands
-from subsystems.vision import VisionSystem
+from subsystems.vision import VisionSubsystem
 from subsystems.intake import Intake
 
 
@@ -45,7 +45,7 @@ class RobotContainer:
         # The driver's controller
         self.driverController = FROGXboxDriver(kDriverControllerPort, kDeadband, kDebouncePeriod, kTranslationSlew, kRotSlew)
         self.driveSubsystem = DriveTrain()
-        self.visionSubsystem = VisionSystem()
+        self.visionSubsystem = VisionSubsystem()
 
         # Configure the button bindings
         self.configureButtonBindings()
