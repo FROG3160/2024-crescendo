@@ -50,7 +50,8 @@ class RobotContainer:
                 lambda: self.driveSubsystem.fieldOrientedDrive(
                     self.driverController.getFieldForward(),
                     self.driverController.getFieldLeft(),
-                    self.driverController.getFieldRotation()
+                    self.driverController.getFieldRotation(),
+                    self.driverController.getFieldThrottle()
                 ),
                 self.driveSubsystem, 
             )
