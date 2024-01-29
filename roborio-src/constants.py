@@ -45,9 +45,8 @@ kBackRightSteerID = 24
 kBackRightSensorID = 34
 
 # Intake Controller IDs
-kIntakeWheelsControllerID = 41
-kRollerBarControllerID = 42
-kTransferWheelsID = 43
+kIntakeRollerControllerID = 41
+kTransferWheelsID = 42
 
 # Swerve Drive Physical Attributes
 kTrackWidthMeters = inchesToMeters(21.5)
