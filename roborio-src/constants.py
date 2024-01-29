@@ -98,3 +98,10 @@ kLimelightGrabber = 'limelight'
 kLimelightUpper = 'limelight-at'
 
 kPhotonCameraName = 'FROGLimelight'
+
+kProfiledMaxVelocity = math.pi*8
+kProfiledMaxAccel = math.pi*4
+
+kProfiledP = 0.4
+kProfiledI = 0.0
+kProfiledD = 0.0
