@@ -1,4 +1,5 @@
 # High level objects that control our drivetrain
+import math
 from FROGlib.swerve import SwerveChassis, SwerveModule
 from FROGlib.sensors import FROGGyro
 from constants import kMaxChassisRadiansPerSec, kMaxMetersPerSecond, kDriveBaseRadius, kSteerP, kSteerI
@@ -8,10 +9,11 @@ from pathplannerlib.auto import AutoBuilder
 from pathplannerlib.config import HolonomicPathFollowerConfig, ReplanningConfig, PIDConstants
 from wpilib import DriverStation
 from wpimath.geometry import Pose2d
+from subsystems.vision import VisionSubsystem
 
 
 class DriveTrain(SwerveChassis):
-    def __init__(self):
+    def __init__(self, vision: VisionSubsystem):
         super().__init__(
             modules=(
                 SwerveModule(**configs.swerveModuleFrontLeft),
@@ -23,6 +25,8 @@ class DriveTrain(SwerveChassis):
             max_speed=kMaxMetersPerSecond,
             max_rotation_speed = kMaxChassisRadiansPerSec
         )
+        self.vision = vision
+        
         # Configure the AutoBuilder last
         AutoBuilder.configureHolonomic(
             self.getPose, # Robot pose supplier
@@ -52,3 +56,17 @@ class DriveTrain(SwerveChassis):
         # This will flip the path being followed to the red side of the field.
         # THE ORIGIN WILL REMAIN ON THE BLUE SIDE
         return DriverStation.getAlliance() == DriverStation.Alliance.kRed
+    
+    def periodic(self):
+        self.estimatorPose = self.estimator.update(
+            self.gyro.getRotation2d(),
+            tuple(self.getModulePositions())
+        )
+        if visionEstimate := self.vision.getLatestPoseEstimate():
+            self.estimator.addVisionMeasurement(
+                visionEstimate[0].toPose2d(),
+                visionEstimate[1], 
+                (0.3, 0.3, math.pi/2)
+            )
+        #run periodic method of the superclass, in this case SwerveChassis.periodic()
+        super().periodic()

@@ -1,21 +1,30 @@
-import os
-import wpilib
 from commands2 import Subsystem
+from wpimath.geometry import Pose3d
 from photonlibpy.photonCamera import PhotonCamera
 from photonlibpy.photonPoseEstimator import PhotonPoseEstimator, PoseStrategy
-from robotpy_apriltag import AprilTagFieldLayout
+from photonlibpy.photonTrackedTarget import PhotonTrackedTarget
+from robotpy_apriltag import loadAprilTagLayoutField, AprilTagField
 from configs import robotToLimeLightTransform
-from constants import kAprilTagsFilename, kPhotonCameraName
+from constants import kPhotonCameraName
 
-apriltagsLayoutPath = os.path.join(
-    wpilib.getOperatingDirectory(), kAprilTagsFilename
-)
 
-class VisionSystem(Subsystem):
+class VisionSubsystem(Subsystem):
     def __init__(self):
+        super().__init__()
         self.estimator = PhotonPoseEstimator(
-            AprilTagFieldLayout(apriltagsLayoutPath),
-            PoseStrategy.CLOSEST_TO_REFERENCE_POSE,
+            loadAprilTagLayoutField(AprilTagField.k2024Crescendo),
+            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
             PhotonCamera(kPhotonCameraName),
-            robotToLimeLightTransform
+            robotToLimeLightTransform,
         )
+
+    def periodic(self) -> None:
+        self.latestPose = self.estimator.update()
+
+    def getLatestPoseEstimate(self) -> tuple[Pose3d, float]:
+        if self.latestPose:
+            return (self.latestPose.estimatedPose, self.latestPose.timestampSeconds)
+
+    def getTargetsUsed(self) -> list[PhotonTrackedTarget]:
+        if self.latestPose:
+            return self.latestPose.targetsUsed

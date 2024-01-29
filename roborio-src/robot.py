@@ -95,6 +95,7 @@ class MyRobot(commands2.TimedCommandRobot):
             )
         self.shooter.sequencer.set(self.container.operatorController.runSequencer())
 
+
     def testInit(self) -> None:
         # Cancels all running commands at the start of test mode
         commands2.CommandScheduler.getInstance().cancelAll()

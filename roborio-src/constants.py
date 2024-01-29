@@ -98,5 +98,4 @@ kRotSlew = 1.5
 kLimelightGrabber = 'limelight'
 kLimelightUpper = 'limelight-at'
 
-kAprilTagsFilename = r"2024-crescendo.json"
 kPhotonCameraName = 'FROGLimelight'

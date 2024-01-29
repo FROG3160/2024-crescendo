@@ -16,6 +16,7 @@ from constants import kDriverControllerPort, kOperatorControllerPort, kDeadband,
 from FROGlib.xbox import FROGXboxDriver, FROGXboxOperator
 from subsystems.drivetrain import DriveTrain
 from pathplannerlib.auto import PathPlannerAuto, NamedCommands
+from subsystems.vision import VisionSubsystem
 
 
 
@@ -28,23 +29,16 @@ class RobotContainer:
     """
 
     def __init__(self) -> None:
-        # The robot's subsystems
-
-
-        # Retained command handles
-
-        # A simple auto routine that drives forward a specified distance, and then stops.
-        # self.simpleAuto = commands.autos.Autos.simpleAuto(self.driveSubsystem)
-
-        # A complex auto routine that drives forward, drops a hatch, and then drives backward.
-        # self.complexAuto = commands.autos.Autos.complexAuto(
-        #     self.driveSubsystem, self.hatchSubsystem
-        # )
 
         # The driver's controller
         self.driverController = FROGXboxDriver(kDriverControllerPort, kDeadband, kDebouncePeriod, kTranslationSlew, kRotSlew)
         self.operatorController = FROGXboxOperator(kOperatorControllerPort, kDeadband)
-        self.driveSubsystem = DriveTrain()
+
+        # Create all subsystems here.  If a subsystem is needed by other subsystems, create it first,
+        # then pass it in to the subsystems needing it.
+        self.visionSubsystem = VisionSubsystem()
+        self.driveSubsystem = DriveTrain(self.visionSubsystem)
+
 
         # Configure the button bindings
         self.configureButtonBindings()
@@ -58,7 +52,8 @@ class RobotContainer:
                 lambda: self.driveSubsystem.fieldOrientedDrive(
                     self.driverController.getFieldForward(),
                     self.driverController.getFieldLeft(),
-                    self.driverController.getFieldRotation()
+                    self.driverController.getFieldRotation(),
+                    self.driverController.getFieldThrottle()
                 ),
                 self.driveSubsystem, 
             )
