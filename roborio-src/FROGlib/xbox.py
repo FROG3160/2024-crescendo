@@ -68,12 +68,6 @@ class FROGXboxDriver(XboxController):
 
     def getFieldThrottle(self):
         return applyDeadband(self.getRightTriggerAxis(), 0)
-    
-    def getIntakeWheelSpeed(self):
-        return self.getLeftTriggerAxis()
-    
-    def getTransferWheelSpeed(self):
-        return self.getRightTriggerAxis()
 
     def getPOVDebounced(self):
         val = -1
@@ -93,8 +87,15 @@ class FROGXboxDriver(XboxController):
 class FROGXboxOperator(XboxController):
     """Custom Xbox Controller class for the operator controller
     """
-    def __init__(self, port):
+    def __init__(self, port, deadband):
         super().__init__(port)
+        self.deadband = deadband
+
+    def getIntakeWheelSpeed(self):
+        return applyDeadband(self.getLeftY(), self.deadband)
+    
+    def getTransferWheelSpeed(self):
+        return applyDeadband(self.getRightY(), self.deadband)
         
     def getLeadScrewSpeed(self):
         return self.getLeftTriggerAxis()

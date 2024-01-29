@@ -43,7 +43,7 @@ class RobotContainer:
 
         # The driver's controller
         self.driverController = FROGXboxDriver(kDriverControllerPort, kDeadband, kDebouncePeriod, kTranslationSlew, kRotSlew)
-        self.operatorController = FROGXboxOperator(kOperatorControllerPort)
+        self.operatorController = FROGXboxOperator(kOperatorControllerPort, kDeadband)
         self.driveSubsystem = DriveTrain()
 
         # Configure the button bindings
