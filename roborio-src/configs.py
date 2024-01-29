@@ -7,11 +7,13 @@ from phoenix6.configs.config_groups import Slot0Configs, Slot1Configs
 from phoenix6.signals.spn_enums import FeedbackSensorSourceValue
 from pathplannerlib.config import PIDConstants
 from wpimath.units import inchesToMeters
+from rev import CANSparkMax
 
 
 steerGains = Slot0Configs().with_k_p(constants.kSteerP).with_k_i(constants.kSteerI)
 driveDutyCycleGains = Slot0Configs().with_k_s(constants.kDutyCycleDriveS).with_k_v(constants.kDutyCycleDriveV)
 driveVoltageGains = Slot1Configs().with_k_s(constants.kVoltageDriveS).with_k_v(constants.kVoltageDriveV)
+
 
 holonomicTranslationPID = PIDConstants(5.0, 0.0, 0.0)
 holonomicRotationPID = PIDConstants(5.0, 0.0, 0.0)
@@ -108,6 +110,14 @@ swerveModuleBackRight = {
     'cancoder_id':constants.kBackRightSensorID,
     'cancoder_config':FROGCANCoderConfig(constants.kBackRightOffset)
 }
+
+# Assuming that the control output for the lead screw would be Duty Cycle 
+# and the control output for the flywheel would be Voltage
+leadScrewDutyCycleGains = Slot0Configs().with_k_s(constants.kLeadScrewDutyCycleS).with_k_v(constants.kLeadScrewDutyCycleV)
+flywheelVoltageGains = Slot0Configs().with_k_s(constants.kFlywheelVoltageS).with_k_v(constants.kFlywheelVoltageV)
+leadScrewConfig = FROGTalonFXConfig(slot0gains=leadScrewDutyCycleGains)
+flywheelConfig = FROGTalonFXConfig(slot0gains=flywheelVoltageGains)
+sequencerMotorType = CANSparkMax.MotorType.kBrushless
 
 robotToLimeLightTransform = Transform3d(
     Translation3d(inchesToMeters(13), #Forward from center
