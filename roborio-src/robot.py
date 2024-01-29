@@ -12,6 +12,7 @@ import commands2
 import constants
 import configs
 from wpimath.geometry import Pose2d
+from wpilib import DataLogManager, DriverStation
 
 from robotcontainer import RobotContainer
 from subsystems.intake import Intake
@@ -33,6 +34,8 @@ class MyRobot(commands2.TimedCommandRobot):
         This function is run when the robot is first started up and should be used for any
         initialization code.
         """
+        # Start recording to log
+        DataLogManager.start()
 
         # Instantiate our RobotContainer.  This will perform all our button bindings, and put our
         # autonomous chooser on the dashboard.
@@ -70,6 +73,10 @@ class MyRobot(commands2.TimedCommandRobot):
         # teleop starts running. If you want the autonomous to
         # continue until interrupted by another command, remove
         # this line or comment it out.
+
+        # start logging DS and joystick data
+        DriverStation.startDataLog(DataLogManager.getLog())
+        
         if self.autonomousCommand:
             self.autonomousCommand.cancel()
         self.container.driveSubsystem.enable()
