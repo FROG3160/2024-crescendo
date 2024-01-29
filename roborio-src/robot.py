@@ -7,11 +7,18 @@
 
 import typing
 import wpilib
+import rev
 import commands2
+import constants
+import configs
 from wpimath.geometry import Pose2d
 
 from robotcontainer import RobotContainer
 from subsystems.intake import Intake
+from subsystems.shooter import Shooter
+
+# Temporary falcon motor control
+from phoenix6.controls import VelocityDutyCycle, VelocityVoltage
 
 class MyRobot(commands2.TimedCommandRobot):
     """
@@ -33,6 +40,14 @@ class MyRobot(commands2.TimedCommandRobot):
 
         self.startingPose2d = Pose2d(0,0,0)
         self.intake = Intake()
+        self.shooter = Shooter(
+            constants.kLeadScrewControllerID,
+            configs.leadScrewConfig,
+            constants.kFlyWheelControllerID,
+            configs.flywheelConfig,
+            constants.kSequencerControllerID,
+            configs.sequencerMotorType
+            )
 
     def disabledInit(self) -> None:
         """This function is called once each time the robot enters Disabled mode."""
@@ -61,9 +76,24 @@ class MyRobot(commands2.TimedCommandRobot):
 
     def teleopPeriodic(self) -> None:
         """This function is called periodically during operator control"""
-        # Temporary Intake control
-        self.intake.intakeWheelController.set(self.container.driverController.getIntakeWheelSpeed())
-        self.intake.transferWheelController.set(self.container.driverController.getTransferWheelSpeed())
+        # Temporary Intake Control
+        self.intake.intakeWheel.set(self.container.driverController.getIntakeWheelSpeed())
+        self.intake.transferWheel.set(self.container.driverController.getTransferWheelSpeed())
+        
+        # Temporary Shooter Control
+        self.shooter.leadScrew.set_control(
+            VelocityDutyCycle(
+                velocity=self.container.operatorController.getLeadScrewSpeed() * constants.kFalconMaxRps,
+                slot=0
+                )
+            )
+        self.shooter.flyWheel.set_control(
+            VelocityVoltage(
+                velocity=self.container.operatorController.getFlyWheelSpeed() * constants.kFalconMaxRps,
+                slot=0
+                )
+            )
+        self.shooter.sequencer.set(self.container.operatorController.runSequencer())
 
     def testInit(self) -> None:
         # Cancels all running commands at the start of test mode

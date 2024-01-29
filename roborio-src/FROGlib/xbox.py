@@ -3,6 +3,7 @@ from wpilib import XboxController, Timer
 from wpimath.filter import SlewRateLimiter
 from wpimath import applyDeadband
 from wpilib.interfaces import GenericHID
+import constants
 
 RIGHT_RUMBLE = GenericHID.RumbleType.kRightRumble
 
@@ -69,10 +70,10 @@ class FROGXboxDriver(XboxController):
         return applyDeadband(self.getRightTriggerAxis(), 0)
     
     def getIntakeWheelSpeed(self):
-        return applyDeadband(self.getLeftTriggerAxis(), 0)
+        return self.getLeftTriggerAxis()
     
     def getTransferWheelSpeed(self):
-        return applyDeadband(self.getRightTriggerAxis(), 0)
+        return self.getRightTriggerAxis()
 
     def getPOVDebounced(self):
         val = -1
@@ -88,3 +89,21 @@ class FROGXboxDriver(XboxController):
             self.setRumble(RIGHT_RUMBLE, 0)
         # self.update_nt("button_pov", val)
         return val
+    
+class FROGXboxOperator(XboxController):
+    """Custom Xbox Controller class for the operator controller
+    """
+    def __init__(self, port):
+        super().__init__(port)
+        
+    def getLeadScrewSpeed(self):
+        return self.getLeftTriggerAxis()
+    
+    def getFlyWheelSpeed(self):
+        return self.getRightTriggerAxis()
+    
+    def runSequencer(self):
+        if self.getBButtonPressed():
+            return constants.kSequencerSpeed
+        else:
+            return 0.0
