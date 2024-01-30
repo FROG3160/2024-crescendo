@@ -21,7 +21,13 @@ povSpeeds = {
 
 class ManualDrive(Command):
     def __init__(self, controller: FROGXboxDriver, drive: DriveTrain) -> None:
-        super().__init__()
+        """Allows manual control of the drivetrain through use of the specified
+        controller.
+
+        Args:
+            controller (FROGXboxDriver): The controller used to control the drive.
+            drive (DriveTrain): The drive to be controlled.
+        """ 
         self.controller = controller
         self.drive = drive
         self.addRequirements(self.drive)
