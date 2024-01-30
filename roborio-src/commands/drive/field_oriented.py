@@ -68,13 +68,13 @@ class ManualDrive(Command):
             # set to true so the first time the other if conditionals evaluate true
             # the controller will be reset
             self.resetController = True
-            vT = self.controller.getFieldRotation()
+            vT = self.controller.getSlewLimitedFieldRotation()
         pov = self.controller.getPOV()
         if pov != -1:
             vX, vY = povSpeeds[pov]
         else:
-            vX = self.controller.getFieldForward()
-            vY = self.controller.getFieldLeft()
+            vX = self.controller.getSlewLimitedFieldForward()
+            vY = self.controller.getSlewLimitedFieldLeft()
 
         self.drive.fieldOrientedDrive(
             # self._vX, self._vY, self._vT, self._throttle

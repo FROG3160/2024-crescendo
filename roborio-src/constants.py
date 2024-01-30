@@ -91,8 +91,8 @@ kOperatorControllerPort = 1
 #Xbox controller constants
 kDeadband = 0.15
 kDebouncePeriod = 0.5
-kTranslationSlew = 1.5 
-kRotSlew = 1.5
+kTranslationSlew = 0.5
+kRotSlew = 0.5
 
 kLimelightGrabber = 'limelight'
 kLimelightUpper = 'limelight-at'
