@@ -43,7 +43,7 @@ class FROGXboxDriver(XboxController):
         Returns:
             float: rotational speed factor from -1 to 1 with CCW being positive
         """
-        return applyDeadband(-self.getRightX(), self.deadband)
+        return applyDeadband(self.getRightX(), self.deadband)
         
     def getSlewLimitedFieldRotation(self) -> float:
         return self.rotSlew.calculate(
