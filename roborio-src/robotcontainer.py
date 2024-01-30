@@ -17,6 +17,7 @@ from FROGlib.xbox import FROGXboxDriver, FROGXboxOperator
 from subsystems.drivetrain import DriveTrain
 from pathplannerlib.auto import PathPlannerAuto, NamedCommands
 from subsystems.vision import VisionSubsystem
+from commands.drive.field_oriented import ManualDrive
 
 
 
@@ -45,19 +46,10 @@ class RobotContainer:
 
         # Configure default commands
         # Set the default drive command to split-stick arcade drive
-        self.driveSubsystem.setDefaultCommand(
+        self.driveSubsystem.setDefaultCommand(ManualDrive(self.driverController, self.driveSubsystem))
             # A split-stick arcade command, with forward/backward controlled by the left
             # hand, and turning controlled by the right.
-            commands2.cmd.run(
-                lambda: self.driveSubsystem.fieldOrientedDrive(
-                    self.driverController.getFieldForward(),
-                    self.driverController.getFieldLeft(),
-                    self.driverController.getFieldRotation(),
-                    self.driverController.getFieldThrottle()
-                ),
-                self.driveSubsystem, 
-            )
-        )
+           
 
         # Chooser
         self.chooser = wpilib.SendableChooser()
