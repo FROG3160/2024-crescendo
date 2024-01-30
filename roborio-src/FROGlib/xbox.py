@@ -104,7 +104,7 @@ class FROGXboxOperator(XboxController):
         return self.getRightTriggerAxis()
     
     def runSequencer(self):
-        if self.getBButtonPressed():
+        if self.getBButton():
             return constants.kSequencerSpeed
         else:
             return 0.0
