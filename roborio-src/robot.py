@@ -63,6 +63,8 @@ class MyRobot(commands2.TimedCommandRobot):
         self.autonomousCommand = self.container.getAutonomousCommand()
         self.container.driveSubsystem.enable()
         if self.autonomousCommand:
+            self.startingPose2d = self.autonomousCommand.getStartingPoseFromAutoFile(self.autonomousCommand.getName())
+            self.container.driveSubsystem.resetPose(self.startingPose2d)
             self.autonomousCommand.schedule()
 
     def autonomousPeriodic(self) -> None:

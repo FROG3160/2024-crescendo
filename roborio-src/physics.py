@@ -18,6 +18,7 @@ import wpilib.simulation
 from pyfrc.physics.core import PhysicsInterface
 from pyfrc.physics import motor_cfgs, tankmodel
 from pyfrc.physics.units import units
+from wpimath.geometry import Pose2d
 
 import typing
 
@@ -73,7 +74,7 @@ class PhysicsEngine:
         :param tm_diff: The amount of time that has passed since the last
                         time that this function was called
         """
-        if not self.robot.startingPose2d is None and not self.startingPositionSet:
+        if not self.robot.startingPose2d == Pose2d(0,0,0) and not self.startingPositionSet:
             self.physics_controller.field.setRobotPose(self.robot.startingPose2d)
             self.startingPositionSet = True
 
