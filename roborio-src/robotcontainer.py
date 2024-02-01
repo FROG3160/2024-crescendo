@@ -89,8 +89,3 @@ class RobotContainer:
 
     def getAutonomousCommand(self) -> commands2.Command:
         return self.chooser.getSelected()
-# %%
-wpilib.getDeployDirectory()
-# %%
-import wpilib
-# %%
