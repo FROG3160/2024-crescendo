@@ -63,9 +63,6 @@ kFlywheelVoltageV = 0
 # Falcon 500 max rps
 kFalconMaxRps = 106
 
-# Sequencer motor speed
-kSequencerSpeed = 0.3
-
 # Swerve Drive Physical Attributes
 kTrackWidthMeters = inchesToMeters(21.5)
 kWheelBaseMeters = inchesToMeters(21.5)
@@ -108,3 +105,4 @@ kProfiledD = 0.0
 
 kRollerSpeed = -0.5
 kTransferSpeed = 0.5
+kSequencerSpeed = 0.3
