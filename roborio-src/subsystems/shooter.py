@@ -2,10 +2,13 @@ from commands2 import Subsystem
 from FROGlib.motors import FROGTalonFX, FROGTalonFXConfig
 from phoenix6.controls import PositionDutyCycle, VelocityDutyCycle, VelocityVoltage, PositionVoltage
 from rev import CANSparkMax
-from constants import kLeadScrewControllerID, kFlyWheelControllerID, kSequencerControllerID
+import constants
 import configs
 
 class Shooter(Subsystem):
+
+    flyWheelSpeed: float
+    leadScrewPosition: float
 
     def __init__(
         self,
@@ -25,14 +28,37 @@ class Shooter(Subsystem):
         self.leadScrew = FROGTalonFX(lead_screw_id, lead_screw_config)
         self.flyWheel = FROGTalonFX(flywheel_id, flywheel_config)
         self.sequencer = CANSparkMax(sequencer_id, sequencer_motor_type)
+                  
+    def setFlywheelSpeed(self, flywheelSpeed: float):
+        self.flywheelSpeed = flywheelSpeed
+        self.flyWheel.set_control(
+            VelocityVoltage(
+                velocity=self.flywheelSpeed,
+                slot=0
+            )
+        )
+
+    def getFlyWheelSpeedIsTrue(self) -> bool:
+        if self.flywheelSpeed == self.flyWheel.get_velocity():
+            return True
+        else:
+            return False
         
+    def runSequencer(self):
+        self.sequencer.set(constants.kSequencerSpeed)
 
+    def stopSequencer(self):
+        self.sequencer.stopMotor()
 
-        
+    def setLeadscrewPosition(self, leadscrewPosition: float):
+        self.leadscrewPosition = leadscrewPosition
+        self.leadScrew.set_position(self, self.leadscrewPosition)
 
-
-
-
+    def getLeadscrewPositionIsTrue(self) -> bool:
+        if self.leadscrewPosition == self.leadScrew.get_position():
+            return True
+        else:
+            return False
 
 
 
