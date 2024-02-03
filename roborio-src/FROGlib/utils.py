@@ -31,7 +31,7 @@ class FieldTarget:
         self.elevation = self.calculateElevation()
     
     def calculateRange(self):
-        return math.sqrt(self.x**2 + self.y**2 + self.z**)
+        return math.sqrt(self.x**2 + self.y**2 + self.z**2)
     
     def calculateAzimuth(self):
         return math.atan2(self.y, self.x)
