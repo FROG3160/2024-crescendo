@@ -46,7 +46,9 @@ class MyRobot(commands2.TimedCommandRobot):
         self.shooter = Shooter(
             constants.kLeadScrewControllerID,
             configs.leadScrewConfig,
-            constants.kFlyWheelControllerID,
+            constants.kFlyWheelControllerLeftID,
+            configs.flywheelConfig,
+            constants.kFlyWheelCOntrollerRightID,
             configs.flywheelConfig,
             constants.kSequencerControllerID,
             configs.sequencerMotorType
@@ -90,18 +92,9 @@ class MyRobot(commands2.TimedCommandRobot):
         self.intake.transferMotor.set(self.container.operatorController.getTransferWheelSpeed())
         
         # Temporary Shooter Control
-        self.shooter.leadScrew.set_control(
-            VelocityDutyCycle(
-                velocity=self.container.operatorController.getLeadScrewSpeed() * constants.kFalconMaxRps,
-                slot=0
-                )
-            )
-        self.shooter.flyWheel.set_control(
-            VelocityVoltage(
-                velocity=self.container.operatorController.getFlyWheelSpeed() * constants.kFalconMaxRps,
-                slot=0
-                )
-            )
+        self.shooter.setLeadscrewPosition(self.container.operatorController.getLeadScrewPosition() * constants.kLeadScrewRotations)
+        self.shooter.getFlywheelSpeed(self.container.operatorController.getFlyWheelSpeed() * constants.kFalconMaxRps)
+        self.shooter.setFlywheelSpeeds()
         self.shooter.sequencer.set(self.container.operatorController.runSequencer())
 
 

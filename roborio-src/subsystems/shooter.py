@@ -14,8 +14,10 @@ class Shooter(Subsystem):
         self,
         lead_screw_id: int,
         lead_screw_config: FROGTalonFXConfig,
-        flywheel_id: int,
-        flywheel_config: FROGTalonFXConfig,
+        left_flywheel_id: int,
+        left_flywheel_config: FROGTalonFXConfig,
+        right_flywheel_id: int,
+        right_flywheel_config: FROGTalonFXConfig,
         sequencer_id: int,
         sequencer_motor_type
     ):
@@ -26,20 +28,29 @@ class Shooter(Subsystem):
         # the intake and into the flywheel.
         
         self.leadScrew = FROGTalonFX(lead_screw_id, lead_screw_config)
-        self.flyWheel = FROGTalonFX(flywheel_id, flywheel_config)
+        self.leftFlyWheel = FROGTalonFX(left_flywheel_id, left_flywheel_config)
+        self.rightFlyWheel = FROGTalonFX(right_flywheel_id, right_flywheel_config)
         self.sequencer = CANSparkMax(sequencer_id, sequencer_motor_type)
                   
-    def setFlywheelSpeed(self, flywheelSpeed: float):
+    def getFlywheelSpeed(self, flywheelSpeed: float):
         self.flywheelSpeed = flywheelSpeed
-        self.flyWheel.set_control(
+        
+    def setFlywheelSpeeds(self):
+        self.leftFlyWheel.set_control(
             VelocityVoltage(
                 velocity=self.flywheelSpeed,
                 slot=0
             )
         )
+        self.rightFlyWheel.set_control(
+            VelocityVoltage(
+                velocity=-self.flywheelSpeed,
+                slot=0
+            )
+        )
 
-    def getFlyWheelSpeedIsTrue(self) -> bool:
-        if self.flywheelSpeed == self.flyWheel.get_velocity():
+    def getFlyWheelSpeedsIsTrue(self) -> bool:
+        if self.flywheelSpeed == self.leftFlyWheel.get_velocity() and self.flywheelSpeed == abs(self.rightFlyWheel.get_velocity()):
             return True
         else:
             return False
@@ -52,7 +63,7 @@ class Shooter(Subsystem):
 
     def setLeadscrewPosition(self, leadscrewPosition: float):
         self.leadscrewPosition = leadscrewPosition
-        self.leadScrew.set_position(self, self.leadscrewPosition)
+        self.leadScrew.set_position(self.leadscrewPosition)
 
     def getLeadscrewPositionIsTrue(self) -> bool:
         if self.leadscrewPosition == self.leadScrew.get_position():
