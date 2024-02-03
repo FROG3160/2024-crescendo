@@ -21,7 +21,7 @@ def getAngleFromTransform(transform: Transform3d) -> float:
     translation = transform.translation()
     return math.atan2(translation.y, translation.x)
 
-class FieldTarget:
+class ShootingSolution:
     def __init__(self, translation: Translation3d):
         self.x = translation.x
         self.y = translation.y
