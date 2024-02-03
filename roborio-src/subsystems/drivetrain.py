@@ -69,7 +69,7 @@ class DriveTrain(SwerveChassis):
                 visionEstimate[1], 
                 (0.3, 0.3, math.pi/2)
             )
-        SmartDashboard.putString(self.estimator.getEstimatedPosition().__str__())
+        SmartDashboard.putString('Drive Estimator', self.estimator.getEstimatedPosition().__str__())
 
         #run periodic method of the superclass, in this case SwerveChassis.periodic()
         super().periodic()

@@ -6,6 +6,7 @@ from photonlibpy.photonTrackedTarget import PhotonTrackedTarget
 from robotpy_apriltag import loadAprilTagLayoutField, AprilTagField
 from configs import robotToLimeLightTransform
 from constants import kPhotonCameraName
+from wpilib import SmartDashboard
 
 
 class VisionSubsystem(Subsystem):
@@ -20,6 +21,7 @@ class VisionSubsystem(Subsystem):
 
     def periodic(self) -> None:
         self.latestPose = self.estimator.update()
+        SmartDashboard.putString('Vision Estimate', self.latestPose.estimatedPose.__str__())
 
     def getLatestPoseEstimate(self) -> tuple[Pose3d, float]:
         if self.latestPose:
