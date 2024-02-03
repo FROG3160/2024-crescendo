@@ -3,56 +3,25 @@ from typing import Tuple, Any
 import constants
 import wpilib
 from ntcore import NetworkTableInstance
-from wpimath.geometry import Pose3d, Rotation3d, Translation3d
-from wpimath.filter import MedianFilter
 
-RED_ALLIANCE = wpilib.DriverStation.Alliance.kRed
-BLUE_ALLIANCE = wpilib.DriverStation.Alliance.kBlue
-
-class FROGLLAprilTags:
-    '''stuff with position fiding and calculating goes here
-    '''
-    #TODO #22 create this class
-    
-    pass
 
 class FROGLLObjects:
     #pipeline stuff and lists go here
-    
-    pass
-
-class FROGLimeLightVision:
-    #fieldLayout: this is now differnt still need it though
-
-    def __init__(self):
-        # self.fieldLayout = fieldLayout
-        self.ll_grabberTable = NetworkTableInstance.getDefault().getTable(
-            key=constants.LIMELIGHT_GRABBER
+    def __init__(self, name):
+        self.ll_objectTable = NetworkTableInstance.getDefault().getTable(
+            key=name
         )
-        self.ll_upperTable = NetworkTableInstance.getDefault().getTable(
-            key=constants.LIMELIGHT_UPPER
-        )
-        self.grabberTclass = self.ll_grabberTable.getStringTopic("tclass").subscribe(
+        self.objectTclass = self.ll_objectTable.getStringTopic("tclass").subscribe(
             "None"
         )
-        self.grabberTa = self.ll_grabberTable.getFloatTopic("ta").subscribe(0)
-        self.grabberTx = self.ll_grabberTable.getFloatTopic("tx").subscribe(-999)
-        self.grabberTv = self.ll_grabberTable.getIntegerTopic("tv").subscribe(0)
-        self.grabberPipe = self.ll_grabberTable.getIntegerTopic("getpipe").subscribe(-1)
+        self.objectTa = self.ll_objectTable.getFloatTopic("ta").subscribe(0)
+        self.objectTx = self.ll_objectTable.getFloatTopic("tx").subscribe(-999)
+        self.objectTv = self.ll_objectTable.getIntegerTopic("tv").subscribe(0)
+        self.objectPipe = self.ll_objectTable.getIntegerTopic("getpipe").subscribe(-1)
 
-        self.grabberCl = self.ll_grabberTable.getFloatTopic("cl").subscribe(0)
-        self.grabberTl = self.ll_grabberTable.getFloatTopic("tl").subscribe(0)
+        self.objectCl = self.ll_objectTable.getFloatTopic("cl").subscribe(0)
+        self.objectT1 = self.ll_objectTable.getFloatTopic("tl").subscribe(0)
 
-        self.upperPose = self.ll_upperTable.getFloatArrayTopic("botpose").subscribe(
-            [-99, -99, -99, 0, 0, 0, -1]
-        )
-        self.upperPoseBlue = self.ll_upperTable.getFloatArrayTopic(
-            "botpose_wpiblue"
-        ).subscribe([-99, -99, -99, 0, 0, 0, -1])
-        self.upperPoseRed = self.ll_upperTable.getFloatArrayTopic(
-            "botpose_wpired"
-        ).subscribe([-99, -99, -99, 0, 0, 0, -1])
-        self.upperPipe = self.ll_upperTable.getIntegerTopic("getpipe").subscribe(-1)
         # create the timer that we can use to the the FPGA timestamp
         self.timer = wpilib.Timer()
         # self.txFilter = MedianFilter(8)
@@ -65,7 +34,7 @@ class FROGLimeLightVision:
         # self.poseYawFilter = MedianFilter(8)
 
     def getLatency(self):
-        return (self.grabberCl.get() + self.grabberTl.get()) / 1000
+        return (self.objectCl.get() + self.objectT1.get()) / 1000
 
     '''
     def findCubes(self):
@@ -75,36 +44,15 @@ class FROGLimeLightVision:
         self.setGrabberPipeline(LL_CONE)
     '''
 
-    def getGrabberPipeline(self):
-        return self.grabberPipe.get()
-
-    def getUpperPipeline(self):
-        return self.upperPipe.get()
-
-    def getBotPoseEstimateForAlliance(self) -> Tuple[Pose3d, Any]:
-        if self.fieldLayout.alliance == RED_ALLIANCE:
-            return *self.getBotPoseEstimateRed(),
-        elif self.fieldLayout.alliance == BLUE_ALLIANCE:
-            return *self.getBotPoseEstimateBlue(),
-        
-    def getBotPoseEstimate(self) -> Tuple[Pose3d, Any]:
-        return *self.arrayToBotPoseEstimate(self.upperPose.get()),
-
-    def getBotPoseEstimateBlue(self) -> Tuple[Pose3d, Any]:
-        return *self.arrayToBotPoseEstimate(self.upperPoseBlue.get()),
-
-    def getBotPoseEstimateRed(self) ->Tuple[Pose3d, Any] :
-        return *self.arrayToBotPoseEstimate(self.upperPoseRed.get()),
-
-    def getTID(self) -> float:
-        return self.ll_grabberTable.getNumber("tid", -1.0)
+    def getObjectPipeline(self):
+        return self.objectPipe.get()
 
     def getTarget(self):
-        if self.grabberTv.get():
-            self.tClass = self.grabberTclass.get()
-            self.ta = self.grabberTa.get()
-            self.tx = self.grabberTx.get()
-            self.tv = self.grabberTv.get()
+        if self.objectTv.get():
+            self.tClass = self.objectTclass.get()
+            self.ta = self.objectTa.get()
+            self.tx = self.objectTx.get()
+            self.tv = self.objectTv.get()
             self.drive_vRotate = self.calculateRotation(self.tx)
             self.drive_vX = self.calculateX(self.ta)
             self.drive_vY = 0
@@ -153,42 +101,13 @@ class FROGLimeLightVision:
         #most likeley to be put into apriltag class
         return (self.drive_vX, self.drive_vY, self.drive_vRotate)
 
-    def hasGrabberTarget(self):
+    def hasObjectTarget(self):
         return self.tv
 
     def execute(self) -> None:
         self.getTarget()
         #might need that in apriltag class
 
-    def setGrabberPipeline(self, objectInt: int):
-        self.ll_grabberTable.putNumber("pipeline", objectInt)
+    def setObjectPipeline(self, objectInt: int):
+        self.ll_objectTable.putNumber("pipeline", objectInt)
 
-    def setUpperPipeline(self, pipeNum: int):
-        self.ll_upperTable.putNumber("pipeline", pipeNum)
-
-    def arrayToBotPoseEstimate(self, poseArray) -> Tuple[Pose3d, Any]:
-        """Takes limelight array data and creates a Pose3d object for 
-           robot position and a timestamp reprepresenting the time
-           the position was observed.
-
-        Args:
-            poseArray (_type_): An array from the limelight network tables.
-
-        Returns:
-            Tuple[Pose3d, Any]: Returns vision Pose3d and timestamp.
-        """
-        pX, pY, pZ, pRoll, pPitch, pYaw, msLatency = poseArray
-        # pX = self.poseXFilter.calculate(poseArray[0])
-        # pY = self.poseYFilter.calculate(poseArray[1])
-        # pZ = self.poseZFilter.calculate(poseArray[2])
-        # pRoll = self.poseRollFilter.calculate(poseArray[3])
-        # pPitch = self.posePitchFilter.calculate(poseArray[4])
-        # pYaw = self.poseYawFilter.calculate(poseArray[5])
-        if msLatency == -1:
-            return None, None
-        else:
-            return Pose3d(
-                        Translation3d(pX, pY, pZ),
-                        Rotation3d.fromDegrees(pRoll, pPitch, pYaw)
-                    ), self.timer.getFPGATimestamp() - (msLatency/1000)
-        #might need that in apriltag class
