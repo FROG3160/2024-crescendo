@@ -21,7 +21,7 @@ def getAngleFromTransform(transform: Transform3d) -> float:
     translation = transform.translation()
     return math.atan2(translation.y, translation.x)
 
-class FieldTarget:
+class ShootingSolution:
     def __init__(self, translation: Translation3d):
         self.x = translation.x
         self.y = translation.y
@@ -31,7 +31,7 @@ class FieldTarget:
         self.elevation = self.calculateElevation()
     
     def calculateRange(self):
-        return math.sqrt(self.x**2 + self.y**2 + self.z**)
+        return math.sqrt(self.x**2 + self.y**2 + self.z**2)
     
     def calculateAzimuth(self):
         return math.atan2(self.y, self.x)

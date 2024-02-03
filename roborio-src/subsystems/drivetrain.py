@@ -10,6 +10,7 @@ from pathplannerlib.config import HolonomicPathFollowerConfig, ReplanningConfig,
 from wpilib import DriverStation
 from wpimath.geometry import Pose2d
 from subsystems.vision import VisionSubsystem
+from wpilib import SmartDashboard
 
 
 class DriveTrain(SwerveChassis):
@@ -68,5 +69,7 @@ class DriveTrain(SwerveChassis):
                 visionEstimate[1], 
                 (0.3, 0.3, math.pi/2)
             )
+        SmartDashboard.putString(self.estimator.getEstimatedPosition().__str__())
+
         #run periodic method of the superclass, in this case SwerveChassis.periodic()
         super().periodic()
