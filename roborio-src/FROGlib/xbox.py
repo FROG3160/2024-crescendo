@@ -97,7 +97,7 @@ class FROGXboxOperator(XboxController):
     def getTransferWheelSpeed(self):
         return applyDeadband(self.getRightY(), self.deadband)
         
-    def getLeadScrewSpeed(self):
+    def getLeadScrewPosition(self):
         return self.getLeftTriggerAxis()
     
     def getFlyWheelSpeed(self):

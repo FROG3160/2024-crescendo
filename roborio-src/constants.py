@@ -50,8 +50,9 @@ kTransferWheelsID = 42
 
 # Shooter Controller IDs
 kLeadScrewControllerID = 51
-kFlyWheelControllerID = 52
-kSequencerControllerID = 53
+kFlyWheelControllerLeftID = 52
+kFlyWheelCOntrollerRightID = 53
+kSequencerControllerID = 54
 
 # Shooter Motor Gains
 # TODO: Tune these gains
@@ -62,6 +63,9 @@ kFlywheelVoltageV = 0
 
 # Falcon 500 max rps
 kFalconMaxRps = 106
+
+# Lead Screw Rotations
+kLeadScrewRotations = 16.51
 
 # Swerve Drive Physical Attributes
 kTrackWidthMeters = inchesToMeters(21.5)
