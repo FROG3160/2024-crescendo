@@ -56,10 +56,11 @@ kSequencerControllerID = 54
 
 # Shooter Motor Gains
 # TODO: Tune these gains
-kLeadScrewDutyCycleS = 0
-kLeadScrewDutyCycleV = 0
-kFlywheelVoltageS = 0
-kFlywheelVoltageV = 0
+kLeadScrewSlot0P = 0.5 # slot 0 for position
+kLeadScrewSlot1S = 0.14 # slot 1 for velocity
+kLeadScrewSlot1V = 0.42 # slot 1 for velocity
+kFlywheelVoltageS = 0.34
+kFlywheelVoltageV = 0.11
 
 # Falcon 500 max rps
 kFalconMaxRps = 106
@@ -110,3 +111,5 @@ kProfiledD = 0.0
 kRollerSpeed = -0.5
 kTransferSpeed = 0.5
 kSequencerSpeed = 0.3
+
+#218.67
