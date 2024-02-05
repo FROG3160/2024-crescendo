@@ -6,6 +6,7 @@ from phoenix6.controls import (
     VelocityVoltage,
     PositionVoltage,
     VoltageOut,
+    MotionMagicVoltage
 )
 from rev import CANSparkMax
 import constants
@@ -67,7 +68,12 @@ class Shooter(Subsystem):
 
     def setLeadscrewPosition(self, leadscrewPosition: float):
         self.leadscrewPosition = leadscrewPosition
-        self.leadScrew.set_position(self.leadscrewPosition)
+        self.leadScrew.set_control(
+            MotionMagicVoltage(
+                position=leadscrewPosition,
+                slot=1
+            )
+        )
 
     def getLeadscrewPositionIsTrue(self) -> bool:
         if self.leadscrewPosition == self.leadScrew.get_position():
