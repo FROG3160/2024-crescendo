@@ -21,6 +21,7 @@ from subsystems.shooter import Shooter
 # Temporary falcon motor control
 from phoenix6.controls import VelocityDutyCycle, VelocityVoltage
 
+
 class MyRobot(commands2.TimedCommandRobot):
     """
     Command v2 robots are encouraged to inherit from TimedCommandRobot, which
@@ -41,7 +42,7 @@ class MyRobot(commands2.TimedCommandRobot):
         # autonomous chooser on the dashboard.
         self.container = RobotContainer()
 
-        self.startingPose2d = Pose2d(0,0,0)
+        self.startingPose2d = Pose2d(0, 0, 0)
         self.intake = Intake()
         self.shooter = Shooter(
             constants.kLeadScrewControllerID,
@@ -51,8 +52,8 @@ class MyRobot(commands2.TimedCommandRobot):
             constants.kFlyWheelCOntrollerRightID,
             configs.flywheelConfig,
             constants.kSequencerControllerID,
-            configs.sequencerMotorType
-            )
+            configs.sequencerMotorType,
+        )
 
     def disabledInit(self) -> None:
         """This function is called once each time the robot enters Disabled mode."""
@@ -65,7 +66,9 @@ class MyRobot(commands2.TimedCommandRobot):
         self.autonomousCommand = self.container.getAutonomousCommand()
         self.container.driveSubsystem.enable()
         if self.autonomousCommand:
-            self.startingPose2d = self.autonomousCommand.getStartingPoseFromAutoFile(self.autonomousCommand.getName())
+            self.startingPose2d = self.autonomousCommand.getStartingPoseFromAutoFile(
+                self.autonomousCommand.getName()
+            )
             self.container.driveSubsystem.resetPose(self.startingPose2d)
             self.autonomousCommand.schedule()
 
@@ -80,7 +83,7 @@ class MyRobot(commands2.TimedCommandRobot):
 
         # start logging DS and joystick data
         DriverStation.startDataLog(DataLogManager.getLog())
-        
+
         if self.autonomousCommand:
             self.autonomousCommand.cancel()
         self.container.driveSubsystem.enable()
@@ -88,15 +91,21 @@ class MyRobot(commands2.TimedCommandRobot):
     def teleopPeriodic(self) -> None:
         """This function is called periodically during operator control"""
         # Temporary Intake Control
-        self.intake.intakeMotor.set(self.container.operatorController.getIntakeWheelSpeed())
-        self.intake.transferMotor.set(self.container.operatorController.getTransferWheelSpeed())
-        
-        # Temporary Shooter Control
-        self.shooter.setLeadscrewPosition(self.container.operatorController.getLeadScrewPosition() * constants.kLeadScrewRotations)
-        self.shooter.getFlywheelSpeed(self.container.operatorController.getFlyWheelSpeed() * constants.kFalconMaxRps)
-        self.shooter.setFlywheelSpeeds()
-        self.shooter.sequencer.set(self.container.operatorController.runSequencer())
+        self.intake.intakeMotor.set(
+            self.container.operatorController.getIntakeWheelSpeed()
+        )
+        self.intake.transferMotor.set(
+            self.container.operatorController.getTransferWheelSpeed()
+        )
 
+        # Temporary Shooter Control
+        # self.shooter.setLeadscrewPosition(self.container.operatorController.getLeadScrewPosition() * constants.kLeadScrewRotations)
+        self.shooter.setFlywheelSpeed(
+            self.container.operatorController.getFlyWheelSpeed()
+            * constants.kFalconMaxRps
+        )
+        self.shooter.runFlywheels()
+        self.shooter.sequencer.set(self.container.operatorController.runSequencer())
 
     def testInit(self) -> None:
         # Cancels all running commands at the start of test mode
