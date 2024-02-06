@@ -80,3 +80,6 @@ class Shooter(Subsystem):
             return True
         else:
             return False
+
+    def zeroLeadScrew(self):
+        self.leadScrew.set_position(0)
