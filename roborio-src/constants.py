@@ -11,6 +11,7 @@
 
 import math
 import wpilib
+from wpimath.geometry import Pose3d, Rotation3d
 from wpimath.units import feetToMeters, inchesToMeters
 
 # CANCoder offsets
@@ -66,7 +67,7 @@ kFlywheelVoltageV = 0.11
 kFalconMaxRps = 106
 
 # Lead Screw Rotations
-kLeadScrewRotations = 16.51
+kLeadScrewRotations = 21
 
 # Swerve Drive Physical Attributes
 kTrackWidthMeters = inchesToMeters(21.5)
@@ -112,4 +113,4 @@ kRollerSpeed = -0.5
 kTransferSpeed = 0.5
 kSequencerSpeed = 0.3
 
-#218.67
+kSpeakerPosition = Pose3d(0, 5.554, 2.07, Rotation3d(0, 0, 0))
