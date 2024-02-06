@@ -134,6 +134,9 @@ leadScrewVelocityGains = (
     .with_k_s(constants.kLeadScrewSlot1S)
     .with_k_v(constants.kLeadScrewSlot1V)
 )
+leadScrewVelocityGains.k_a = 0.01
+leadScrewVelocityGains.k_p = 4
+
 flywheelVoltageGains = (
     Slot0Configs()
     .with_k_s(constants.kFlywheelVoltageS)
@@ -148,6 +151,8 @@ leadScrewConfig = FROGTalonFXConfig(
     .with_neutral_mode(NeutralModeValue.BRAKE)
     .with_inverted(InvertedValue.CLOCKWISE_POSITIVE)
 )
+leadScrewConfig.motion_magic.motion_magic_acceleration = 40
+leadScrewConfig.motion_magic.motion_magic_cruise_velocity = 20
 flywheelConfig = FROGTalonFXConfig(slot0gains=flywheelVoltageGains)
 sequencerMotorType = CANSparkMax.MotorType.kBrushless
 
