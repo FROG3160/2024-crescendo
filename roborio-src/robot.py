@@ -54,8 +54,8 @@ class MyRobot(commands2.TimedCommandRobot):
             constants.kSequencerControllerID,
             configs.sequencerMotorType,
         )
-        wpilib.SmartDashboard.putNumber('flyspeed', 10.0)
-        wpilib.SmartDashboard.putNumber('rotations', 1.0)
+        wpilib.SmartDashboard.putNumber('flyspeed', 8.8)
+        wpilib.SmartDashboard.putNumber('rotations', -1.5)
         wpilib.SmartDashboard.putData('Shooter',self.shooter)
         wpilib.SmartDashboard.putData('DriveTrain', self.container.driveSubsystem)
 
