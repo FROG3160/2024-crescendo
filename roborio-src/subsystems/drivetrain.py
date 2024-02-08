@@ -14,7 +14,7 @@ from wpilib import SmartDashboard
 
 
 class DriveTrain(SwerveChassis):
-    def __init__(self, vision: VisionSubsystem):
+    def __init__(self): #, vision: VisionSubsystem):
         super().__init__(
             modules=(
                 SwerveModule(**configs.swerveModuleFrontLeft),
@@ -26,7 +26,7 @@ class DriveTrain(SwerveChassis):
             max_speed=kMaxMetersPerSecond,
             max_rotation_speed = kMaxChassisRadiansPerSec
         )
-        self.vision = vision
+        # self.vision = vision
         
         # Configure the AutoBuilder last
         AutoBuilder.configureHolonomic(
@@ -63,12 +63,12 @@ class DriveTrain(SwerveChassis):
             self.gyro.getRotation2d(),
             tuple(self.getModulePositions())
         )
-        if visionEstimate := self.vision.getLatestPoseEstimate():
-            self.estimator.addVisionMeasurement(
-                visionEstimate[0].toPose2d(),
-                visionEstimate[1], 
-                (0.3, 0.3, math.pi/2)
-            )
+        # if visionEstimate := self.vision.getLatestPoseEstimate():
+        #     self.estimator.addVisionMeasurement(
+        #         visionEstimate[0].toPose2d(),
+        #         visionEstimate[1], 
+        #         (0.3, 0.3, math.pi/2)
+        #     )
         SmartDashboard.putString('Drive Estimator', self.estimator.getEstimatedPosition().__str__())
 
         #run periodic method of the superclass, in this case SwerveChassis.periodic()

@@ -37,8 +37,8 @@ class RobotContainer:
 
         # Create all subsystems here.  If a subsystem is needed by other subsystems, create it first,
         # then pass it in to the subsystems needing it.
-        self.visionSubsystem = VisionSubsystem()
-        self.driveSubsystem = DriveTrain(self.visionSubsystem)
+        # self.visionSubsystem = VisionSubsystem()
+        self.driveSubsystem = DriveTrain() #self.visionSubsystem)
 
 
         # Configure the button bindings
