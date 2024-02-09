@@ -17,7 +17,7 @@ from phoenix6.controls import (
     VelocityVoltage,
     PositionVoltage,
 )
-from phoenix6.signals.spn_enums import NeutralModeValue
+from phoenix6.signals.spn_enums import NeutralModeValue, InvertedValue
 from wpimath.units import radiansToRotations, rotationsToRadians
 from .motors import FROGTalonFX, FROGTalonFXConfig, DriveUnit
 from .sensors import FROGCANCoderConfig, FROGCanCoder, FROGGyro
@@ -38,10 +38,14 @@ class SwerveModule:
         cancoder_id: int,
         cancoder_config: FROGCANCoderConfig,
     ):
-        # set initial states for the component
-
         # set neutral mode for drive motor
         drive_config.motor_output.neutral_mode = NeutralModeValue.BRAKE
+        # with the non-inverted SwerveDriveSpecialties swerve modules, and 
+        # the bevel gears facing left, the drive motors need to be inverted
+        # in order to move the drivetrain forward with a positive value.
+        # the default inverted setting is CCW positive.
+        drive_config.motor_output.inverted(InvertedValue.CLOCKWISE_POSITIVE)
+
         # create/configure drive motor
         self.drive = FROGTalonFX(drive_id, drive_config)
 
