@@ -16,7 +16,7 @@ from constants import kDriverControllerPort, kOperatorControllerPort, kDeadband,
 from FROGlib.xbox import FROGXboxDriver, FROGXboxOperator
 from subsystems.drivetrain import DriveTrain
 from pathplannerlib.auto import PathPlannerAuto, NamedCommands
-from subsystems.vision import VisionSubsystem
+from subsystems.vision import VisionSubsystem, AprilTagSubsystem
 from commands.drive.field_oriented import ManualDrive
 
 
@@ -37,8 +37,8 @@ class RobotContainer:
 
         # Create all subsystems here.  If a subsystem is needed by other subsystems, create it first,
         # then pass it in to the subsystems needing it.
-        # self.visionSubsystem = VisionSubsystem()
-        self.driveSubsystem = DriveTrain() #self.visionSubsystem)
+        self.visionSubsystem = AprilTagSubsystem()
+        self.driveSubsystem = DriveTrain(self.visionSubsystem)
 
 
         # Configure the button bindings

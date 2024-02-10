@@ -3,6 +3,7 @@ from typing import Tuple, Any
 import constants
 import wpilib
 from ntcore import NetworkTableInstance
+from wpimath.geometry import Pose3d, Translation3d, Rotation3d
 
 
 class FROGLLObjects:
@@ -111,3 +112,80 @@ class FROGLLObjects:
     def setObjectPipeline(self, objectInt: int):
         self.ll_objectTable.putNumber("pipeline", objectInt)
 
+
+class FROGLLField:
+    # fieldLayout: FROGFieldLayout
+
+    def __init__(self, table_name: str):
+        # self.fieldLayout = fieldLayout
+        self.network_table = NetworkTableInstance.getDefault().getTable(
+            key=table_name
+        )
+        self.botpose = self.network_table.getFloatArrayTopic(
+            "botpose").subscribe([-99, -99, -99, 0, 0, 0, -1])
+        self.botpose_blue = self.network_table.getFloatArrayTopic(
+            "botpose_wpiblue").subscribe([-99, -99, -99, 0, 0, 0, -1])
+        self.botpose_red = self.network_table.getFloatArrayTopic(
+            "botpose_wpired").subscribe([-99, -99, -99, 0, 0, 0, -1])
+        self.targetpose_robotspace = self.network_table.getFloatArrayTopic(
+            "targetpose_robotspace").subscribe([-99, -99, -99, 0, 0, 0, -1])
+        self.pipeline_num = self.network_table.getIntegerTopic("getpipe").subscribe(-1)
+        # create the timer that we can use to the the FPGA timestamp
+        self.timer = wpilib.Timer()
+
+    def getPipelineNum(self):
+        return self.pipeline_num.get()
+
+    # def getBotPoseEstimateForAlliance(self) -> Tuple[Pose3d, Any]:
+    #     if self.fieldLayout.alliance == RED_ALLIANCE:
+    #         return *self.getBotPoseEstimateRed(),
+    #     elif self.fieldLayout.alliance == BLUE_ALLIANCE:
+    #         return *self.getBotPoseEstimateBlue(),
+        
+    def getBotPoseEstimate(self) -> Tuple[Pose3d, Any]:
+        return *self.arrayToBotPoseEstimate(self.botpose.get()),
+
+    def getBotPoseEstimateBlue(self) -> Tuple[Pose3d, Any]:
+        return *self.arrayToBotPoseEstimate(self.botpose_blue.get()),
+
+    def getBotPoseEstimateRed(self) ->Tuple[Pose3d, Any] :
+        return *self.arrayToBotPoseEstimate(self.botpose_red.get()),
+
+    def getTargetTransform(self):
+        transform = self.targetpose_robotspace.get()
+        if transform[0] != -99:
+            return self.targetpose_robotspace.get()
+
+    def getVelocities(self):
+        """Get calculated velocities from vision target data
+
+        Returns:
+            Tuple(vX, vY, vT): X, Y, and rotation velocities as a tuple.
+        """
+        return (self.drive_vX, self.drive_vY, self.drive_vRotate)
+
+    def execute(self) -> None:
+        self.getTarget()
+
+    def setUpperPipeline(self, pipeNum: int):
+        self.network_table.putNumber("pipeline", pipeNum)
+
+    def arrayToBotPoseEstimate(self, poseArray) -> Tuple[Pose3d, Any]:
+        """Takes limelight array data and creates a Pose3d object for 
+           robot position and a timestamp reprepresenting the time
+           the position was observed.
+
+        Args:
+            poseArray (_type_): An array from the limelight network tables.
+
+        Returns:
+            Tuple[Pose3d, Any]: Returns vision Pose3d and timestamp.
+        """
+        pX, pY, pZ, pRoll, pPitch, pYaw, msLatency = poseArray
+        if msLatency == -1:
+            return None, None
+        else:
+            return Pose3d(
+                        Translation3d(pX, pY, pZ),
+                        Rotation3d.fromDegrees(pRoll, pPitch, pYaw)
+                    ), self.timer.getFPGATimestamp() - (msLatency/1000)
