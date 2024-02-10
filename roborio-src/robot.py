@@ -70,10 +70,6 @@ class MyRobot(commands2.TimedCommandRobot):
         self.autonomousCommand = self.container.getAutonomousCommand()
         self.container.driveSubsystem.enable()
         if self.autonomousCommand:
-            self.startingPose2d = self.autonomousCommand.getStartingPoseFromAutoFile(
-                self.autonomousCommand.getName()
-            )
-            self.container.driveSubsystem.resetPose(self.startingPose2d)
             self.autonomousCommand.schedule()
 
     def autonomousPeriodic(self) -> None:
@@ -95,6 +91,20 @@ class MyRobot(commands2.TimedCommandRobot):
 
     def teleopPeriodic(self) -> None:
         """This function is called periodically during operator control"""
+
+        # reset pose
+        if self.container.driverController.getBackButtonPressed():
+            self.autonomousCommand = self.container.getAutonomousCommand()
+            if self.autonomousCommand:
+                print("Auto command found, setting pose.")
+                self.startingPose2d = self.autonomousCommand.getStartingPoseFromAutoFile(
+                    self.autonomousCommand.getName()
+                )
+                print("Starting pose: " + self.startingPose2d().__str__())
+                self.container.driveSubsystem.resetPose(self.startingPose2d)
+
+
+
         # Temporary Intake Control
         if self.container.operatorController.getRightTriggerAxis() > 0.5:
             # self.intake.intakeMotor.set(-0.5)
@@ -110,7 +120,7 @@ class MyRobot(commands2.TimedCommandRobot):
         # self.intake.transferMotor.set(
         #     self.container.operatorController.getTransferWheelSpeed()
         # )
-
+            
         if self.container.operatorController.getAButton():
             self.shooter.setLeadscrewPosition(wpilib.SmartDashboard.getNumber('rotations', 0))
         if self.container.operatorController.getBButton():
