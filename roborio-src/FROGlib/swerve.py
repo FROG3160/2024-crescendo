@@ -44,7 +44,7 @@ class SwerveModule:
         # the bevel gears facing left, the drive motors need to be inverted
         # in order to move the drivetrain forward with a positive value.
         # the default inverted setting is CCW positive.
-        drive_config.motor_output.inverted(InvertedValue.CLOCKWISE_POSITIVE)
+        drive_config.motor_output.inverted = InvertedValue.CLOCKWISE_POSITIVE
 
         # create/configure drive motor
         self.drive = FROGTalonFX(drive_id, drive_config)
