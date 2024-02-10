@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.9714724259502194,
-      "y": 7.034441832747708
+      "x": 2.8947741881248894,
+      "y": 5.55076982040085
     },
     "rotation": 0
   },
@@ -14,7 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Test Path"
+            "pathName": "Note to Note"
           }
         }
       ]
