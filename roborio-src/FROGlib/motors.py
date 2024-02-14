@@ -5,6 +5,7 @@ from phoenix6.hardware.talon_fx import TalonFX
 from phoenix6.configs.talon_fx_configs import FeedbackSensorSourceValue
 from phoenix6.configs.config_groups import Slot0Configs, Slot1Configs, FeedbackConfigs
 from phoenix6.signals.spn_enums import GravityTypeValue
+from rev import CANSparkMax, SparkAbsoluteEncoder
 
 
 class FROGFeedbackConfig(FeedbackConfigs):
@@ -138,4 +139,25 @@ class DriveUnit:
         return wheel_rotations * self.circumference
 
 
-# %%
+class FROGSparkMax(CANSparkMax):
+    def __init__(self, id, motor_type, table_name: str = 'Undefined', motor_name:str = ''):
+        super().__init__(id, motor_type)
+        self.encoder = self.getEncoder()
+
+        if motor_name == '':
+            motor_name = f'SparkMax({id})'
+        table = f"/{table_name}/{motor_name}"
+
+        self._motorVelocityPub = NetworkTableInstance.getDefault().getFloatTopic(
+            f'{table}/velocity').publish()
+        self._motorPositionPub = NetworkTableInstance.getDefault().getFloatTopic(
+            f'{table}/position').publish()
+        self._motorVoltagePub = NetworkTableInstance.getDefault().getFloatTopic(
+            f'{table}/voltage').publish()
+    
+    def logData(self):
+        '''Logs data to network tables for this motor'''
+        self._motorVelocityPub.set(self.encoder.getVelocity())
+        self._motorPositionPub.set(self.encoder.getPosition())
+        self._motorVoltagePub.set(self.getAppliedOutput())  #not sure if this is right or not
+        
