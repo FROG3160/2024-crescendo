@@ -1,4 +1,5 @@
 import math
+from ntcore import NetworkTableInstance
 from phoenix6.configs.talon_fx_configs import TalonFXConfiguration
 from phoenix6.hardware.talon_fx import TalonFX
 from phoenix6.configs.talon_fx_configs import FeedbackSensorSourceValue
@@ -40,17 +41,35 @@ class FROGTalonFX(TalonFX):
     """
 
     def __init__(
-        self, id: int = 0, motor_config: FROGTalonFXConfig = FROGTalonFXConfig()
+        self, id: int = 0, motor_config: FROGTalonFXConfig = FROGTalonFXConfig(), 
+        table_name: str = 'Undefined', motor_name: str = ''
     ):
         """Creates a TalonFX motor object with applied configuration
 
         Args:
             id (int, required): The CAN ID assigned to the motor.
             motor_config (FROGTalonFXConfig, required): The configuration to apply to the motor.
+            table_name: NetworksTable to put the motor data on
+            motor_name: NetworksTable name
         """
         super().__init__(device_id=id)
         self.config = motor_config
         self.configurator.apply(self.config)
+        if motor_name == '':
+            motor_name = f'TalonFX({id})'
+        table = f"/{table_name}/{motor_name}"
+        self._motorVelocityPub = NetworkTableInstance.getDefault().getFloatTopic(
+            f'{table}/velocity').publish()
+        self._motorPositionPub = NetworkTableInstance.getDefault().getFloatTopic(
+            f'{table}/position').publish()
+        self._motorVoltagePub = NetworkTableInstance.getDefault().getFloatTopic(
+            f'{table}/voltage').publish()
+        
+    def logData(self):
+        '''Logs data to network tables for this motor'''
+        self._motorVelocityPub.set(self.get_velocity().value())
+        self._motorPositionPub.set(self.get_position().value())
+        self._motorVoltagePub.set(self.get_motor_voltage().value())
 
 
 class GearStages:
