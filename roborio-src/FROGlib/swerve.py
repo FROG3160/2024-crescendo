@@ -2,6 +2,7 @@ import math
 from logging import Logger
 from typing import Tuple
 from commands2 import Subsystem
+from ntcore import NetworkTableInstance
 from wpimath.geometry import Translation2d, Rotation2d
 from wpimath.kinematics import (
     SwerveModuleState,
@@ -40,7 +41,7 @@ class SwerveModule:
     ):
         # set neutral mode for drive motor
         drive_config.motor_output.neutral_mode = NeutralModeValue.BRAKE
-        # with the non-inverted SwerveDriveSpecialties swerve modules, and 
+        # with the non-inverted SwerveDriveSpecialties swerve modules, and
         # the bevel gears facing left, the drive motors need to be inverted
         # in order to move the drivetrain forward with a positive value.
         # the default inverted setting is CCW positive.
@@ -156,8 +157,6 @@ class SwerveChassis(Subsystem):
         # creates a tuple of 4 SwerveModuleState objects
         self.moduleStates = (SwerveModuleState(),) * 4
 
-        self.current_speeds = ChassisSpeeds(0, 0, 0)
-
         self.kinematics = SwerveDrive4Kinematics(
             # the splat operator (asterisk) below expands
             # the list into positional arguments for the
@@ -180,9 +179,31 @@ class SwerveChassis(Subsystem):
             tuple(
                 [SwerveModulePosition(0, x.getCurrentAzimuth()) for x in self.modules]
             ),
-            Pose2d()  # TODO:  Determine if we want vision data to supply initial pose
+            Pose2d(),  # TODO:  Determine if we want vision data to supply initial pose
             # last year, setFieldPosition was called and passed the vision pose during
             # robotInit()
+        )
+        table = type(self).__name__
+
+        self._chassisSpeedsPub = (
+            NetworkTableInstance.getDefault()
+            .getStructTopic(f"{table}/chassisSpeedsCommanded", ChassisSpeeds)
+            .publish()
+        )
+        self._chassisSpeedsActualPub = (
+            NetworkTableInstance.getDefault()
+            .getStructTopic(f"{table}/chassisSpeedsActual", ChassisSpeeds)
+            .publish()
+        )
+        self._chassisSpeedsErrorPub = (
+            NetworkTableInstance.getDefault()
+            .getStructTopic(f"{table}/chassisSpeedsError", ChassisSpeeds)
+            .publish()
+        )
+        self._estimatedPositionPub = (
+            NetworkTableInstance.getDefault()
+            .getStructTopic(f"{table}/estimatedPosition", Pose2d)
+            .publish()
         )
 
     def disable(self):
@@ -215,6 +236,21 @@ class SwerveChassis(Subsystem):
             xSpeed, ySpeed, rotSpeed, self.gyro.getRotation2d()
         )
 
+    def getActualChassisSpeeds(self):
+        return self.kinematics.toChassisSpeeds(self.getModuleStates())
+
+    def getChassisVelocityFPS(self):
+        return math.sqrt(self.chassisSpeeds.vx_fps**2 + self.chassisSpeeds.vy_fps**2)
+
+    def getHeadingRadians(self):
+        return math.atan2(self.chassisSpeeds.vy, self.chassisSpeeds.vx)
+
+    def getModulePositions(self):
+        return [module.getCurrentPosition() for module in self.modules]
+
+    def getModuleStates(self):
+        return [module.getCurrentState() for module in self.modules]
+
     # Returns a ChassisSpeeds object representing the speeds in the robot's frame
     # of reference.
     def getRobotRelativeSpeeds(self):
@@ -225,32 +261,6 @@ class SwerveChassis(Subsystem):
         translation = self.estimator.getEstimatedPosition().translation()
         rotation = self.gyro.getRotation2d()
         return Pose2d(translation, rotation)
-
-    # Resets the pose by resetting the gyro and running
-    # the resetPosition method of the estimator.
-    def resetPose(self, pose: Pose2d):
-        self.gyro.resetGyro()
-        self.estimator.resetPosition(
-            self.gyro.getRotation2d(),
-            tuple(
-                [SwerveModulePosition(0, x.getCurrentAzimuth()) for x in self.modules]
-            ),
-            pose,
-        )
-
-    def getChassisVelocityFPS(self):
-        return math.sqrt(
-            self.chassisSpeeds.vx_fps**2 + self.chassisSpeeds.vy_fps**2
-        )
-
-    def getHeadingRadians(self):
-        return math.atan2(self.chassisSpeeds.vy, self.chassisSpeeds.vx)
-
-    def getModulePositions(self):
-        return [module.getCurrentPosition() for module in self.modules]
-
-    def getModuleStates(self):
-        return [module.getCurrentState() for module in self.modules]
 
     def lockChassis(self):
         # getting the "angle" of each module location on the robot.
@@ -263,12 +273,31 @@ class SwerveChassis(Subsystem):
         for module, moduleAngle in zip(self.modules, moduleAngles):
             module.setState(SwerveModuleState(0, moduleAngle))
 
+    def logTelemetry(self):
+        self._actualChassisSpeeds = self.getActualChassisSpeeds()
+        self._chassisSpeedsActualPub.set(self._actualChassisSpeeds)
+        self._chassisSpeedsPub.set(self.chassisSpeeds)
+        self._chassisSpeedsErrorPub.set(self.chassisSpeeds - self._actualChassisSpeeds)
+        self._estimatedPositionPub.set(self.estimator.getEstimatedPosition())
+
     def periodic(self):
         if self.enabled:
             self.setStatesFromSpeeds()  # apply chassis Speeds
+        for module, state in zip(self.modules, self.moduleStates):
+            module.setState(state)
+        self.logTelemetry()
 
-            for module, state in zip(self.modules, self.moduleStates):
-                module.setState(state)
+    # Resets the pose by resetting the gyro and running
+    # the resetPosition method of the estimator.
+    def resetPose(self, pose: Pose2d):
+        self.gyro.resetGyro()
+        self.estimator.resetPosition(
+            self.gyro.getRotation2d(),
+            tuple(
+                [SwerveModulePosition(0, x.getCurrentAzimuth()) for x in self.modules]
+            ),
+            pose,
+        )
 
     def robotOrientedDrive(self, vX, vY, vT):
         self.logger.info(f"Velocities: {vX}, {vY}, {vT}")
