@@ -176,7 +176,7 @@ class SwerveChassis(Subsystem):
             tuple(
                 [SwerveModulePosition(0, x.getCurrentAzimuth()) for x in self.modules]
             ),
-            Pose2d()  # TODO:  Determine if we want vision data to supply initial pose
+            Pose2d(),  # TODO:  Determine if we want vision data to supply initial pose
             # last year, setFieldPosition was called and passed the vision pose during
             # robotInit()
         )
@@ -235,9 +235,7 @@ class SwerveChassis(Subsystem):
         )
 
     def getChassisVelocityFPS(self):
-        return math.sqrt(
-            self.chassisSpeeds.vx_fps**2 + self.chassisSpeeds.vy_fps**2
-        )
+        return math.sqrt(self.chassisSpeeds.vx_fps**2 + self.chassisSpeeds.vy_fps**2)
 
     def getHeadingRadians(self):
         return math.atan2(self.chassisSpeeds.vy, self.chassisSpeeds.vx)

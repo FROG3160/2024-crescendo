@@ -70,38 +70,44 @@ kLeadScrewRotations = 16.51
 # Swerve Drive Physical Attributes
 kTrackWidthMeters = inchesToMeters(21.5)
 kWheelBaseMeters = inchesToMeters(21.5)
-kWheelDiameter = 0.1000125 # 3 15/16 inches in meters
+kWheelDiameter = 0.1000125  # 3 15/16 inches in meters
 kSwerveDriveGearing = [(14 / 50), (25 / 19), (15 / 45)]
 # kDriveBaseRadius is the distance from the center of the robot
-# to the farthest module. This is needed for the construction 
+# to the farthest module. This is needed for the construction
 # of Autobuilder in the drivetrain init method.
-kDriveBaseRadius = math.sqrt(((kTrackWidthMeters / 2) ** 2) + ((kWheelBaseMeters / 2) ** 2))
+kDriveBaseRadius = math.sqrt(
+    ((kTrackWidthMeters / 2) ** 2) + ((kWheelBaseMeters / 2) ** 2)
+)
 
 # Swerve Drive Performance
-kMaxMetersPerSecond = feetToMeters(13) #max fps for L1=13.5, L2=16.3, L3=18
-kMaxChassisRadiansPerSec = 2 * math.tau # revolutions per sec * tau
+kMaxMetersPerSecond = feetToMeters(13)  # max fps for L1=13.5, L2=16.3, L3=18
+kMaxChassisRadiansPerSec = 2 * math.tau  # revolutions per sec * tau
 
 # Swerve Drive Trajectory Constraints
-kMaxTrajectorySpeed = feetToMeters(5) # Unit: m/s, around 1.524 m/s, same value used 2023
-kMaxTrajectoryAccel = feetToMeters(5) # Unit: m/s/s, around 1.524 m/s/s, same value used 2023
+kMaxTrajectorySpeed = feetToMeters(
+    5
+)  # Unit: m/s, around 1.524 m/s, same value used 2023
+kMaxTrajectoryAccel = feetToMeters(
+    5
+)  # Unit: m/s/s, around 1.524 m/s/s, same value used 2023
 
 # Xbox controller ports
 kDriverControllerPort = 0
 kOperatorControllerPort = 1
 
-#Xbox controller constants
+# Xbox controller constants
 kDeadband = 0.15
 kDebouncePeriod = 0.5
 kTranslationSlew = 0.5
 kRotSlew = 0.5
 
-kLimelightGrabber = 'limelight'
-kLimelightUpper = 'limelight-at'
+kLimelightGrabber = "limelight"
+kLimelightUpper = "limelight-at"
 
-kPhotonCameraName = 'FROGLimelight'
+kPhotonCameraName = "FROGLimelight"
 
-kProfiledMaxVelocity = math.pi*8
-kProfiledMaxAccel = math.pi*4
+kProfiledMaxVelocity = math.pi * 8
+kProfiledMaxAccel = math.pi * 4
 
 kProfiledP = 0.4
 kProfiledI = 0.0

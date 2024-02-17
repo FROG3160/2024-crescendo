@@ -6,11 +6,9 @@ from ntcore import NetworkTableInstance
 
 
 class FROGLLObjects:
-    #pipeline stuff and lists go here
+    # pipeline stuff and lists go here
     def __init__(self, name):
-        self.ll_objectTable = NetworkTableInstance.getDefault().getTable(
-            key=name
-        )
+        self.ll_objectTable = NetworkTableInstance.getDefault().getTable(key=name)
         self.objectTclass = self.ll_objectTable.getStringTopic("tclass").subscribe(
             "None"
         )
@@ -36,13 +34,13 @@ class FROGLLObjects:
     def getLatency(self):
         return (self.objectCl.get() + self.objectT1.get()) / 1000
 
-    '''
+    """
     def findCubes(self):
         self.setGrabberPipeline(LL_CUBE)
     probably dont need this
     def findCones(self):
         self.setGrabberPipeline(LL_CONE)
-    '''
+    """
 
     def getObjectPipeline(self):
         return self.objectPipe.get()
@@ -76,6 +74,7 @@ class FROGLLObjects:
         return min(-0.20, -(targetArea * -0.0125 + 1.3125))
         # calcX = -(-0.0002*(targetArea**2) + 0.0093*targetArea+1)
         # return max(-1, calcX)
+
     # the calculates should probalby be put into the apriltag class
 
     def calculateRotation(self, targetX):
@@ -98,7 +97,7 @@ class FROGLLObjects:
         Returns:
             Tuple(vX, vY, vT): X, Y, and rotation velocities as a tuple.
         """
-        #most likeley to be put into apriltag class
+        # most likeley to be put into apriltag class
         return (self.drive_vX, self.drive_vY, self.drive_vRotate)
 
     def hasObjectTarget(self):
@@ -106,8 +105,7 @@ class FROGLLObjects:
 
     def execute(self) -> None:
         self.getTarget()
-        #might need that in apriltag class
+        # might need that in apriltag class
 
     def setObjectPipeline(self, objectInt: int):
         self.ll_objectTable.putNumber("pipeline", objectInt)
-

@@ -7,6 +7,7 @@ import constants
 
 RIGHT_RUMBLE = GenericHID.RumbleType.kRightRumble
 
+
 class FROGXboxDriver(XboxController):
     """Custom Xbox Controller class for the driver controller specifically
     for field-oriented swerve drive control.
@@ -26,7 +27,7 @@ class FROGXboxDriver(XboxController):
 
     def getFieldHeading(self) -> float:
         """Get the desired robot heading from the Xbox's right
-        stick.  
+        stick.
 
         Returns:
             float: heading in radians with CCW positive
@@ -44,27 +45,21 @@ class FROGXboxDriver(XboxController):
             float: rotational speed factor from -1 to 1 with CCW being positive
         """
         return applyDeadband(self.getRightX(), self.deadband)
-        
+
     def getSlewLimitedFieldRotation(self) -> float:
-        return self.rotSlew.calculate(
-            self.getFieldRotation()
-        )
+        return self.rotSlew.calculate(self.getFieldRotation())
 
     def getFieldForward(self):
         return applyDeadband(-self.getLeftY(), self.deadband)
-    
+
     def getSlewLimitedFieldForward(self):
-        return self.xSlew.calculate(
-            self.getFieldForward()
-        )
+        return self.xSlew.calculate(self.getFieldForward())
 
     def getFieldLeft(self):
         return applyDeadband(-self.getLeftX(), self.deadband)
-    
+
     def getSlewLimitedFieldLeft(self):
-        return self.ySlew.calculate(
-            self.getFieldLeft()
-        )
+        return self.ySlew.calculate(self.getFieldLeft())
 
     def getFieldThrottle(self):
         return applyDeadband(self.getRightTriggerAxis(), 0)
@@ -83,26 +78,27 @@ class FROGXboxDriver(XboxController):
             self.setRumble(RIGHT_RUMBLE, 0)
         # self.update_nt("button_pov", val)
         return val
-    
+
+
 class FROGXboxOperator(XboxController):
-    """Custom Xbox Controller class for the operator controller
-    """
+    """Custom Xbox Controller class for the operator controller"""
+
     def __init__(self, port, deadband):
         super().__init__(port)
         self.deadband = deadband
 
     def getIntakeWheelSpeed(self):
         return applyDeadband(self.getLeftY(), self.deadband)
-    
+
     def getTransferWheelSpeed(self):
         return applyDeadband(self.getRightY(), self.deadband)
-        
+
     def getLeadScrewPosition(self):
         return self.getLeftTriggerAxis()
-    
+
     def getFlyWheelSpeed(self):
         return self.getRightTriggerAxis()
-    
+
     def runSequencer(self):
         if self.getBButton():
             return constants.kSequencerSpeed

@@ -27,7 +27,7 @@ class ManualDrive(Command):
         Args:
             controller (FROGXboxDriver): The controller used to control the drive.
             drive (DriveTrain): The drive to be controlled.
-        """ 
+        """
         self.controller = controller
         self.drive = drive
         self.addRequirements(self.drive)
@@ -44,7 +44,8 @@ class ManualDrive(Command):
 
     def resetRotationController(self):
         self.profiledRotationController.reset(
-            math.radians(self.drive.gyro.getYawCCW()), self.drive.gyro.getRadiansPerSecCCW()
+            math.radians(self.drive.gyro.getYawCCW()),
+            self.drive.gyro.getRadiansPerSecCCW(),
         )
 
     def execute(self) -> None:

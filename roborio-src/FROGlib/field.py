@@ -1,5 +1,3 @@
-
-
 import logging
 import os
 from robotpy_apriltag import AprilTagFieldLayout
@@ -20,12 +18,11 @@ class FROGFieldLayout(AprilTagFieldLayout):
         self.logger = logging.getLogger("FROGFieldLayout")
         super().__init__(apriltagsLayoutPath)
         self.alliance = wpilib.DriverStation.Alliance.kInvalid
-        #set layout to be specific to the alliance end
-   
-    def getTagtoRobotTransform(self, fieldPose: Pose3d, tagID:int) -> Transform3d:
+        # set layout to be specific to the alliance end
+
+    def getTagtoRobotTransform(self, fieldPose: Pose3d, tagID: int) -> Transform3d:
         return fieldPose - self.getTagPose(tagID)
 
-    
     def getPosition(self, position: int) -> Pose3d:
         """Returns the field pose for the robot to use to be in front
         of the given grid position
@@ -37,12 +34,12 @@ class FROGFieldLayout(AprilTagFieldLayout):
             Pose3d: Field pose
         """
         return self.getTagRelativePosition(*self.gridPositions[position])
-    
+
     def getAlliance(self):
         return wpilib.DriverStation.getAlliance()
-    
+
     # set alliance/change origin
-    def syncAlliance(self, alliance = getAlliance()):
+    def syncAlliance(self, alliance=getAlliance()):
         self.logger.info(f"FROGFieldLayout.setAlliance() called with {alliance}")
         if alliance == RED_ALLIANCE:
             self.setOrigin(self.OriginPosition.kRedAllianceWallRightSide)

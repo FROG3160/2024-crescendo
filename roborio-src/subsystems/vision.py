@@ -21,7 +21,9 @@ class VisionSubsystem(Subsystem):
 
     def periodic(self) -> None:
         self.latestPose = self.estimator.update()
-        SmartDashboard.putString('Vision Estimate', self.latestPose.estimatedPose.__str__())
+        SmartDashboard.putString(
+            "Vision Estimate", self.latestPose.estimatedPose.__str__()
+        )
 
     def getLatestPoseEstimate(self) -> tuple[Pose3d, float]:
         if self.latestPose:

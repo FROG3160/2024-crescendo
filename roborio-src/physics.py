@@ -1,4 +1,3 @@
-
 #
 # See the documentation for more details on how this works
 #
@@ -74,14 +73,20 @@ class PhysicsEngine:
         :param tm_diff: The amount of time that has passed since the last
                         time that this function was called
         """
-        if not self.robot.startingPose2d == Pose2d(0,0,0) and not self.startingPositionSet:
+        if (
+            not self.robot.startingPose2d == Pose2d(0, 0, 0)
+            and not self.startingPositionSet
+        ):
             self.physics_controller.field.setRobotPose(self.robot.startingPose2d)
             self.startingPositionSet = True
 
         pose = self.physics_controller.drive(
             self.robot.container.driveSubsystem.chassisSpeeds, tm_diff
         )
-        
-        self.robot.container.driveSubsystem.gyro.setAngleAdjustment(-pose.rotation().degrees())
-        self.robot.container.driveSubsystem.setFieldPosition(self.physics_controller.field.getRobotPose())
 
+        self.robot.container.driveSubsystem.gyro.setAngleAdjustment(
+            -pose.rotation().degrees()
+        )
+        self.robot.container.driveSubsystem.setFieldPosition(
+            self.physics_controller.field.getRobotPose()
+        )
