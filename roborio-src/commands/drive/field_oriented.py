@@ -5,6 +5,7 @@ from FROGlib.xbox import FROGXboxDriver
 import constants
 from wpimath.controller import ProfiledPIDControllerRadians
 from wpimath.trajectory import TrapezoidProfileRadians
+from ntcore import NetworkTableInstance
 
 povSpeed = 0.1
 povSpeeds = {
@@ -42,6 +43,11 @@ class ManualDrive(Command):
             profiledRotationConstraints,
         )
 
+        self._commandedRotationControllerResetTo0Value = NetworkTableInstance.getDefault().getFloatTopic(
+            f'/RotationControllerCommandTo0/CommandedValue').publish()
+        self._commandedRotationControllerResetTo180Value = NetworkTableInstance.getDefault().getFloatTopic(
+            f'/RotationControllerCommandTo180/CommandedValue').publish()
+
     def resetRotationController(self):
         self.profiledRotationController.reset(
             math.radians(self.drive.gyro.getYawCCW()), self.drive.gyro.getRadiansPerSecCCW()
@@ -60,6 +66,7 @@ class ManualDrive(Command):
             vT = self.profiledRotationController.calculate(
                 math.radians(self.drive.gyro.getYawCCW()), math.radians(0)
             )
+            self._commandedRotationControllerResetTo0Value.set(vT)
         elif rightStickY < -0.5:
             if self.resetController:
                 # this is the first time we hit this conditional, so
@@ -70,6 +77,7 @@ class ManualDrive(Command):
             vT = self.profiledRotationController.calculate(
                 math.radians(self.drive.gyro.getYawCCW()), math.radians(180)
             )
+            self._commandedRotationControllerResetTo180Value.set(vT)
         else:
             # set to true so the first time the other if conditionals evaluate true
             # the controller will be reset
