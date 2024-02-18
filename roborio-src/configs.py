@@ -32,7 +32,7 @@ holonomicRotationPID = PIDConstants(5.0, 0.0, 0.0)
 swerveModuleFrontLeft = {
     "name": "FrontLeft",
     "location": Translation2d(
-        constants.kWheelBaseMeters / 2, constants.kTrackWidthMeters / 2
+        constants.kCenterToFrontModulesMeters, constants.kTrackWidthMeters / 2
     ),
     "drive_gearing": constants.kSwerveDriveGearing,
     "wheel_diameter": constants.kWheelDiameter,
@@ -56,7 +56,7 @@ swerveModuleFrontLeft = {
 swerveModuleFrontRight = {
     "name": "FrontRight",
     "location": Translation2d(
-        constants.kWheelBaseMeters / 2, -constants.kTrackWidthMeters / 2
+        constants.kCenterToFrontModulesMeters, -constants.kTrackWidthMeters / 2
     ),
     "drive_gearing": constants.kSwerveDriveGearing,
     "wheel_diameter": constants.kWheelDiameter,
@@ -80,7 +80,7 @@ swerveModuleFrontRight = {
 swerveModuleBackLeft = {
     "name": "BackLeft",
     "location": Translation2d(
-        -constants.kWheelBaseMeters / 2, constants.kTrackWidthMeters / 2
+        -constants.kBackModulesToCenterMeters, constants.kTrackWidthMeters / 2
     ),
     "drive_gearing": constants.kSwerveDriveGearing,
     "wheel_diameter": constants.kWheelDiameter,
@@ -104,7 +104,7 @@ swerveModuleBackLeft = {
 swerveModuleBackRight = {
     "name": "BackRight",
     "location": Translation2d(
-        -constants.kWheelBaseMeters / 2, -constants.kTrackWidthMeters / 2
+        -constants.kBackModulesToCenterMeters, -constants.kTrackWidthMeters / 2
     ),
     "drive_gearing": constants.kSwerveDriveGearing,
     "wheel_diameter": constants.kWheelDiameter,
