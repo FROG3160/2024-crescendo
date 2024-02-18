@@ -1,5 +1,5 @@
 #The intake consists of a roller bar (TalonSRX), an intake wheel(SparkMax), and a transfer wheel(SparkMax
-from rev import CANSparkMax
+from FROGlib.motors import FROGSparkMax
 from commands2 import Subsystem
 from constants import kIntakeRollerControllerID, kTransferWheelsID, kRollerSpeed, kTransferSpeed
 from wpilib import DigitalInput, SmartDashboard
@@ -7,8 +7,8 @@ class Intake(Subsystem):
     
     def __init__(self):
         
-        self.intakeMotor = CANSparkMax(kIntakeRollerControllerID, CANSparkMax.MotorType.kBrushless)
-        self.transferMotor = CANSparkMax(kTransferWheelsID, CANSparkMax.MotorType.kBrushless)
+        self.intakeMotor = FROGSparkMax(kIntakeRollerControllerID, FROGSparkMax.MotorType.kBrushless)
+        self.transferMotor = FROGSparkMax(kTransferWheelsID, FROGSparkMax.MotorType.kBrushless)
         self.sensor = DigitalInput(0)
 
     def runIntake(self):
