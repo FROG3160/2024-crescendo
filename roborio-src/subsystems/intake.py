@@ -1,7 +1,7 @@
 #The intake consists of a roller bar (TalonSRX), an intake wheel(SparkMax), and a transfer wheel(SparkMax
 from rev import CANSparkMax
 from commands2 import Subsystem
-from constants import kIntakeRollerControllerID, kTransferWheelsID, kRollerSpeed, kTransferSpeed
+from constants import kIntakeRollerControllerID, kTransferWheelsID, kRollerSpeed, kTransferSpeed, kIntakeSensorChannel
 from wpilib import DigitalInput, SmartDashboard
 class Intake(Subsystem):
     
@@ -9,7 +9,7 @@ class Intake(Subsystem):
         
         self.intakeMotor = CANSparkMax(kIntakeRollerControllerID, CANSparkMax.MotorType.kBrushless)
         self.transferMotor = CANSparkMax(kTransferWheelsID, CANSparkMax.MotorType.kBrushless)
-        self.sensor = DigitalInput(0)
+        self.intakeSensor = DigitalInput(kIntakeSensorChannel)
 
     def runIntake(self):
         self.intakeMotor.set(kRollerSpeed)
@@ -30,4 +30,4 @@ class Intake(Subsystem):
         return abs(self.transferMotor.getAppliedOutput()) > 0.0
     
     def periodic(self) -> None:
-        SmartDashboard.putBoolean("dioSensor", self.sensor.get())
+        SmartDashboard.putBoolean("dioSensor", self.intakeSensor.get())

@@ -52,7 +52,7 @@ class MyRobot(commands2.TimedCommandRobot):
             constants.kFlyWheelCOntrollerRightID,
             configs.flywheelConfig,
             constants.kSequencerControllerID,
-            configs.sequencerMotorType,
+            configs.sequencerMotorType
         )
         wpilib.SmartDashboard.putNumber('flyspeed', 8.8)
         wpilib.SmartDashboard.putNumber('rotations', -1.5)
