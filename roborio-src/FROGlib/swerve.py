@@ -69,6 +69,12 @@ class SwerveModule:
 
         self.enabled = False
 
+        self.table = self.name
+        self._moduleSpeedPub = NetworkTableInstance.getDefault().getFloatTopic(
+            f'{self.table}/speed').publish()
+        self._moduleAnglePub = NetworkTableInstance.getDefault().getFloatTopic(
+            f'{self.table}/angle').publish()
+        
     def disable(self):
         self.enabled = False
 
@@ -109,28 +115,32 @@ class SwerveModule:
             self.getCurrentSpeed(),
             self.getCurrentAzimuth(),
         )
-
+    
     def getCurrentPosition(self):
         return SwerveModulePosition(self.getCurrentDistance(), self.getCurrentAzimuth())
+    
 
     def setState(self, requested_state: SwerveModuleState):
         if self.enabled:
             self.requestedState = SwerveModuleState.optimize(
                 requested_state, self.getCurrentAzimuth()
             )
-
+            self.commandedAngle = radiansToRotations(self.requestedState.angle.radians())
+            self.commandedSpeed = self.drive_unit.speedToVelocity(self.requestedState.speed)
             self.steer.set_control(
                 PositionDutyCycle(
-                    position=radiansToRotations(self.requestedState.angle.radians()),
+                    position=self.commandedAngle,
                     slot=0,  # Duty Cycle gains for steer
                 )
             )
+            self._moduleAnglePub.set(self.commandedAngle)
             self.drive.set_control(
                 VelocityVoltage(
-                    velocity=self.drive_unit.speedToVelocity(self.requestedState.speed),
+                    velocity=self.commandedSpeed,
                     slot=1,  # Voltage gains for drive
                 )
             )
+            self._moduleSpeedPub.set(self.commandedSpeed)
         else:
             # stop the drive motor, steer motor can stay where it is
             self.drive.set_control(VelocityVoltage(velocity=0, slot=1))
