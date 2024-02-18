@@ -84,6 +84,9 @@ class FROGXboxDriver(XboxController):
         # self.update_nt("button_pov", val)
         return val
     
+    def getClimberVoltage(self):
+        return self.getLeftTriggerAxis()
+    
 class FROGXboxOperator(XboxController):
     """Custom Xbox Controller class for the operator controller
     """
