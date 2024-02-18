@@ -3,6 +3,7 @@ from rev import CANSparkMax
 from commands2 import Subsystem
 from constants import kIntakeRollerControllerID, kTransferWheelsID, kRollerSpeed, kTransferSpeed, kIntakeSensorChannel
 from wpilib import DigitalInput, SmartDashboard
+from ntcore import NetworkTableInstance
 class Intake(Subsystem):
     
     def __init__(self):
@@ -11,11 +12,20 @@ class Intake(Subsystem):
         self.transferMotor = CANSparkMax(kTransferWheelsID, CANSparkMax.MotorType.kBrushless)
         self.intakeSensor = DigitalInput(kIntakeSensorChannel)
 
+        self._intakeMotorCommandedSpeed = NetworkTableInstance.getDefault().getFloatTopic(
+            f'/Intake_Motor{kIntakeRollerControllerID}/velocity').publish()
+        self._transferMotorCommandedSpeed = NetworkTableInstance.getDefault().getFloatTopic(
+            f'/Transfer_Motor{kTransferWheelsID}/velocity').publish()
+        self._intakeSensorCurrentState = NetworkTableInstance.getDefault().getBooleanTopic(
+            f'/Note_In_Intake_Is_True: Channel 0/boolean').publish()
+
     def runIntake(self):
-        self.intakeMotor.set(kRollerSpeed)
+        self.intakeMotorCommandedSpeed = kRollerSpeed
+        self.intakeMotor.set(self.intakeMotorCommandedSpeed)
 
     def runTransfer(self):
-        self.transferMotor.set(kTransferSpeed)
+        self.transferMotorCommandedSpeed = kTransferSpeed
+        self.transferMotor.set(self.transferMotorCommandedSpeed)
 
     def stopIntake(self):
         self.intakeMotor.set(0)
@@ -29,5 +39,14 @@ class Intake(Subsystem):
     def isTransferRunning(self):
         return abs(self.transferMotor.getAppliedOutput()) > 0.0
     
+    def noteInIntakeIsTrue(self) -> bool:
+        self.noteNotInIntake = self.intakeSensor.get()
+        return not self.noteNotInIntake
+    
     def periodic(self) -> None:
-        SmartDashboard.putBoolean("dioSensor", self.intakeSensor.get())
+        SmartDashboard.putBoolean("ShooterDioSensor", self.noteInIntakeIsTrue())
+
+    def logIntakeComponentValues(self):
+        self._intakeMotorCommandedSpeed.set(self.intakeMotorCommandedSpeed)
+        self._transferMotorCommandedSpeed.set(self.transferMotorCommandedSpeed)
+        self._intakeSensorCurrentState.set(self.noteInIntakeIsTrue())

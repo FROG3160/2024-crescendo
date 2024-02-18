@@ -52,7 +52,7 @@ class Shooter(Subsystem):
         self._sequencerCommandedSpeed = NetworkTableInstance.getDefault().getFloatTopic(
             f'/Sequencer: ID 54/velocity').publish()
         self._shooterSensorCurrentState = NetworkTableInstance.getDefault().getBooleanTopic(
-            f'/Shooter_Sensor: Channel 1/boolean').publish()
+            f'/Note_In_Shooter_Is_True: Channel 1/boolean').publish()
 
     def setFlywheelSpeed(self, flywheelSpeed: float):
         self.flywheelSpeed = flywheelSpeed
@@ -99,13 +99,13 @@ class Shooter(Subsystem):
     def zeroLeadScrew(self):
         self.leadScrew.set_position(0)
 
-    def shooterSensorIsTrue(self) -> bool:
-        self.sensorIsTrue = self.shooterSensor.get()
-        return self.sensorIsTrue
+    def noteInShooterIsTrue(self) -> bool:
+        self.noteNotInSensor = self.shooterSensor.get()
+        return not self.noteNotInSensor
     
     def logShooterComponentValues(self):
         self._leftFlywheelCommandedSpeed.set(self.flywheelSpeed)
         self._rightFlywheelCommandedSpeed.set(self.flywheelSpeed)
         self._leadscrewCommandedSpeed.set(self.leadscrewPosition)
         self._sequencerCommandedSpeed.set(self.sequencerCommandedSpeed)
-        self._shooterSensorCurrentState.set(self.sensorIsTrue)
+        self._shooterSensorCurrentState.set(self.noteInShooterIsTrue())
