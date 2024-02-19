@@ -22,10 +22,8 @@ class Climber(Subsystem):
         self.leftClimber = FROGTalonFX(left_climber_id, left_climber_config)
         self.rightClimber = FROGTalonFX(right_climber_id, right_climber_config)
 
-    def climberVoltage(self, climberVoltage: float):
+    def setVoltage(self, climberVoltage: float):
         self.climberVoltage = climberVoltage
-
-    def engageClimber(self):
         self.leftClimber.set_control(
             VoltageOut(volt=self.climberVoltage)
         )
