@@ -21,14 +21,17 @@ povSpeeds = {
 
 
 class ManualDrive(Command):
-    def __init__(self, controller: FROGXboxDriver, drive: DriveTrain) -> None:
+    def __init__(
+        self, controller: FROGXboxDriver, drive: DriveTrain, table: str = "Undefined"
+    ) -> None:
         """Allows manual control of the drivetrain through use of the specified
         controller.
 
         Args:
             controller (FROGXboxDriver): The controller used to control the drive.
             drive (DriveTrain): The drive to be controlled.
-        """ 
+            table (str): The name of the network table telemetry data will go into
+        """
         self.controller = controller
         self.drive = drive
         self.addRequirements(self.drive)
@@ -42,20 +45,28 @@ class ManualDrive(Command):
             constants.kProfiledD,
             profiledRotationConstraints,
         )
-
-        self._commandedRotationControllerResetTo0Value = NetworkTableInstance.getDefault().getFloatTopic(
-            f'/RotationControllerCommandTo0/CommandedValue').publish()
-        self._commandedRotationControllerResetTo180Value = NetworkTableInstance.getDefault().getFloatTopic(
-            f'/RotationControllerCommandTo180/CommandedValue').publish()
+        self.nt_table = f"{table}/{type(self).__name__}"
+        self._calculated_vT = (
+            NetworkTableInstance.getDefault()
+            .getFloatTopic(f"{self.nt_table}/calculated_vT")
+            .publish()
+        )
+        self._gyro_yaw = (
+            NetworkTableInstance.getDefault()
+            .getFloatTopic(f"{self.nt_table}/gyro_yaw")
+            .publish()
+        )
 
     def resetRotationController(self):
         self.profiledRotationController.reset(
-            math.radians(self.drive.gyro.getYawCCW()), self.drive.gyro.getRadiansPerSecCCW()
+            math.radians(self.drive.gyro.getYawCCW()),
+            self.drive.gyro.getRadiansPerSecCCW(),
         )
 
     def execute(self) -> None:
         # read right joystick Y to see if we are using it
         rightStickY = self.controller.getRightY()
+        gyroYawCCW = self.drive.gyro.getYawCCW()
         if rightStickY > 0.5:
             if self.resetController:
                 # this is the first time we hit this conditional, so
@@ -64,9 +75,9 @@ class ManualDrive(Command):
                 self.resetRotationController()
             # Rotate to 0 degrees, point downfield
             vT = self.profiledRotationController.calculate(
-                math.radians(self.drive.gyro.getYawCCW()), math.radians(0)
+                math.radians(gyroYawCCW), math.radians(0)
             )
-            self._commandedRotationControllerResetTo0Value.set(vT)
+            self._calculated_vT.set(vT)
         elif rightStickY < -0.5:
             if self.resetController:
                 # this is the first time we hit this conditional, so
@@ -75,14 +86,16 @@ class ManualDrive(Command):
                 self.resetRotationController()
             # Rotate to 180 degrees
             vT = self.profiledRotationController.calculate(
-                math.radians(self.drive.gyro.getYawCCW()), math.radians(180)
+                math.radians(gyroYawCCW), math.radians(180)
             )
-            self._commandedRotationControllerResetTo180Value.set(vT)
+            self._calculated_vT.set(vT)
         else:
             # set to true so the first time the other if conditionals evaluate true
             # the controller will be reset
             self.resetController = True
             vT = self.controller.getSlewLimitedFieldRotation()
+        self._gyro_yaw.set(gyroYawCCW)
+
         pov = self.controller.getPOV()
         if pov != -1:
             vX, vY = povSpeeds[pov]
