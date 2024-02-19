@@ -83,7 +83,8 @@ class FROGXboxDriver(XboxController):
             self.setRumble(RIGHT_RUMBLE, 0)
         # self.update_nt("button_pov", val)
         return val
-    
+
+
 class FROGXboxOperator(XboxController):
     """Custom Xbox Controller class for the operator controller
     """

@@ -63,6 +63,10 @@ kLeadScrewSlot1V = 0.42 # slot 1 for velocity
 kFlywheelVoltageS = 0.34
 kFlywheelVoltageV = 0.11
 
+# Climber Motor IDs
+kLeftClimberControllerID = 8
+kRightClimberControllerID = 9
+
 # Falcon 500 max rps
 kFalconMaxRps = 106
 
