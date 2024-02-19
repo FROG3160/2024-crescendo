@@ -1,5 +1,5 @@
 from commands2 import Subsystem
-from FROGlib.motors import FROGTalonFX, FROGTalonFXConfig
+from FROGlib.motors import FROGTalonFX, FROGTalonFXConfig, FROGSparkMax
 from phoenix6.controls import (
     PositionDutyCycle,
     VelocityDutyCycle,
@@ -8,7 +8,7 @@ from phoenix6.controls import (
     VoltageOut,
     MotionMagicVoltage
 )
-from rev import CANSparkMax
+
 import constants
 import configs
 
@@ -38,7 +38,7 @@ class Shooter(Subsystem):
         self.leadScrew = FROGTalonFX(lead_screw_id, lead_screw_config)
         self.leftFlyWheel = FROGTalonFX(left_flywheel_id, left_flywheel_config)
         self.rightFlyWheel = FROGTalonFX(right_flywheel_id, right_flywheel_config)
-        self.sequencer = CANSparkMax(sequencer_id, sequencer_motor_type)
+        self.sequencer = FROGSparkMax(sequencer_id, sequencer_motor_type)
 
     def setFlywheelSpeed(self, flywheelSpeed: float):
         self.flywheelSpeed = flywheelSpeed
