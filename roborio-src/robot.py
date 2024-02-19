@@ -17,7 +17,6 @@ from wpilib import DataLogManager, DriverStation
 from robotcontainer import RobotContainer
 from subsystems.intake import Intake
 from subsystems.shooter import Shooter
-from subsystems.climber import Climber
 # Temporary falcon motor control
 from phoenix6.controls import VelocityDutyCycle, VelocityVoltage
 
