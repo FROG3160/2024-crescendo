@@ -17,7 +17,6 @@ from wpilib import DataLogManager, DriverStation
 from robotcontainer import RobotContainer
 from subsystems.intake import Intake
 from subsystems.shooter import Shooter
-
 # Temporary falcon motor control
 from phoenix6.controls import VelocityDutyCycle, VelocityVoltage
 
@@ -54,6 +53,7 @@ class MyRobot(commands2.TimedCommandRobot):
             constants.kSequencerControllerID,
             configs.sequencerMotorType
         )
+
         wpilib.SmartDashboard.putNumber('flyspeed', 8.8)
         wpilib.SmartDashboard.putNumber('rotations', -1.5)
         wpilib.SmartDashboard.putData('Shooter',self.shooter)
@@ -144,6 +144,7 @@ class MyRobot(commands2.TimedCommandRobot):
         # )
         self.shooter.runFlywheels()
         #self.shooter.sequencer.set(self.container.operatorController.runSequencer())
+
 
     def testInit(self) -> None:
         # Cancels all running commands at the start of test mode

@@ -67,6 +67,10 @@ kLeadScrewSlot1V = 0.42 # slot 1 for velocity
 kFlywheelVoltageS = 0.34
 kFlywheelVoltageV = 0.11
 
+# Climber Motor IDs
+kLeftClimberControllerID = 8
+kRightClimberControllerID = 9
+
 # Falcon 500 max rps
 kFalconMaxRps = 106
 
@@ -75,13 +79,15 @@ kLeadScrewRotations = 21
 
 # Swerve Drive Physical Attributes
 kTrackWidthMeters = inchesToMeters(21.5)
-kWheelBaseMeters = inchesToMeters(21.5)
+kCenterToFrontModulesMeters = inchesToMeters(8.75)
+kBackModulesToCenterMeters = inchesToMeters(12.75)
+kWheelBaseMeters = kCenterToFrontModulesMeters + kBackModulesToCenterMeters
 kWheelDiameter = 0.1000125 # 3 15/16 inches in meters
 kSwerveDriveGearing = [(14 / 50), (25 / 19), (15 / 45)]
 # kDriveBaseRadius is the distance from the center of the robot
 # to the farthest module. This is needed for the construction 
 # of Autobuilder in the drivetrain init method.
-kDriveBaseRadius = math.sqrt(((kTrackWidthMeters / 2) ** 2) + ((kWheelBaseMeters / 2) ** 2))
+kDriveBaseRadius = math.sqrt(((kTrackWidthMeters / 2) ** 2) + ((kBackModulesToCenterMeters) ** 2))
 
 # Swerve Drive Performance
 kMaxMetersPerSecond = feetToMeters(13) #max fps for L1=13.5, L2=16.3, L3=18
