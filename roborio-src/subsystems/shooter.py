@@ -6,7 +6,7 @@ from phoenix6.controls import (
     VelocityVoltage,
     PositionVoltage,
     VoltageOut,
-    MotionMagicVoltage
+    MotionMagicVoltage,
 )
 from rev import CANSparkMax
 import constants
@@ -29,7 +29,8 @@ class Shooter(Subsystem):
         right_flywheel_id: int,
         right_flywheel_config: FROGTalonFXConfig,
         sequencer_id: int,
-        sequencer_motor_type
+        sequencer_motor_type,
+        table: str = "Undefined",
     ):
 
         # Very rudimentary system that allows speed control  of
@@ -42,17 +43,31 @@ class Shooter(Subsystem):
         self.rightFlyWheel = FROGTalonFX(right_flywheel_id, right_flywheel_config)
         self.sequencer = CANSparkMax(sequencer_id, sequencer_motor_type)
         self.shooterSensor = DigitalInput(constants.kShooterSensorChannel)
+        nt_table = f"{table}/{type(self).__name__}"
 
-        self._leftFlywheelCommandedSpeed = NetworkTableInstance.getDefault().getFloatTopic(
-            f'/Left_Flywheel: ID 52/velocity').publish()
-        self._rightFlywheelCommandedSpeed = NetworkTableInstance.getDefault().getFloatTopic(
-            f'/Right_Flywheel: ID 53/velocity').publish()
-        self._leadscrewCommandedSpeed = NetworkTableInstance.getDefault().getFloatTopic(
-            f'/Lead_Screw: ID 51/position').publish()
-        self._sequencerCommandedSpeed = NetworkTableInstance.getDefault().getFloatTopic(
-            f'/Sequencer: ID 54/velocity').publish()
-        self._shooterSensorCurrentState = NetworkTableInstance.getDefault().getBooleanTopic(
-            f'/Note_In_Shooter_Is_True: Channel 1/boolean').publish()
+        self._flywheelCommandedVelocity = (
+            NetworkTableInstance.getDefault()
+            .getFloatTopic(f"{nt_table}/flywheel_velocity")
+            .publish()
+        )
+        self._shooterCommandedPosition = (
+            NetworkTableInstance.getDefault()
+            .getFloatTopic(f"{nt_table}/shooter_position")
+            .publish()
+        )
+        self._sequencerCommandedSpeed = (
+            NetworkTableInstance.getDefault()
+            .getFloatTopic(f"{nt_table}/transfer_speed")
+            .publish()
+        )
+        self._shooterSensorCurrentState = (
+            NetworkTableInstance.getDefault()
+            .getBooleanTopic(f"{nt_table}/note_detected")
+            .publish()
+        )
+        self.flyWheelSpeed = 0
+        self.leadScrewPosition = self.leadScrew.get_position().value
+        self.sequencerCommandedSpeed = 0
 
     def setFlywheelSpeed(self, flywheelSpeed: float):
         self.flywheelSpeed = flywheelSpeed
@@ -84,10 +99,7 @@ class Shooter(Subsystem):
     def setLeadscrewPosition(self, leadscrewPosition: float):
         self.leadscrewPosition = leadscrewPosition
         self.leadScrew.set_control(
-            MotionMagicVoltage(
-                position=leadscrewPosition,
-                slot=1
-            )
+            MotionMagicVoltage(position=leadscrewPosition, slot=1)
         )
 
     def getLeadscrewPositionIsTrue(self) -> bool:
@@ -99,13 +111,11 @@ class Shooter(Subsystem):
     def zeroLeadScrew(self):
         self.leadScrew.set_position(0)
 
-    def noteInShooterIsTrue(self) -> bool:
-        self.noteNotInSensor = self.shooterSensor.get()
-        return not self.noteNotInSensor
-    
-    def logShooterComponentValues(self):
-        self._leftFlywheelCommandedSpeed.set(self.flywheelSpeed)
-        self._rightFlywheelCommandedSpeed.set(self.flywheelSpeed)
-        self._leadscrewCommandedSpeed.set(self.leadscrewPosition)
+    def noteDetected(self) -> bool:
+        return not self.shooterSensor.get()
+
+    def logTelemetry(self):
+        self._flywheelCommandedVelocity.set(self.flywheelSpeed)
+        self._shooterCommandedPosition.set(self.leadscrewPosition)
         self._sequencerCommandedSpeed.set(self.sequencerCommandedSpeed)
-        self._shooterSensorCurrentState.set(self.noteInShooterIsTrue())
+        self._shooterSensorCurrentState.set(self.noteDetected())
