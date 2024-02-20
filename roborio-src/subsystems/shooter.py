@@ -11,7 +11,7 @@ from phoenix6.controls import (
 
 import constants
 import configs
-
+from phoenix6.signals.spn_enums import NeutralModeValue, InvertedValue
 
 class Shooter(Subsystem):
 
@@ -34,7 +34,7 @@ class Shooter(Subsystem):
         # the lead screw and flywheel on the operator Xbox controller triggers.
         # The NEO 550 will be used to pull and push the note out of
         # the intake and into the flywheel.
-
+        left_flywheel_config.motor_output.inverted = InvertedValue.CLOCKWISE_POSITIVE
         self.leadScrew = FROGTalonFX(lead_screw_id, lead_screw_config)
         self.leftFlyWheel = FROGTalonFX(left_flywheel_id, left_flywheel_config)
         self.rightFlyWheel = FROGTalonFX(right_flywheel_id, right_flywheel_config)
