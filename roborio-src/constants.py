@@ -50,9 +50,9 @@ kIntakeRollerControllerID = 41
 kTransferWheelsID = 42
 
 # Shooter Controller IDs
-kLeadScrewControllerID = 51
-kFlyWheelControllerLeftID = 52
-kFlyWheelCOntrollerRightID = 53
+kLeadScrewControllerID = 53
+kFlyWheelControllerLeftID = 51
+kFlyWheelCOntrollerRightID = 52
 kSequencerControllerID = 54
 
 # IR Sensor DIO Channel
@@ -68,8 +68,8 @@ kFlywheelVoltageS = 0.34
 kFlywheelVoltageV = 0.11
 
 # Climber Motor IDs
-kLeftClimberControllerID = 8
-kRightClimberControllerID = 9
+kLeftClimberControllerID = 7
+kRightClimberControllerID = 8
 
 # Falcon 500 max rps
 kFalconMaxRps = 106
