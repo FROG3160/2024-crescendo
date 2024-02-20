@@ -6,12 +6,15 @@ from phoenix6.controls import (
     VelocityVoltage,
     PositionVoltage,
     VoltageOut,
-    MotionMagicVoltage
+    MotionMagicVoltage,
 )
 
 import constants
 import configs
 from phoenix6.signals.spn_enums import NeutralModeValue, InvertedValue
+from ntcore import NetworkTableInstance
+from wpilib import DigitalInput
+
 
 class Shooter(Subsystem):
 
@@ -28,6 +31,7 @@ class Shooter(Subsystem):
         right_flywheel_config: FROGTalonFXConfig,
         sequencer_id: int,
         sequencer_motor_type,
+        table: str = "Undefined",
     ):
 
         # Very rudimentary system that allows speed control  of
@@ -39,6 +43,32 @@ class Shooter(Subsystem):
         self.leftFlyWheel = FROGTalonFX(left_flywheel_id, left_flywheel_config)
         self.rightFlyWheel = FROGTalonFX(right_flywheel_id, right_flywheel_config)
         self.sequencer = FROGSparkMax(sequencer_id, sequencer_motor_type)
+        self.shooterSensor = DigitalInput(constants.kShooterSensorChannel)
+        nt_table = f"{table}/{type(self).__name__}"
+
+        self._flywheelCommandedVelocity = (
+            NetworkTableInstance.getDefault()
+            .getFloatTopic(f"{nt_table}/flywheel_velocity")
+            .publish()
+        )
+        self._shooterCommandedPosition = (
+            NetworkTableInstance.getDefault()
+            .getFloatTopic(f"{nt_table}/shooter_position")
+            .publish()
+        )
+        self._sequencerCommandedSpeed = (
+            NetworkTableInstance.getDefault()
+            .getFloatTopic(f"{nt_table}/transfer_speed")
+            .publish()
+        )
+        self._shooterSensorCurrentState = (
+            NetworkTableInstance.getDefault()
+            .getBooleanTopic(f"{nt_table}/note_detected")
+            .publish()
+        )
+        self.flyWheelSpeed = 0
+        self.leadScrewPosition = self.leadScrew.get_position().value
+        self.sequencerCommandedSpeed = 0
 
     def setFlywheelSpeed(self, flywheelSpeed: float):
         self.flywheelSpeed = flywheelSpeed
@@ -61,7 +91,8 @@ class Shooter(Subsystem):
             return False
 
     def runSequencer(self):
-        self.sequencer.set(constants.kSequencerSpeed)
+        self.sequencerCommandedSpeed = constants.kSequencerSpeed
+        self.sequencer.set(self.sequencerCommandedSpeed)
 
     def stopSequencer(self):
         self.sequencer.stopMotor()
@@ -69,10 +100,7 @@ class Shooter(Subsystem):
     def setLeadscrewPosition(self, leadscrewPosition: float):
         self.leadscrewPosition = leadscrewPosition
         self.leadScrew.set_control(
-            MotionMagicVoltage(
-                position=leadscrewPosition,
-                slot=1
-            )
+            MotionMagicVoltage(position=leadscrewPosition, slot=1)
         )
 
     def getLeadscrewPositionIsTrue(self) -> bool:
@@ -83,3 +111,12 @@ class Shooter(Subsystem):
 
     def zeroLeadScrew(self):
         self.leadScrew.set_position(0)
+
+    def noteDetected(self) -> bool:
+        return not self.shooterSensor.get()
+
+    def logTelemetry(self):
+        self._flywheelCommandedVelocity.set(self.flywheelSpeed)
+        self._shooterCommandedPosition.set(self.leadscrewPosition)
+        self._sequencerCommandedSpeed.set(self.sequencerCommandedSpeed)
+        self._shooterSensorCurrentState.set(self.noteDetected())

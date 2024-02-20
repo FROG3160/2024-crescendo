@@ -55,6 +55,10 @@ kFlyWheelControllerLeftID = 51
 kFlyWheelCOntrollerRightID = 52
 kSequencerControllerID = 54
 
+# IR Sensor DIO Channel
+kIntakeSensorChannel = 0
+kShooterSensorChannel = 1
+
 # Shooter Motor Gains
 # TODO: Tune these gains
 kLeadScrewSlot0P = 0.5 # slot 0 for position
