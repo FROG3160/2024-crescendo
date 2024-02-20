@@ -1,4 +1,4 @@
-#The intake consists of a roller bar (TalonSRX), an intake wheel(SparkMax), and a transfer wheel(SparkMax
+# The intake consists of a roller bar (TalonSRX), an intake wheel(SparkMax), and a transfer wheel(SparkMax
 from FROGlib.motors import FROGSparkMax
 from commands2 import Subsystem
 from constants import (
@@ -12,19 +12,13 @@ from wpilib import DigitalInput, SmartDashboard
 from ntcore import NetworkTableInstance
 
 
-class Intake(Subsystem):   
-    def __init__(self):
-        self.intakeMotor = FROGSparkMax(kIntakeRollerControllerID, FROGSparkMax.MotorType.kBrushless)
-        self.transferMotor = FROGSparkMax(kTransferWheelsID, FROGSparkMax.MotorType.kBrushless)
-        self.sensor = DigitalInput(0)
-
+class Intake(Subsystem):
     def __init__(self, table: str = "Undefined"):
-
-        self.intakeMotor = CANSparkMax(
-            kIntakeRollerControllerID, CANSparkMax.MotorType.kBrushless
+        self.intakeMotor = FROGSparkMax(
+            kIntakeRollerControllerID, FROGSparkMax.MotorType.kBrushless
         )
-        self.transferMotor = CANSparkMax(
-            kTransferWheelsID, CANSparkMax.MotorType.kBrushless
+        self.transferMotor = FROGSparkMax(
+            kTransferWheelsID, FROGSparkMax.MotorType.kBrushless
         )
         self.intakeEmptySensor = DigitalInput(kIntakeSensorChannel)
         nt_table = f"{table}/{type(self).__name__}"
