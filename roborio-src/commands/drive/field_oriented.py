@@ -7,17 +7,17 @@ from wpimath.controller import ProfiledPIDControllerRadians
 from wpimath.trajectory import TrapezoidProfileRadians
 from ntcore import NetworkTableInstance
 
-povSpeed = 0.1
-povSpeeds = {
-    0: (povSpeed, 0),
-    45: (povSpeed, -povSpeed),
-    90: (0, -povSpeed),
-    135: (-povSpeed, -povSpeed),
-    180: (-povSpeed, 0),
-    225: (-povSpeed, povSpeed),
-    270: (0, povSpeed),
-    315: (povSpeed, povSpeed),
-}
+# povSpeed = 0.1
+# povSpeeds = {
+#     0: (povSpeed, 0),
+#     45: (povSpeed, -povSpeed),
+#     90: (0, -povSpeed),
+#     135: (-povSpeed, -povSpeed),
+#     180: (-povSpeed, 0),
+#     225: (-povSpeed, povSpeed),
+#     270: (0, povSpeed),
+#     315: (povSpeed, povSpeed),
+# }
 
 
 class ManualDrive(Command):
@@ -96,12 +96,12 @@ class ManualDrive(Command):
             vT = self.controller.getSlewLimitedFieldRotation()
         self._gyro_yaw.set(gyroYawCCW)
 
-        pov = self.controller.getPOV()
-        if pov != -1:
-            vX, vY = povSpeeds[pov]
-        else:
-            vX = self.controller.getSlewLimitedFieldForward()
-            vY = self.controller.getSlewLimitedFieldLeft()
+        # pov = self.controller.getPOVDebounced()
+        # if pov != -1:
+        #     vX, vY = povSpeeds[pov]
+        # else:
+        vX = self.controller.getSlewLimitedFieldForward()
+        vY = self.controller.getSlewLimitedFieldLeft()
 
         self.drive.fieldOrientedDrive(
             # self._vX, self._vY, self._vT, self._throttle
