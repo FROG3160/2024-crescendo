@@ -74,7 +74,6 @@ class IntakeSubsystem(Subsystem):
         # and then waits for noteDetected() goes True
         return (
             self.startEnd(self.runTransfer, self.stopTransfer)
-            .until(self.noteInShooter)
             .withName("RunTransfer")
         )
 
