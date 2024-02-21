@@ -15,8 +15,8 @@ from wpimath.geometry import Pose2d
 from wpilib import DataLogManager, DriverStation
 
 from robotcontainer import RobotContainer
-from subsystems.intake import Intake
 from subsystems.shooter import Shooter
+
 # Temporary falcon motor control
 from phoenix6.controls import VelocityDutyCycle, VelocityVoltage
 
@@ -42,7 +42,6 @@ class MyRobot(commands2.TimedCommandRobot):
         self.container = RobotContainer()
 
         self.startingPose2d = Pose2d(0, 0, 0)
-        self.intake = Intake()
         self.shooter = Shooter(
             constants.kLeadScrewControllerID,
             configs.leadScrewConfig,
@@ -51,13 +50,13 @@ class MyRobot(commands2.TimedCommandRobot):
             constants.kFlyWheelCOntrollerRightID,
             configs.flywheelConfig,
             constants.kSequencerControllerID,
-            configs.sequencerMotorType
+            configs.sequencerMotorType,
         )
 
-        wpilib.SmartDashboard.putNumber('flyspeed', 8.8)
-        wpilib.SmartDashboard.putNumber('rotations', -1.5)
-        wpilib.SmartDashboard.putData('Shooter',self.shooter)
-        wpilib.SmartDashboard.putData('DriveTrain', self.container.driveSubsystem)
+        wpilib.SmartDashboard.putNumber("flyspeed", 8.8)
+        wpilib.SmartDashboard.putNumber("rotations", -1.5)
+        wpilib.SmartDashboard.putData("Shooter", self.shooter)
+        wpilib.SmartDashboard.putData("DriveTrain", self.container.driveSubsystem)
 
     def disabledInit(self) -> None:
         """This function is called once each time the robot enters Disabled mode."""
@@ -88,65 +87,47 @@ class MyRobot(commands2.TimedCommandRobot):
             self.autonomousCommand.cancel()
         self.container.driveSubsystem.enable()
 
-
     def teleopPeriodic(self) -> None:
         """This function is called periodically during operator control"""
 
         # reset pose
-        if self.container.driverController.getBackButtonPressed():
+        if self.container.operatorController.getBackButtonPressed():
             self.autonomousCommand = self.container.getAutonomousCommand()
             if self.autonomousCommand:
                 print("Auto command found, setting pose.")
-                self.startingPose2d = self.autonomousCommand.getStartingPoseFromAutoFile(
-                    self.autonomousCommand.getName()
+                self.startingPose2d = (
+                    self.autonomousCommand.getStartingPoseFromAutoFile(
+                        self.autonomousCommand.getName()
+                    )
                 )
                 print("Starting pose: " + self.startingPose2d().__str__())
                 self.container.driveSubsystem.resetPose(self.startingPose2d)
 
-
-
-        # Temporary Intake Control
-        if self.container.operatorController.getRightTriggerAxis() > 0.5:
-            # self.intake.intakeMotor.set(-0.5)
-            self.intake.transferMotor.set(0.3)
-            self.shooter.sequencer.set(0.3)
-        else:
-            self.intake.intakeMotor.set(-0.0)
-            self.intake.transferMotor.set(0.0)
-            self.shooter.sequencer.set(0.0)
-        # self.intake.intakeMotor.set(
-        #     self.container.operatorController.getIntakeWheelSpeed()
-        # )
-        # self.intake.transferMotor.set(
-        #     self.container.operatorController.getTransferWheelSpeed()
-        # )
-            
         if self.container.operatorController.getAButton():
-            self.shooter.setLeadscrewPosition(wpilib.SmartDashboard.getNumber('rotations', 0))
+            self.shooter.setLeadscrewPosition(
+                wpilib.SmartDashboard.getNumber("rotations", 0)
+            )
         if self.container.operatorController.getBButton():
             self.shooter.setLeadscrewPosition(8.5)
         if self.container.operatorController.getXButton():
             self.shooter.setLeadscrewPosition(0)
 
-
-
         if self.container.operatorController.getLeftTriggerAxis() > 0.7:
             self.shooter.setFlywheelSpeed(90.0)
         elif self.container.operatorController.getLeftTriggerAxis() > 0.2:
-            self.shooter.setFlywheelSpeed(wpilib.SmartDashboard.getNumber('flyspeed', 1))
+            self.shooter.setFlywheelSpeed(
+                wpilib.SmartDashboard.getNumber("flyspeed", 1)
+            )
         else:
             self.shooter.setFlywheelSpeed(0.0)
-        
 
         # self.shooter.setFlywheelSpeed(
         #     self.container.operatorController.getFlyWheelSpeed()
         #     * constants.kFalconMaxRps
         # )
         self.shooter.runFlywheels()
-        #self.shooter.sequencer.set(self.container.operatorController.runSequencer())
-
+        # self.shooter.sequencer.set(self.container.operatorController.runSequencer())
 
     def testInit(self) -> None:
         # Cancels all running commands at the start of test mode
         commands2.CommandScheduler.getInstance().cancelAll()
-

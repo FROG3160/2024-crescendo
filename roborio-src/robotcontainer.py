@@ -11,14 +11,21 @@ import commands2
 import commands2.button
 import commands2.cmd
 
-from constants import kDriverControllerPort, kOperatorControllerPort, kDeadband, kDebouncePeriod, kTranslationSlew, kRotSlew
+from constants import (
+    kDriverControllerPort,
+    kOperatorControllerPort,
+    kDeadband,
+    kDebouncePeriod,
+    kTranslationSlew,
+    kRotSlew,
+)
 
 from FROGlib.xbox import FROGXboxDriver, FROGXboxOperator
 from subsystems.drivetrain import DriveTrain
 from pathplannerlib.auto import PathPlannerAuto, NamedCommands
 from subsystems.vision import VisionSubsystem, AprilTagSubsystem
+from subsystems.intake import IntakeSubsystem
 from commands.drive.field_oriented import ManualDrive
-
 
 
 class RobotContainer:
@@ -32,35 +39,38 @@ class RobotContainer:
     def __init__(self) -> None:
 
         # The driver's controller
-        self.driverController = FROGXboxDriver(kDriverControllerPort, kDeadband, kDebouncePeriod, kTranslationSlew, kRotSlew)
+        self.driverController = FROGXboxDriver(
+            kDriverControllerPort,
+            kDeadband,
+            kDebouncePeriod,
+            kTranslationSlew,
+            kRotSlew,
+        )
         self.operatorController = FROGXboxOperator(kOperatorControllerPort, kDeadband)
 
         # Create all subsystems here.  If a subsystem is needed by other subsystems, create it first,
         # then pass it in to the subsystems needing it.
         self.visionSubsystem = AprilTagSubsystem()
+        self.intakeSubsystem = IntakeSubsystem("")
         self.driveSubsystem = DriveTrain(self.visionSubsystem)
-
 
         # Configure the button bindings
         self.configureButtonBindings()
 
         # Configure default commands
-        # Set the default drive command to split-stick arcade drive
-        self.driveSubsystem.setDefaultCommand(ManualDrive(self.driverController, self.driveSubsystem))
-            # A split-stick arcade command, with forward/backward controlled by the left
-            # hand, and turning controlled by the right.
-           
+        self.driveSubsystem.setDefaultCommand(
+            ManualDrive(self.driverController, self.driveSubsystem)
+        )
 
         # Chooser
         self.chooser = wpilib.SendableChooser()
 
-        autosPath = os.path.join(wpilib.getDeployDirectory(), 'pathplanner', 'autos')
+        autosPath = os.path.join(wpilib.getDeployDirectory(), "pathplanner", "autos")
         for autoFile in os.listdir(autosPath):
-            autoName = autoFile.split('.')[0]
+            autoName = autoFile.split(".")[0]
             ppAuto = PathPlannerAuto(autoName)
             wpilib.SmartDashboard.putData(f"autos/{autoName}", ppAuto)
             self.chooser.addOption(autoName, ppAuto)
-
 
         # Add commands to the autonomous command chooser
         # self.chooser.setDefaultOption("Simple Auto", self.simpleAuto)
@@ -76,6 +86,8 @@ class RobotContainer:
         and then passing it to a JoystickButton.
         """
 
+        self.driverController.a().onTrue(self.intakeSubsystem.intakeCommand())
+        self.driverController.x().onTrue(self.intakeSubsystem.stopIntakeCommand())
         # # Grab the hatch when the Circle button is pressed.
         # self.driverController.circle().onTrue(self.hatchSubsystem.grabHatch())
 
