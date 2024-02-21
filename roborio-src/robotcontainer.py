@@ -87,7 +87,7 @@ class RobotContainer:
         """
 
         self.driverController.a().onTrue(self.intakeSubsystem.intakeCommand())
-        self.driverController.x().onTrue(self.intakeSubsystem.intakeCommand().cancel())
+        self.driverController.x().onTrue(self.intakeSubsystem.stopIntakeCommand())
         # # Grab the hatch when the Circle button is pressed.
         # self.driverController.circle().onTrue(self.hatchSubsystem.grabHatch())
 
