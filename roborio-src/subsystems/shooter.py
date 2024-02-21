@@ -104,7 +104,7 @@ class Shooter(Subsystem):
         )
 
     def stopSequencerCommand(self) -> Command:
-        return self.runOnce(self.stopIntake).withName("StopSequencer")
+        return self.runOnce(self.stopSequencer).withName("StopSequencer")
     
     def setLeadscrewPosition(self, leadscrewPosition: float):
         self.leadscrewPosition = leadscrewPosition
