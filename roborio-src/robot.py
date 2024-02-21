@@ -15,8 +15,6 @@ from wpimath.geometry import Pose2d
 from wpilib import DataLogManager, DriverStation
 
 from robotcontainer import RobotContainer
-from subsystems.shooter import Shooter
-
 # Temporary falcon motor control
 from phoenix6.controls import VelocityDutyCycle, VelocityVoltage
 
@@ -42,20 +40,10 @@ class MyRobot(commands2.TimedCommandRobot):
         self.container = RobotContainer()
 
         self.startingPose2d = Pose2d(0, 0, 0)
-        self.shooter = Shooter(
-            constants.kLeadScrewControllerID,
-            configs.leadScrewConfig,
-            constants.kFlyWheelControllerLeftID,
-            configs.flywheelConfig,
-            constants.kFlyWheelCOntrollerRightID,
-            configs.flywheelConfig,
-            constants.kSequencerControllerID,
-            configs.sequencerMotorType,
-        )
 
         wpilib.SmartDashboard.putNumber("flyspeed", 8.8)
         wpilib.SmartDashboard.putNumber("rotations", -1.5)
-        wpilib.SmartDashboard.putData("Shooter", self.shooter)
+        wpilib.SmartDashboard.putData("Shooter", self.container.shooter)
         wpilib.SmartDashboard.putData("DriveTrain", self.container.driveSubsystem)
 
     def disabledInit(self) -> None:
@@ -104,29 +92,29 @@ class MyRobot(commands2.TimedCommandRobot):
                 self.container.driveSubsystem.resetPose(self.startingPose2d)
 
         if self.container.operatorController.getAButton():
-            self.shooter.setLeadscrewPosition(
+            self.container.shooter.setLeadscrewPosition(
                 wpilib.SmartDashboard.getNumber("rotations", 0)
             )
         if self.container.operatorController.getBButton():
-            self.shooter.setLeadscrewPosition(8.5)
+            self.container.shooter.setLeadscrewPosition(8.5)
         if self.container.operatorController.getXButton():
-            self.shooter.setLeadscrewPosition(0)
+            self.container.shooter.setLeadscrewPosition(0)
 
         if self.container.operatorController.getLeftTriggerAxis() > 0.7:
-            self.shooter.setFlywheelSpeed(90.0)
+            self.container.shooter.setFlywheelSpeed(90.0)
         elif self.container.operatorController.getLeftTriggerAxis() > 0.2:
-            self.shooter.setFlywheelSpeed(
+            self.container.shooter.setFlywheelSpeed(
                 wpilib.SmartDashboard.getNumber("flyspeed", 1)
             )
         else:
-            self.shooter.setFlywheelSpeed(0.0)
+            self.container.shooter.setFlywheelSpeed(0.0)
 
-        # self.shooter.setFlywheelSpeed(
+        # self.container.shooter.setFlywheelSpeed(
         #     self.container.operatorController.getFlyWheelSpeed()
         #     * constants.kFalconMaxRps
         # )
-        self.shooter.runFlywheels()
-        # self.shooter.sequencer.set(self.container.operatorController.runSequencer())
+        self.container.shooter.runFlywheels()
+        # self.container.shooter.sequencer.set(self.container.operatorController.runSequencer())
 
     def testInit(self) -> None:
         # Cancels all running commands at the start of test mode
