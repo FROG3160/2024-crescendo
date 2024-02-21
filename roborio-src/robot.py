@@ -91,7 +91,7 @@ class MyRobot(commands2.TimedCommandRobot):
         """This function is called periodically during operator control"""
 
         # reset pose
-        if self.container.driverController.getBackButtonPressed():
+        if self.container.operatorController.getBackButtonPressed():
             self.autonomousCommand = self.container.getAutonomousCommand()
             if self.autonomousCommand:
                 print("Auto command found, setting pose.")
