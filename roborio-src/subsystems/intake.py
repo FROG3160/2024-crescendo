@@ -8,6 +8,7 @@ from constants import (
     kRollerSpeed,
     kTransferSpeed,
     kIntakeSensorChannel,
+    kShooterSensorChannel,
 )
 from wpilib import DigitalInput, SmartDashboard
 from ntcore import NetworkTableInstance
@@ -65,14 +66,29 @@ class IntakeSubsystem(Subsystem):
         )
 
     def stopIntakeCommand(self) -> Command:
+        # used to kill the intake outside normal operations
         return self.runOnce(self.stopIntake).withName("StopIntake")
+
+    def transferCommand(self) -> Command:
+        # return a command that starts the transferMotor
+        # and then waits for noteDetected() goes True
+        return (
+            self.startEnd(self.runTransfer, self.stopTransfer)
+            .until(self.noteInShooter)
+            .withName("RunTransfer")
+        )
+
+    def stopTransferCommand(self) -> Command:
+        # used to kill the transfer motor outside normal operations
+        return self.runOnce(self.stopIntake).withName("StopTransfer")
 
     def runIntake(self) -> None:
         self.state = self.State.Intaking
         self.intakeMotorCommandedSpeed = kRollerSpeed
         self.intakeMotor.set(self.intakeMotorCommandedSpeed)
 
-    def transfer(self):
+    def runTransfer(self):
+        self.state = self.State.Transferring
         self.transferMotorCommandedSpeed = kTransferSpeed
         self.transferMotor.set(self.transferMotorCommandedSpeed)
 
@@ -86,6 +102,11 @@ class IntakeSubsystem(Subsystem):
 
     def stopTransfer(self):
         self.transferMotorCommandedSpeed = 0
+        self.transferMotor.set(self.transferMotorCommandedSpeed)
+        if self.noteDetected():
+            self.state = self.State.Holding
+        else:
+            self.state = self.State.Waiting
 
     def isIntakeRunning(self):
         return abs(self.intakeMotor.getAppliedOutput()) > 0.0
