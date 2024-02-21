@@ -1,4 +1,4 @@
-from commands2 import Subsystem
+from commands2 import Subsystem, Command
 from FROGlib.motors import FROGTalonFX, FROGTalonFXConfig, FROGSparkMax
 from phoenix6.controls import (
     PositionDutyCycle,
@@ -8,7 +8,6 @@ from phoenix6.controls import (
     VoltageOut,
     MotionMagicVoltage,
 )
-
 import constants
 import configs
 from phoenix6.signals.spn_enums import NeutralModeValue, InvertedValue
@@ -97,6 +96,16 @@ class Shooter(Subsystem):
     def stopSequencer(self):
         self.sequencer.stopMotor()
 
+    def sequencerCommand(self) -> Command:
+        return(
+            self.startEnd(self.runSequencer, self.stopSequencer)
+            .until(self.noteInShooter)
+            .withName("RunSequencer")
+        )
+
+    def stopSequencerCommand(self) -> Command:
+        return self.runOnce(self.stopIntake).withName("StopSequencer")
+    
     def setLeadscrewPosition(self, leadscrewPosition: float):
         self.leadscrewPosition = leadscrewPosition
         self.leadScrew.set_control(
@@ -112,7 +121,7 @@ class Shooter(Subsystem):
     def zeroLeadScrew(self):
         self.leadScrew.set_position(0)
 
-    def noteDetected(self) -> bool:
+    def noteInShooter(self) -> bool:
         return not self.shooterSensor.get()
 
     def logTelemetry(self):
