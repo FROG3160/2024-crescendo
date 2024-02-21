@@ -15,13 +15,14 @@ from ntcore import NetworkTableInstance
 from wpilib import DigitalInput
 
 
-class Shooter(Subsystem):
+class ShooterSubsystem(Subsystem):
 
     flyWheelSpeed: float
     leadScrewPosition: float
 
     def __init__(
         self,
+        intake,
         lead_screw_id: int,
         lead_screw_config: FROGTalonFXConfig,
         left_flywheel_id: int,
@@ -43,6 +44,7 @@ class Shooter(Subsystem):
         self.rightFlyWheel = FROGTalonFX(right_flywheel_id, right_flywheel_config)
         self.sequencer = FROGSparkMax(sequencer_id, sequencer_motor_type)
         self.shooterSensor = DigitalInput(constants.kShooterSensorChannel)
+        self.intake = intake
         nt_table = f"{table}/{type(self).__name__}"
 
         self._flywheelCommandedVelocity = (

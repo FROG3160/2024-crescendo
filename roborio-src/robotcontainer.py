@@ -10,7 +10,8 @@ from wpilib.interfaces import GenericHID
 import commands2
 import commands2.button
 import commands2.cmd
-
+import constants
+import configs
 from constants import (
     kDriverControllerPort,
     kOperatorControllerPort,
@@ -25,6 +26,7 @@ from subsystems.drivetrain import DriveTrain
 from pathplannerlib.auto import PathPlannerAuto, NamedCommands
 from subsystems.vision import VisionSubsystem, AprilTagSubsystem
 from subsystems.intake import IntakeSubsystem
+from subsystems.shooter import ShooterSubsystem
 from commands.drive.field_oriented import ManualDrive
 
 
@@ -53,6 +55,17 @@ class RobotContainer:
         self.visionSubsystem = AprilTagSubsystem()
         self.intakeSubsystem = IntakeSubsystem("")
         self.driveSubsystem = DriveTrain(self.visionSubsystem)
+        self.shooter = ShooterSubsystem(
+            self.intakeSubsystem,
+            constants.kLeadScrewControllerID,
+            configs.leadScrewConfig,
+            constants.kFlyWheelControllerLeftID,
+            configs.flywheelConfig,
+            constants.kFlyWheelCOntrollerRightID,
+            configs.flywheelConfig,
+            constants.kSequencerControllerID,
+            configs.sequencerMotorType,
+        )
 
         # Configure the button bindings
         self.configureButtonBindings()
