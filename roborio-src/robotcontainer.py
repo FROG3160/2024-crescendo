@@ -24,7 +24,7 @@ from constants import (
 from FROGlib.xbox import FROGXboxDriver, FROGXboxOperator
 from subsystems.drivetrain import DriveTrain
 from pathplannerlib.auto import PathPlannerAuto, NamedCommands
-from subsystems.vision import VisionSubsystem, AprilTagSubsystem
+from subsystems.vision import PositioningSubsystem, TargetingSubsystem
 from subsystems.intake import IntakeSubsystem
 from subsystems.shooter import ShooterSubsystem
 from commands.drive.field_oriented import ManualDrive
@@ -52,9 +52,10 @@ class RobotContainer:
 
         # Create all subsystems here.  If a subsystem is needed by other subsystems, create it first,
         # then pass it in to the subsystems needing it.
-        self.visionSubsystem = AprilTagSubsystem()
+        self.positioningSubsystem = PositioningSubsystem()
+        self.targetingSubsystem = TargetingSubsystem()
         self.intakeSubsystem = IntakeSubsystem("")
-        self.driveSubsystem = DriveTrain(self.visionSubsystem)
+        self.driveSubsystem = DriveTrain(self.positioningSubsystem)
         self.shooter = ShooterSubsystem(
             self.intakeSubsystem,
             constants.kLeadScrewControllerID,
