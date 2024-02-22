@@ -6,7 +6,8 @@ from ntcore import NetworkTableInstance
 from wpimath.geometry import Pose3d, Translation3d, Rotation3d
 
 
-class FROGLLObjects:
+class FROGTargeting:
+    """Custom FROG class for reading network tables data from limelight configured to identify targets"""
 
     def __init__(self, limelight_name: str = "limelight"):
         # get Network Tables table that the limelight is publishing to.
@@ -106,7 +107,8 @@ class FROGLLObjects:
         self.getTarget()
 
 
-class FROGLLField:
+class FROGPositioning:
+    """FROG Custom class handling network tables data from limelight configured to use AprilTags"""
 
     def __init__(self, limelight_name: str = "limelight"):
         self.network_table = NetworkTableInstance.getDefault().getTable(
