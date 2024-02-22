@@ -24,7 +24,7 @@ from constants import (
 from FROGlib.xbox import FROGXboxDriver, FROGXboxOperator
 from subsystems.drivetrain import DriveTrain
 from pathplannerlib.auto import PathPlannerAuto, NamedCommands
-from subsystems.vision import VisionSubsystem, PositioningSubsystem
+from subsystems.vision import PositioningSubsystem
 from subsystems.intake import IntakeSubsystem
 from subsystems.shooter import ShooterSubsystem
 from commands.drive.field_oriented import ManualDrive
