@@ -3,7 +3,7 @@ from typing import Tuple, Any
 import constants
 import wpilib
 from ntcore import NetworkTableInstance
-from wpimath.geometry import Pose3d, Translation3d, Rotation3d
+from wpimath.geometry import Pose3d, Translation3d, Rotation3d, Transform3d
 
 
 class FROGTargeting:
@@ -152,9 +152,14 @@ class FROGPositioning:
         return (*self.arrayToBotPoseEstimate(self.nt_botpose_red.get()),)
 
     def getTargetTransform(self):
-        transform = self.nt_targetpose_robotspace.get()
-        if transform[0] != -99:
-            return self.nt_targetpose_robotspace.get()
+        transform_array = self.nt_targetpose_robotspace.get()
+        timestamp = transform_array[6]
+        transform = Transform3d(
+            Translation3d(transform_array[0], transform_array[1], transform_array[2]),
+            Rotation3d(transform_array[3], transform_array[4], transform_array[5]),
+        )
+        if timestamp > 0:
+            return transform, timestamp
 
     def arrayToBotPoseEstimate(self, poseArray) -> Tuple[Pose3d, Any]:
         """Takes limelight array data and creates a Pose3d object for
