@@ -1,19 +1,16 @@
 from commands2 import Subsystem
 from wpimath.geometry import Pose3d
-from photonlibpy.photonCamera import PhotonCamera
-from photonlibpy.photonPoseEstimator import PhotonPoseEstimator, PoseStrategy
-from photonlibpy.photonTrackedTarget import PhotonTrackedTarget
+from wpimath.kinematics import ChassisSpeeds
 from FROGlib.limelight import FROGPositioning, FROGTargeting
 from robotpy_apriltag import loadAprilTagLayoutField, AprilTagField
-from configs import robotToLimeLightTransform
-from constants import kPhotonCameraName
+from constants import kLimelightPositioning, kLimelightTargeting
 from wpilib import SmartDashboard
 
 
 class PositioningSubsystem(Subsystem):
     def __init__(self):
         super().__init__()
-        self.estimator = FROGPositioning("limelight-field")
+        self.estimator = FROGPositioning(kLimelightPositioning)
 
     def periodic(self) -> None:
         self.latestPose = self.estimator.getBotPoseEstimateBlue()
@@ -31,7 +28,39 @@ class PositioningSubsystem(Subsystem):
 class TargetingSubsystem(Subsystem):
     def __init__(self):
         super().__init__()
-        self.camera = FROGTargeting
+        self.camera = FROGTargeting(kLimelightTargeting)
+
+    def calculate_vx(self):
+        """Calculate X robot-oriented speed from the size of the target.  Return is inverted
+        since we need the robot to drive backwards toward the target to pick it up.
+
+        Args:
+            targetArea (Float):  The target area determined by limelight.
+
+        Returns:
+            Float: Velocity in the X direction (robot oriented)
+        """
+        if targetArea := self.camera.ta:
+            return min(-0.20, -(targetArea * -0.0125 + 1.3125))
+
+    def calculate_vt(self):
+        """Calculate the rotational speed from the X value of the target in the camera frame.
+        Return is inverted to make left rotation positive from a negative X value, meaning the
+        target is to the left of center of the camera's view.
+
+        Args:
+            targetX (Float): The X value of the target in the camera frame, 0 is straight ahead,
+            to the left is negative, to the right is positive.
+
+        Returns:
+            Float: Rotational velocity with CCW (left, robot oriented) positive.
+        """
+        if targetX := self.camera.tx:
+            return -(targetX / 25)
+
+    def getChassisSpeeds(self):
+        """Get calculated velocities from vision target data"""
+        return ChassisSpeeds(self.calculate_vx, 0, self.calculate_vt)
 
     def periodic(self) -> None:
-        self.target = self.camera.getTarget()
+        self.camera.getTarget()
