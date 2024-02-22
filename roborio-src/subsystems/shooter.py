@@ -98,11 +98,12 @@ class ShooterSubsystem(Subsystem):
     def stopSequencer(self):
         self.sequencer.stopMotor()
 
-    def sequencerCommand(self) -> Command:
+    def loadShooterCommand(self) -> Command:
         return(
             self.startEnd(self.runSequencer, self.stopSequencer)
             .until(self.noteInShooter)
             .withName("RunSequencer")
+            .deadlineWith(self.intake.transferCommand())
         )
 
     def stopSequencerCommand(self) -> Command:
