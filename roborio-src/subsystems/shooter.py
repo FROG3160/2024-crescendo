@@ -1,4 +1,4 @@
-from commands2 import Subsystem, Command
+from commands2 import Subsystem, Command, cmd
 from FROGlib.motors import FROGTalonFX, FROGTalonFXConfig, FROGSparkMax
 from phoenix6.controls import (
     PositionDutyCycle,
@@ -79,10 +79,18 @@ class ShooterSubsystem(Subsystem):
             VelocityVoltage(velocity=self.flywheelSpeed, slot=0)
         )
         self.rightFlyWheel.set_control(
-            VelocityVoltage(velocity=-self.flywheelSpeed, slot=0)
+            VelocityVoltage(velocity=self.flywheelSpeed, slot=0)
         )
 
-    def getFlyWheelSpeedsIsTrue(self) -> bool:
+    def stopFlywheels(self):
+        self.leftFlyWheel.set_control(
+            VelocityVoltage(velocity=0, slot=0)
+        )
+        self.rightFlyWheel.set_control(
+            VelocityVoltage(velocity=0, slot=0)
+        )
+
+    def flywheelAtSpeedIsTrue(self) -> bool:
         if (
             self.flywheelSpeed == self.leftFlyWheel.get_velocity()
             and self.flywheelSpeed == abs(self.rightFlyWheel.get_velocity())
@@ -109,6 +117,19 @@ class ShooterSubsystem(Subsystem):
     def stopSequencerCommand(self) -> Command:
         return self.runOnce(self.stopSequencer).withName("StopSequencer")
     
+    def shootCommand(self) -> Command:
+        self.runFlywheels()
+        return(
+            self.runOnce(self.runSequencer)
+            .onlyIf(self.flywheelAtSpeedIsTrue)
+        )
+    
+    def stopShootingCommand(self) -> Command:
+        self.stopFlywheels()
+        return(
+            self.runOnce(self.stopSequencerCommand)
+        )
+        
     def setLeadscrewPosition(self, leadscrewPosition: float):
         self.leadscrewPosition = leadscrewPosition
         self.leadScrew.set_control(
