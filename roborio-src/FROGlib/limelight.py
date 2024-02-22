@@ -7,24 +7,25 @@ from wpimath.geometry import Pose3d, Translation3d, Rotation3d
 
 
 class FROGLLObjects:
-    #pipeline stuff and lists go here
-    def __init__(self, name):
-        self.ll_objectTable = NetworkTableInstance.getDefault().getTable(
-            key=name
-        )
-        self.objectTclass = self.ll_objectTable.getStringTopic("tclass").subscribe(
-            "None"
-        )
-        self.objectTa = self.ll_objectTable.getFloatTopic("ta").subscribe(0)
-        self.objectTx = self.ll_objectTable.getFloatTopic("tx").subscribe(-999)
-        self.objectTv = self.ll_objectTable.getIntegerTopic("tv").subscribe(0)
-        self.objectPipe = self.ll_objectTable.getIntegerTopic("getpipe").subscribe(-1)
 
-        self.objectCl = self.ll_objectTable.getFloatTopic("cl").subscribe(0)
-        self.objectT1 = self.ll_objectTable.getFloatTopic("tl").subscribe(0)
+    def __init__(self, limelight_name: str = "limelight"):
+        # get Network Tables table that the limelight is publishing to.
+        self.network_table = NetworkTableInstance.getDefault().getTable(
+            key=limelight_name
+        )
+        self.nt_tclass = self.network_table.getStringTopic("tclass").subscribe("None")
+        self.nt_ta = self.network_table.getFloatTopic("ta").subscribe(0)
+        self.nt_tx = self.network_table.getFloatTopic("tx").subscribe(-999)
+        self.nt_tv = self.network_table.getIntegerTopic("tv").subscribe(0)
+        self.nt_pipeline = self.network_table.getIntegerTopic("getpipe").subscribe(-1)
+
+        self.nt_cl = self.network_table.getFloatTopic("cl").subscribe(0)
+        self.nt_tl = self.network_table.getFloatTopic("tl").subscribe(0)
 
         # create the timer that we can use to the the FPGA timestamp
         self.timer = wpilib.Timer()
+
+        # these filters can be used to reduce "noise" in the readings
         # self.txFilter = MedianFilter(8)
         # self.taFilter = MedianFilter(8)
         # self.poseXFilter = MedianFilter(8)
@@ -34,26 +35,21 @@ class FROGLLObjects:
         # self.posePitchFilter = MedianFilter(8)
         # self.poseYawFilter = MedianFilter(8)
 
-    def getLatency(self):
-        return (self.objectCl.get() + self.objectT1.get()) / 1000
+    def getLatency(self) -> float:
+        return (self.nt_cl.get() + self.nt_tl.get()) / 1000
 
-    '''
-    def findCubes(self):
-        self.setGrabberPipeline(LL_CUBE)
-    probably dont need this
-    def findCones(self):
-        self.setGrabberPipeline(LL_CONE)
-    '''
+    def setPipeline(self, pipeline_num: int):
+        self.network_table.putNumber("pipeline", pipeline_num)
 
-    def getObjectPipeline(self):
-        return self.objectPipe.get()
+    def getPipeline(self):
+        return self.nt_pipeline.get()
 
     def getTarget(self):
-        if self.objectTv.get():
-            self.tClass = self.objectTclass.get()
-            self.ta = self.objectTa.get()
-            self.tx = self.objectTx.get()
-            self.tv = self.objectTv.get()
+        if self.nt_tv.get():
+            self.tClass = self.nt_tclass.get()
+            self.ta = self.nt_ta.get()
+            self.tx = self.nt_tx.get()
+            self.tv = self.nt_tv.get()
             self.drive_vRotate = self.calculateRotation(self.tx)
             self.drive_vX = self.calculateX(self.ta)
             self.drive_vY = 0
@@ -77,6 +73,7 @@ class FROGLLObjects:
         return min(-0.20, -(targetArea * -0.0125 + 1.3125))
         # calcX = -(-0.0002*(targetArea**2) + 0.0093*targetArea+1)
         # return max(-1, calcX)
+
     # the calculates should probalby be put into the apriltag class
 
     def calculateRotation(self, targetX):
@@ -99,79 +96,66 @@ class FROGLLObjects:
         Returns:
             Tuple(vX, vY, vT): X, Y, and rotation velocities as a tuple.
         """
-        #most likeley to be put into apriltag class
+        # most likeley to be put into apriltag class
         return (self.drive_vX, self.drive_vY, self.drive_vRotate)
 
     def hasObjectTarget(self):
-        return self.tv
+        return self.tv == 1
 
     def execute(self) -> None:
         self.getTarget()
-        #might need that in apriltag class
-
-    def setObjectPipeline(self, objectInt: int):
-        self.ll_objectTable.putNumber("pipeline", objectInt)
 
 
 class FROGLLField:
-    # fieldLayout: FROGFieldLayout
 
-    def __init__(self, table_name: str):
-        # self.fieldLayout = fieldLayout
+    def __init__(self, limelight_name: str = "limelight"):
         self.network_table = NetworkTableInstance.getDefault().getTable(
-            key=table_name
+            key=limelight_name
         )
-        self.botpose = self.network_table.getFloatArrayTopic(
-            "botpose").subscribe([-99, -99, -99, 0, 0, 0, -1])
-        self.botpose_blue = self.network_table.getFloatArrayTopic(
-            "botpose_wpiblue").subscribe([-99, -99, -99, 0, 0, 0, -1])
-        self.botpose_red = self.network_table.getFloatArrayTopic(
-            "botpose_wpired").subscribe([-99, -99, -99, 0, 0, 0, -1])
-        self.targetpose_robotspace = self.network_table.getFloatArrayTopic(
-            "targetpose_robotspace").subscribe([-99, -99, -99, 0, 0, 0, -1])
-        self.pipeline_num = self.network_table.getIntegerTopic("getpipe").subscribe(-1)
+        self.nt_botpose = self.network_table.getFloatArrayTopic("botpose").subscribe(
+            [-99, -99, -99, 0, 0, 0, -1]
+        )
+        self.nt_botpose_blue = self.network_table.getFloatArrayTopic(
+            "botpose_wpiblue"
+        ).subscribe([-99, -99, -99, 0, 0, 0, -1])
+        self.nt_botpose_red = self.network_table.getFloatArrayTopic(
+            "botpose_wpired"
+        ).subscribe([-99, -99, -99, 0, 0, 0, -1])
+        self.nt_targetpose_robotspace = self.network_table.getFloatArrayTopic(
+            "targetpose_robotspace"
+        ).subscribe([-99, -99, -99, 0, 0, 0, -1])
+        self.nt_pipeline = self.network_table.getIntegerTopic("getpipe").subscribe(-1)
         # create the timer that we can use to the the FPGA timestamp
         self.timer = wpilib.Timer()
 
     def getPipelineNum(self):
-        return self.pipeline_num.get()
+        return self.nt_pipeline.get()
+
+    def setPipeline(self, pipeline_num: int):
+        self.network_table.putNumber("pipeline", pipeline_num)
 
     # def getBotPoseEstimateForAlliance(self) -> Tuple[Pose3d, Any]:
     #     if self.fieldLayout.alliance == RED_ALLIANCE:
     #         return *self.getBotPoseEstimateRed(),
     #     elif self.fieldLayout.alliance == BLUE_ALLIANCE:
     #         return *self.getBotPoseEstimateBlue(),
-        
+
     def getBotPoseEstimate(self) -> Tuple[Pose3d, Any]:
-        return *self.arrayToBotPoseEstimate(self.botpose.get()),
+        return (*self.arrayToBotPoseEstimate(self.nt_botpose.get()),)
 
     def getBotPoseEstimateBlue(self) -> Tuple[Pose3d, Any]:
-        return *self.arrayToBotPoseEstimate(self.botpose_blue.get()),
+        return (*self.arrayToBotPoseEstimate(self.nt_botpose_blue.get()),)
 
-    def getBotPoseEstimateRed(self) ->Tuple[Pose3d, Any] :
-        return *self.arrayToBotPoseEstimate(self.botpose_red.get()),
+    def getBotPoseEstimateRed(self) -> Tuple[Pose3d, Any]:
+        return (*self.arrayToBotPoseEstimate(self.nt_botpose_red.get()),)
 
     def getTargetTransform(self):
-        transform = self.targetpose_robotspace.get()
+        transform = self.nt_targetpose_robotspace.get()
         if transform[0] != -99:
-            return self.targetpose_robotspace.get()
-
-    def getVelocities(self):
-        """Get calculated velocities from vision target data
-
-        Returns:
-            Tuple(vX, vY, vT): X, Y, and rotation velocities as a tuple.
-        """
-        return (self.drive_vX, self.drive_vY, self.drive_vRotate)
-
-    def execute(self) -> None:
-        self.getTarget()
-
-    def setUpperPipeline(self, pipeNum: int):
-        self.network_table.putNumber("pipeline", pipeNum)
+            return self.nt_targetpose_robotspace.get()
 
     def arrayToBotPoseEstimate(self, poseArray) -> Tuple[Pose3d, Any]:
-        """Takes limelight array data and creates a Pose3d object for 
+        """Takes limelight array data and creates a Pose3d object for
            robot position and a timestamp reprepresenting the time
            the position was observed.
 
@@ -186,6 +170,5 @@ class FROGLLField:
             return None, None
         else:
             return Pose3d(
-                        Translation3d(pX, pY, pZ),
-                        Rotation3d.fromDegrees(pRoll, pPitch, pYaw)
-                    ), self.timer.getFPGATimestamp() - (msLatency/1000)
+                Translation3d(pX, pY, pZ), Rotation3d.fromDegrees(pRoll, pPitch, pYaw)
+            ), self.timer.getFPGATimestamp() - (msLatency / 1000)
