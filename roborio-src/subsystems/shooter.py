@@ -82,9 +82,15 @@ class ShooterSubsystem(Subsystem):
             VelocityVoltage(velocity=self.flyWheelSpeed, slot=0)
         )
 
+    def runFlywheelsCommand(self) -> Command:
+        return self.runOnce(self.runFlywheels).withName("RunFlywheels")
+    
     def stopFlywheels(self):
         self.leftFlyWheel.set_control(VelocityVoltage(velocity=0, slot=0))
         self.rightFlyWheel.set_control(VelocityVoltage(velocity=0, slot=0))
+
+    def stopFlywheelsCommand(self) -> Command:
+        return self.runOnce(self.stopFlywheels).withName("StopFlywheels")
 
     def flywheelAtSpeedIsTrue(self) -> bool:
         if (
@@ -112,14 +118,22 @@ class ShooterSubsystem(Subsystem):
 
     def stopSequencerCommand(self) -> Command:
         return self.runOnce(self.stopSequencer).withName("StopSequencer")
+    
+    def runSequencerCommand(self) -> Command:
+        return self.runOnce(self.runSequencer).withName("RunSequencer")
 
     def shootCommand(self) -> Command:
-        self.runFlywheels()
-        return self.runOnce(self.runSequencer).onlyIf(self.flywheelAtSpeedIsTrue)
+        return(
+            self.runOnce(self.runFlywheels)
+            .andThen(self.runSequencerCommand())
+            .onlyIf(self.flywheelAtSpeedIsTrue)
+        )
 
     def stopShootingCommand(self) -> Command:
-        self.stopFlywheels()
-        return self.runOnce(self.stopSequencerCommand)
+        return (
+            self.runOnce(self.stopFlywheelsCommand) and
+            self.runOnce(self.stopSequencerCommand)
+        )
 
     def setLeadscrewPosition(self, leadscrewPosition: float):
         self.leadscrewPosition = leadscrewPosition
@@ -144,7 +158,7 @@ class ShooterSubsystem(Subsystem):
         SmartDashboard.putBoolean("ShooterDioSensor", self.noteInShooter())
 
     def logTelemetry(self):
-        self._flywheelCommandedVelocity.set(self.flywheelSpeed)
-        self._shooterCommandedPosition.set(self.leadscrewPosition)
+        self._flywheelCommandedVelocity.set(self.flyWheelSpeed)
+        self._shooterCommandedPosition.set(self.leadScrewPosition)
         self._sequencerCommandedSpeed.set(self.sequencerCommandedSpeed)
-        self._shooterSensorCurrentState.set(self.noteDetected())
+        self._shooterSensorCurrentState.set(self.noteInShooter())

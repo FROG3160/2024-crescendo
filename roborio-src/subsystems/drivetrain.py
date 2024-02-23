@@ -48,7 +48,7 @@ class DriveTrain(SwerveChassis):
             HolonomicPathFollowerConfig(  # HolonomicPathFollowerConfig, this should likely live in your Constants class
                 configs.holonomicTranslationPID,  # Translation PID constants
                 configs.holonomicTranslationPID,  # Rotation PID constants
-                0.5,  # Max module speed, in m/s
+                self.max_speed,  # Max module speed, in m/s
                 kDriveBaseRadius,  # Drive base radius in meters. Distance from robot center to furthest module.
                 ReplanningConfig(),  # Default path replanning config. See the API for the options here
             ),
