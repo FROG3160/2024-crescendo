@@ -12,7 +12,7 @@ import constants
 import configs
 from phoenix6.signals.spn_enums import NeutralModeValue, InvertedValue
 from ntcore import NetworkTableInstance
-from wpilib import DigitalInput
+from wpilib import DigitalInput, SmartDashboard
 
 
 class ShooterSubsystem(Subsystem):
@@ -138,6 +138,10 @@ class ShooterSubsystem(Subsystem):
 
     def noteInShooter(self) -> bool:
         return not self.shooterSensor.get()
+
+    def periodic(self) -> None:
+        self.logTelemetry()
+        SmartDashboard.putBoolean("ShooterDioSensor", self.noteInShooter())
 
     def logTelemetry(self):
         self._flywheelCommandedVelocity.set(self.flywheelSpeed)
