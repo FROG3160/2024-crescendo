@@ -25,17 +25,24 @@ from wpilib import SmartDashboard
 
 
 class DriveTrain(SwerveChassis):
-    def __init__(self, vision: PositioningSubsystem):
+    def __init__(self, vision: PositioningSubsystem, parent_nt: str = "Subsystems"):
         super().__init__(
-            modules=(
-                SwerveModule(**configs.swerveModuleFrontLeft),
-                SwerveModule(**configs.swerveModuleFrontRight),
-                SwerveModule(**configs.swerveModuleBackLeft),
-                SwerveModule(**configs.swerveModuleBackRight),
+            swerve_module_configs=(
+                configs.swerveModuleFrontLeft,
+                configs.swerveModuleFrontRight,
+                configs.swerveModuleBackLeft,
+                configs.swerveModuleBackRight,
             ),
+            # modules=(
+            #     SwerveModule(**configs.s,werveModuleFrontLeft),
+            #     SwerveModule(**configs.swerveModuleFrontRight),
+            #     SwerveModule(**configs.swerveModuleBackLeft),
+            #     SwerveModule(**configs.swerveModuleBackRight),
+            # ),
             gyro=FROGGyro(),
             max_speed=kMaxMetersPerSecond,
             max_rotation_speed=kMaxChassisRadiansPerSec,
+            parent_nt=parent_nt,
         )
         self.vision = vision
 

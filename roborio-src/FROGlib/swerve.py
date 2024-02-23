@@ -38,7 +38,10 @@ class SwerveModule:
         steer_config: FROGTalonFXConfig,
         cancoder_id: int,
         cancoder_config: FROGCANCoderConfig,
+        parent_nt="Undefined",
     ):
+        # set module name
+        self.name = name
         # set neutral mode for drive motor
         drive_config.motor_output.neutral_mode = NeutralModeValue.BRAKE
         # with the non-inverted SwerveDriveSpecialties swerve modules, and
@@ -48,33 +51,45 @@ class SwerveModule:
         drive_config.motor_output.inverted = InvertedValue.CLOCKWISE_POSITIVE
 
         # create/configure drive motor
-        self.drive = FROGTalonFX(drive_id, drive_config)
+        self.drive = FROGTalonFX(
+            drive_id,
+            drive_config,
+            parent_nt=f"{parent_nt}/{self.name}",
+            motor_name="Drive",
+        )
 
         # set continuous wrap to wrap around the 180 degree point
         steer_config.closed_loop_general.continuous_wrap = True
         # create/configure steer motor
-        self.steer = FROGTalonFX(steer_id, steer_config)
+        self.steer = FROGTalonFX(
+            steer_id,
+            steer_config,
+            parent_nt=f"{parent_nt}/{self.name}",
+            motor_name="Steer",
+        )
 
         # create/configure cancoder
         self.encoder = FROGCanCoder(cancoder_id, cancoder_config)
 
         # set module location
         self.location = location
-
-        # set module name
-        self.name = name
-
         #
         self.drive_unit = DriveUnit(drive_gearing, wheel_diameter)
 
         self.enabled = False
 
-        self.table = self.name
-        self._moduleSpeedPub = NetworkTableInstance.getDefault().getFloatTopic(
-            f'{self.table}/speed').publish()
-        self._moduleAnglePub = NetworkTableInstance.getDefault().getFloatTopic(
-            f'{self.table}/angle').publish()
-        
+        nt_table = f"{parent_nt}/{self.name}"
+        self._moduleSpeedPub = (
+            NetworkTableInstance.getDefault()
+            .getFloatTopic(f"{nt_table}/speed")
+            .publish()
+        )
+        self._moduleRotationPub = (
+            NetworkTableInstance.getDefault()
+            .getFloatTopic(f"{nt_table}/angle")
+            .publish()
+        )
+
     def disable(self):
         self.enabled = False
 
@@ -88,7 +103,7 @@ class SwerveModule:
         """
         return self.encoder.get_absolute_position().value
 
-    def getCurrentAzimuth(self) -> Rotation2d:
+    def getCurrentSteerAzimuth(self) -> Rotation2d:
         """Gets the Azimuth of the swerve wheel.
 
         Returns:
@@ -113,27 +128,32 @@ class SwerveModule:
     def getCurrentState(self):
         return SwerveModuleState(
             self.getCurrentSpeed(),
-            self.getCurrentAzimuth(),
+            self.getCurrentSteerAzimuth(),
         )
-    
+
     def getCurrentPosition(self):
-        return SwerveModulePosition(self.getCurrentDistance(), self.getCurrentAzimuth())
-    
+        return SwerveModulePosition(
+            self.getCurrentDistance(), self.getCurrentSteerAzimuth()
+        )
 
     def setState(self, requested_state: SwerveModuleState):
         if self.enabled:
             self.requestedState = SwerveModuleState.optimize(
-                requested_state, self.getCurrentAzimuth()
+                requested_state, self.getCurrentSteerAzimuth()
             )
-            self.commandedAngle = radiansToRotations(self.requestedState.angle.radians())
-            self.commandedSpeed = self.drive_unit.speedToVelocity(self.requestedState.speed)
+            self.commandedRotation = radiansToRotations(
+                self.requestedState.angle.radians()
+            )
+            self.commandedSpeed = self.drive_unit.speedToVelocity(
+                self.requestedState.speed
+            )
             self.steer.set_control(
                 PositionDutyCycle(
-                    position=self.commandedAngle,
+                    position=self.commandedRotation,
                     slot=0,  # Duty Cycle gains for steer
                 )
             )
-            self._moduleAnglePub.set(self.commandedAngle)
+            self._moduleRotationPub.set(self.commandedRotation)
             self.drive.set_control(
                 VelocityVoltage(
                     velocity=self.commandedSpeed,
@@ -149,17 +169,23 @@ class SwerveModule:
 class SwerveChassis(Subsystem):
     def __init__(
         self,
-        modules: Tuple[SwerveModule],
+        swerve_module_configs,
         gyro: FROGGyro,
         max_speed: float,
         max_rotation_speed: float,
+        parent_nt: str = "Subsystem",
     ):
         super().__init__()
+        self.setName("SwerveChassis")
+        nt_table = f"{parent_nt}/{self.getName()}"
         # need each of the swerve modules
         self.enabled = False
 
         self.center = Translation2d(0, 0)
-        self.modules = modules
+        self.modules = tuple(
+            SwerveModule(**config, parent_nt=nt_table)
+            for config in swerve_module_configs
+        )
         self.gyro = gyro
         self.max_speed = max_speed
         self.max_rotation_speed = max_rotation_speed
@@ -187,32 +213,34 @@ class SwerveChassis(Subsystem):
             self.kinematics,
             self.gyro.getRotation2d(),
             tuple(
-                [SwerveModulePosition(0, x.getCurrentAzimuth()) for x in self.modules]
+                [
+                    SwerveModulePosition(0, x.getCurrentSteerAzimuth())
+                    for x in self.modules
+                ]
             ),
             Pose2d(),  # TODO:  Determine if we want vision data to supply initial pose
             # last year, setFieldPosition was called and passed the vision pose during
             # robotInit()
         )
-        table = type(self).__name__
 
         self._chassisSpeedsPub = (
             NetworkTableInstance.getDefault()
-            .getStructTopic(f"{table}/chassisSpeedsCommanded", ChassisSpeeds)
+            .getStructTopic(f"{nt_table}/chassisSpeedsCommanded", ChassisSpeeds)
             .publish()
         )
         self._chassisSpeedsActualPub = (
             NetworkTableInstance.getDefault()
-            .getStructTopic(f"{table}/chassisSpeedsActual", ChassisSpeeds)
+            .getStructTopic(f"{nt_table}/chassisSpeedsActual", ChassisSpeeds)
             .publish()
         )
         self._chassisSpeedsErrorPub = (
             NetworkTableInstance.getDefault()
-            .getStructTopic(f"{table}/chassisSpeedsError", ChassisSpeeds)
+            .getStructTopic(f"{nt_table}/chassisSpeedsError", ChassisSpeeds)
             .publish()
         )
         self._estimatedPositionPub = (
             NetworkTableInstance.getDefault()
-            .getStructTopic(f"{table}/estimatedPosition", Pose2d)
+            .getStructTopic(f"{nt_table}/estimatedPosition", Pose2d)
             .publish()
         )
 
@@ -304,7 +332,10 @@ class SwerveChassis(Subsystem):
         self.estimator.resetPosition(
             self.gyro.getRotation2d(),
             tuple(
-                [SwerveModulePosition(0, x.getCurrentAzimuth()) for x in self.modules]
+                [
+                    SwerveModulePosition(0, x.getCurrentSteerAzimuth())
+                    for x in self.modules
+                ]
             ),
             pose,
         )

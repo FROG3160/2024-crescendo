@@ -8,7 +8,6 @@ from constants import (
     kRollerSpeed,
     kTransferSpeed,
     kIntakeSensorChannel,
-    kShooterSensorChannel,
 )
 from wpilib import DigitalInput, SmartDashboard
 from ntcore import NetworkTableInstance
@@ -22,9 +21,14 @@ class IntakeSubsystem(Subsystem):
         Holding = auto()  # Note loaded, but not yet transferred
         Transferring = auto()  # moving note to shooter
 
-    def __init__(self, table: str = "Undefined"):
+    def __init__(self, parent_nt: str = "Subsystems"):
+        """A Subsystem that takes notes from the field and delivers them to the shooter
+
+        Args:
+            parent_nt (str, optional): The parent network table to put this systems log data under
+        """
         super().__init__()
-        self.setName("Intake_Subsystem")
+        self.setName("Intake")
 
         self.intakeMotor = FROGSparkMax(
             kIntakeRollerControllerID, FROGSparkMax.MotorType.kBrushless
@@ -34,7 +38,7 @@ class IntakeSubsystem(Subsystem):
         )
         self.intakeEmptySensor = DigitalInput(kIntakeSensorChannel)
 
-        nt_table = f"{table}/{self.getName()}"
+        nt_table = f"{parent_nt}/{self.getName()}"
 
         self._intakeMotorCommandedSpeed = (
             NetworkTableInstance.getDefault()
@@ -61,7 +65,7 @@ class IntakeSubsystem(Subsystem):
         # and then waits for noteDetected() goes True
         return (
             self.startEnd(self.runIntake, self.stopIntake)
-            .until(self.noteDetected)
+            .until(self.noteInIntake)
             .withName("RunIntake")
         )
 
@@ -72,9 +76,8 @@ class IntakeSubsystem(Subsystem):
     def transferCommand(self) -> Command:
         # return a command that starts the transferMotor
         # and then waits for noteDetected() goes True
-        return (
-            self.startEnd(self.runTransfer, self.stopTransfer)
-            .withName("RunTransfer")
+        return self.startEnd(self.runTransfer, self.stopTransfer).withName(
+            "RunTransfer"
         )
 
     def stopTransferCommand(self) -> Command:
@@ -94,7 +97,7 @@ class IntakeSubsystem(Subsystem):
     def stopIntake(self):
         self.intakeMotorCommandedSpeed = 0
         self.intakeMotor.set(self.intakeMotorCommandedSpeed)
-        if self.noteDetected():
+        if self.noteInIntake():
             self.state = self.State.Holding
         else:
             self.state = self.State.Waiting
@@ -102,7 +105,7 @@ class IntakeSubsystem(Subsystem):
     def stopTransfer(self):
         self.transferMotorCommandedSpeed = 0
         self.transferMotor.set(self.transferMotorCommandedSpeed)
-        if self.noteDetected():
+        if self.noteInIntake():
             self.state = self.State.Holding
         else:
             self.state = self.State.Waiting
@@ -113,17 +116,18 @@ class IntakeSubsystem(Subsystem):
     def isTransferRunning(self):
         return abs(self.transferMotor.getAppliedOutput()) > 0.0
 
-    def noteDetected(self) -> bool:
+    def noteInIntake(self) -> bool:
         # intakeEmptySensor returns True when it's not detecting
         # anything, so we negate the boolean to determine when a
         # note is detected.
         return not self.intakeEmptySensor.get()
 
     def periodic(self) -> None:
+        #  as a method of subystem, this is run every loop
         self.logTelemetry()
-        SmartDashboard.putBoolean("IntakeDioSensor", self.noteDetected())
+        SmartDashboard.putBoolean("IntakeDioSensor", self.noteInIntake())
 
     def logTelemetry(self):
         self._intakeMotorCommandedSpeed.set(self.intakeMotorCommandedSpeed)
         self._transferMotorCommandedSpeed.set(self.transferMotorCommandedSpeed)
-        self._intakeSensorCurrentState.set(self.noteDetected())
+        self._intakeSensorCurrentState.set(self.noteInIntake())

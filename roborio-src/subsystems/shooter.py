@@ -31,9 +31,10 @@ class ShooterSubsystem(Subsystem):
         right_flywheel_config: FROGTalonFXConfig,
         sequencer_id: int,
         sequencer_motor_type,
-        table: str = "Undefined",
+        parent_nt: str = "Subsystems",
     ):
-
+        super().__init__()
+        self.setName("Shooter")
         # Very rudimentary system that allows speed control  of
         # the lead screw and flywheel on the operator Xbox controller triggers.
         # The NEO 550 will be used to pull and push the note out of
@@ -45,7 +46,7 @@ class ShooterSubsystem(Subsystem):
         self.sequencer = FROGSparkMax(sequencer_id, sequencer_motor_type)
         self.shooterSensor = DigitalInput(constants.kShooterSensorChannel)
         self.intake = intake
-        nt_table = f"{table}/{type(self).__name__}"
+        nt_table = f"{parent_nt}/{self.getName()}"
 
         self._flywheelCommandedVelocity = (
             NetworkTableInstance.getDefault()
@@ -84,7 +85,7 @@ class ShooterSubsystem(Subsystem):
 
     def runFlywheelsCommand(self) -> Command:
         return self.runOnce(self.runFlywheels).withName("RunFlywheels")
-    
+
     def stopFlywheels(self):
         self.leftFlyWheel.set_control(VelocityVoltage(velocity=0, slot=0))
         self.rightFlyWheel.set_control(VelocityVoltage(velocity=0, slot=0))
@@ -118,21 +119,20 @@ class ShooterSubsystem(Subsystem):
 
     def stopSequencerCommand(self) -> Command:
         return self.runOnce(self.stopSequencer).withName("StopSequencer")
-    
+
     def runSequencerCommand(self) -> Command:
         return self.runOnce(self.runSequencer).withName("RunSequencer")
 
     def shootCommand(self) -> Command:
-        return(
+        return (
             self.runOnce(self.runFlywheels)
             .andThen(self.runSequencerCommand())
             .onlyIf(self.flywheelAtSpeedIsTrue)
         )
 
     def stopShootingCommand(self) -> Command:
-        return (
-            self.runOnce(self.stopFlywheelsCommand) and
-            self.runOnce(self.stopSequencerCommand)
+        return self.runOnce(self.stopFlywheelsCommand) and self.runOnce(
+            self.stopSequencerCommand
         )
 
     def setLeadscrewPosition(self, leadscrewPosition: float):
