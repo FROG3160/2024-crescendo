@@ -83,17 +83,13 @@ class ShooterSubsystem(Subsystem):
         )
 
     def stopFlywheels(self):
-        self.leftFlyWheel.set_control(
-            VelocityVoltage(velocity=0, slot=0)
-        )
-        self.rightFlyWheel.set_control(
-            VelocityVoltage(velocity=0, slot=0)
-        )
+        self.leftFlyWheel.set_control(VelocityVoltage(velocity=0, slot=0))
+        self.rightFlyWheel.set_control(VelocityVoltage(velocity=0, slot=0))
 
     def flywheelAtSpeedIsTrue(self) -> bool:
         if (
-            self.flywheelSpeed == self.leftFlyWheel.get_velocity()
-            and self.flywheelSpeed == abs(self.rightFlyWheel.get_velocity())
+            self.flyWheelSpeed == self.leftFlyWheel.get_velocity()
+            and self.flyWheelSpeed == abs(self.rightFlyWheel.get_velocity())
         ):
             return True
         else:
@@ -107,7 +103,7 @@ class ShooterSubsystem(Subsystem):
         self.sequencer.stopMotor()
 
     def loadShooterCommand(self) -> Command:
-        return(
+        return (
             self.startEnd(self.runSequencer, self.stopSequencer)
             .until(self.noteInShooter)
             .withName("RunSequencer")
@@ -116,20 +112,15 @@ class ShooterSubsystem(Subsystem):
 
     def stopSequencerCommand(self) -> Command:
         return self.runOnce(self.stopSequencer).withName("StopSequencer")
-    
+
     def shootCommand(self) -> Command:
         self.runFlywheels()
-        return(
-            self.runOnce(self.runSequencer)
-            .onlyIf(self.flywheelAtSpeedIsTrue)
-        )
-    
+        return self.runOnce(self.runSequencer).onlyIf(self.flywheelAtSpeedIsTrue)
+
     def stopShootingCommand(self) -> Command:
         self.stopFlywheels()
-        return(
-            self.runOnce(self.stopSequencerCommand)
-        )
-        
+        return self.runOnce(self.stopSequencerCommand)
+
     def setLeadscrewPosition(self, leadscrewPosition: float):
         self.leadscrewPosition = leadscrewPosition
         self.leadScrew.set_control(

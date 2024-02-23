@@ -15,6 +15,7 @@ from wpimath.geometry import Pose2d
 from wpilib import DataLogManager, DriverStation
 
 from robotcontainer import RobotContainer
+
 # Temporary falcon motor control
 from phoenix6.controls import VelocityDutyCycle, VelocityVoltage
 
@@ -100,20 +101,10 @@ class MyRobot(commands2.TimedCommandRobot):
         if self.container.operatorController.getXButton():
             self.container.shooterSubsystem.setLeadscrewPosition(0)
 
-        if self.container.operatorController.getLeftTriggerAxis() > 0.7:
-            self.container.shooterSubsystem.setFlywheelSpeed(90.0)
-        elif self.container.operatorController.getLeftTriggerAxis() > 0.2:
-            self.container.shooterSubsystem.setFlywheelSpeed(
-                wpilib.SmartDashboard.getNumber("flyspeed", 1)
-            )
-        else:
-            self.container.shooterSubsystem.setFlywheelSpeed(0.0)
+        self.container.shooterSubsystem.setFlywheelSpeed(
+            wpilib.SmartDashboard.getNumber("flyspeed", 0)
+        )
 
-        # self.container.shooter.setFlywheelSpeed(
-        #     self.container.operatorController.getFlyWheelSpeed()
-        #     * constants.kFalconMaxRps
-        # )
-        self.container.shooterSubsystem.runFlywheels()
         # self.container.shooter.sequencer.set(self.container.operatorController.runSequencer())
 
     def testInit(self) -> None:

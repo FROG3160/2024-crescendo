@@ -102,6 +102,9 @@ class RobotContainer:
 
         self.driverController.a().onTrue(self.intakeSubsystem.intakeCommand())
         self.driverController.x().onTrue(self.intakeSubsystem.stopIntakeCommand())
+        self.driverController.rightBumper().onTrue(
+            self.shooterSubsystem.loadShooterCommand()
+        )
         self.driverController.b().onTrue(self.shooterSubsystem.shootCommand())
         self.driverController.y().onTrue(self.shooterSubsystem.stopShootingCommand())
         # # Grab the hatch when the Circle button is pressed.
