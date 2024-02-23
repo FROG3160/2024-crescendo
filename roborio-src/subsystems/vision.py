@@ -40,8 +40,8 @@ class TargetingSubsystem(Subsystem):
         Returns:
             Float: Velocity in the X direction (robot oriented)
         """
-        if targetArea := self.camera.ta:
-            return min(-0.20, -(targetArea * -0.0125 + 1.3125))
+        if targetVertical := self.camera.ty:
+            return min(-0.20, -(targetVertical * -0.0811 + 0.7432))
 
     def calculate_vt(self):
         """Calculate the rotational speed from the X value of the target in the camera frame.
