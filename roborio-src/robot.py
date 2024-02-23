@@ -43,7 +43,7 @@ class MyRobot(commands2.TimedCommandRobot):
 
         wpilib.SmartDashboard.putNumber("flyspeed", 8.8)
         wpilib.SmartDashboard.putNumber("rotations", -1.5)
-        wpilib.SmartDashboard.putData("Shooter", self.container.shooter)
+        wpilib.SmartDashboard.putData("Shooter", self.container.shooterSubsystem)
         wpilib.SmartDashboard.putData("DriveTrain", self.container.driveSubsystem)
 
     def disabledInit(self) -> None:
@@ -92,28 +92,28 @@ class MyRobot(commands2.TimedCommandRobot):
                 self.container.driveSubsystem.resetPose(self.startingPose2d)
 
         if self.container.operatorController.getAButton():
-            self.container.shooter.setLeadscrewPosition(
+            self.container.shooterSubsystem.setLeadscrewPosition(
                 wpilib.SmartDashboard.getNumber("rotations", 0)
             )
         if self.container.operatorController.getBButton():
-            self.container.shooter.setLeadscrewPosition(8.5)
+            self.container.shooterSubsystem.setLeadscrewPosition(8.5)
         if self.container.operatorController.getXButton():
-            self.container.shooter.setLeadscrewPosition(0)
+            self.container.shooterSubsystem.setLeadscrewPosition(0)
 
         if self.container.operatorController.getLeftTriggerAxis() > 0.7:
-            self.container.shooter.setFlywheelSpeed(90.0)
+            self.container.shooterSubsystem.setFlywheelSpeed(90.0)
         elif self.container.operatorController.getLeftTriggerAxis() > 0.2:
-            self.container.shooter.setFlywheelSpeed(
+            self.container.shooterSubsystem.setFlywheelSpeed(
                 wpilib.SmartDashboard.getNumber("flyspeed", 1)
             )
         else:
-            self.container.shooter.setFlywheelSpeed(0.0)
+            self.container.shooterSubsystem.setFlywheelSpeed(0.0)
 
         # self.container.shooter.setFlywheelSpeed(
         #     self.container.operatorController.getFlyWheelSpeed()
         #     * constants.kFalconMaxRps
         # )
-        self.container.shooter.runFlywheels()
+        self.container.shooterSubsystem.runFlywheels()
         # self.container.shooter.sequencer.set(self.container.operatorController.runSequencer())
 
     def testInit(self) -> None:

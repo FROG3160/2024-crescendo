@@ -56,7 +56,7 @@ class RobotContainer:
         self.targetingSubsystem = TargetingSubsystem()
         self.intakeSubsystem = IntakeSubsystem("")
         self.driveSubsystem = DriveTrain(self.positioningSubsystem)
-        self.shooter = ShooterSubsystem(
+        self.shooterSubsystem = ShooterSubsystem(
             self.intakeSubsystem,
             constants.kLeadScrewControllerID,
             configs.leadScrewConfig,
@@ -102,6 +102,8 @@ class RobotContainer:
 
         self.driverController.a().onTrue(self.intakeSubsystem.intakeCommand())
         self.driverController.x().onTrue(self.intakeSubsystem.stopIntakeCommand())
+        self.driverController.b().onTrue(self.shooterSubsystem.shootCommand())
+        self.driverController.y().onTrue(self.shooterSubsystem.stopShootingCommand())
         # # Grab the hatch when the Circle button is pressed.
         # self.driverController.circle().onTrue(self.hatchSubsystem.grabHatch())
 

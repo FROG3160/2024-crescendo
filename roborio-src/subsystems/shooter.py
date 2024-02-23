@@ -72,14 +72,14 @@ class ShooterSubsystem(Subsystem):
         self.sequencerCommandedSpeed = 0
 
     def setFlywheelSpeed(self, flywheelSpeed: float):
-        self.flywheelSpeed = flywheelSpeed
+        self.flyWheelSpeed = flywheelSpeed
 
     def runFlywheels(self):
         self.leftFlyWheel.set_control(
-            VelocityVoltage(velocity=self.flywheelSpeed, slot=0)
+            VelocityVoltage(velocity=self.flyWheelSpeed, slot=0)
         )
         self.rightFlyWheel.set_control(
-            VelocityVoltage(velocity=self.flywheelSpeed, slot=0)
+            VelocityVoltage(velocity=self.flyWheelSpeed, slot=0)
         )
 
     def stopFlywheels(self):
