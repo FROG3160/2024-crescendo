@@ -13,6 +13,7 @@ import configs
 from phoenix6.signals.spn_enums import NeutralModeValue, InvertedValue
 from ntcore import NetworkTableInstance
 from wpilib import DigitalInput, SmartDashboard
+from commands2.cmd import waitSeconds, waitUntil
 
 
 class ShooterSubsystem(Subsystem):
@@ -84,7 +85,7 @@ class ShooterSubsystem(Subsystem):
 
     def runFlywheelsCommand(self) -> Command:
         return self.runOnce(self.runFlywheels).withName("RunFlywheels")
-    
+
     def stopFlywheels(self):
         self.leftFlyWheel.set_control(VelocityVoltage(velocity=0, slot=0))
         self.rightFlyWheel.set_control(VelocityVoltage(velocity=0, slot=0))
@@ -118,21 +119,32 @@ class ShooterSubsystem(Subsystem):
 
     def stopSequencerCommand(self) -> Command:
         return self.runOnce(self.stopSequencer).withName("StopSequencer")
-    
+
     def runSequencerCommand(self) -> Command:
         return self.runOnce(self.runSequencer).withName("RunSequencer")
 
     def shootCommand(self) -> Command:
-        return(
-            self.runOnce(self.runFlywheels)
-            .andThen(self.runSequencerCommand())
-            .onlyIf(self.flywheelAtSpeedIsTrue)
+        return (
+            self.runFlywheelsCommand()  # run the flywheel at the commanded speed
+            .andThen(
+                waitUntil(self.flywheelAtSpeedIsTrue())
+            )  # wait until the flywheel is at speed
+            .andThen(
+                self.runSequencerCommand()
+            )  # run the sequencer to move the note into the flywheel
+            .andThen(
+                waitUntil(not self.noteInShooter())
+            )  # wait until we no longer detect the note
+            .andThen(
+                self.stopSequencerCommand()
+            )  # could also call stopShootingCommand at the very end
+            .andThen(waitSeconds(1))  # wait 1 second
+            .andThen(self.stopFlywheelsCommand())
         )
 
     def stopShootingCommand(self) -> Command:
-        return (
-            self.runOnce(self.stopFlywheelsCommand) and
-            self.runOnce(self.stopSequencerCommand)
+        return self.runOnce(self.stopFlywheelsCommand) and self.runOnce(
+            self.stopSequencerCommand
         )
 
     def setLeadscrewPosition(self, leadscrewPosition: float):
