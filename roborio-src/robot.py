@@ -11,6 +11,7 @@ import rev
 import commands2
 import constants
 import configs
+from commands2.cmd import runOnce
 from wpimath.geometry import Pose2d
 from wpilib import DataLogManager, DriverStation
 
@@ -92,16 +93,20 @@ class MyRobot(commands2.TimedCommandRobot):
         #         print("Starting pose: " + self.startingPose2d().__str__())
         #         self.container.driveSubsystem.resetPose(self.startingPose2d)
 
-        if self.container.operatorController.a().onTrue(
-            
-        )
-            self.container.shooterSubsystem.setLeadscrewPosition(
-                wpilib.SmartDashboard.getNumber("rotations", 0)
+        self.container.operatorController.a().onTrue(
+            runOnce(
+                lambda: self.container.shooterSubsystem.setLeadscrewPosition(
+                    wpilib.SmartDashboard.getNumber("rotations", 0)
+                )
             )
-        if self.container.operatorController.getBButton():
-            self.container.shooterSubsystem.setLeadscrewPosition(8.5)
-        if self.container.operatorController.getXButton():
-            self.container.shooterSubsystem.setLeadscrewPosition(0)
+        )
+
+        self.container.operatorController.b().onTrue(
+            runOnce(lambda: self.container.shooterSubsystem.setLeadscrewPosition(8.5))
+        )
+        self.container.operatorController.x().onTrue(
+            runOnce(lambda: self.container.shooterSubsystem.setLeadscrewPosition(0))
+        )
 
         self.container.shooterSubsystem.setFlywheelSpeed(
             wpilib.SmartDashboard.getNumber("flyspeed", 0)
