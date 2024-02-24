@@ -32,9 +32,10 @@ class ShooterSubsystem(Subsystem):
         right_flywheel_config: FROGTalonFXConfig,
         sequencer_id: int,
         sequencer_motor_type,
-        table: str = "Undefined",
+        parent_nt: str = "Subsystems",
     ):
-
+        super().__init__()
+        self.setName("Shooter")
         # Very rudimentary system that allows speed control  of
         # the lead screw and flywheel on the operator Xbox controller triggers.
         # The NEO 550 will be used to pull and push the note out of
@@ -46,7 +47,7 @@ class ShooterSubsystem(Subsystem):
         self.sequencer = FROGSparkMax(sequencer_id, sequencer_motor_type)
         self.shooterSensor = DigitalInput(constants.kShooterSensorChannel)
         self.intake = intake
-        nt_table = f"{table}/{type(self).__name__}"
+        nt_table = f"{parent_nt}/{self.getName()}"
 
         self._flywheelCommandedVelocity = (
             NetworkTableInstance.getDefault()

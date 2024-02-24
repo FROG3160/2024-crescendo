@@ -54,7 +54,7 @@ class RobotContainer:
         # then pass it in to the subsystems needing it.
         self.positioningSubsystem = PositioningSubsystem()
         self.targetingSubsystem = TargetingSubsystem()
-        self.intakeSubsystem = IntakeSubsystem("")
+        self.intakeSubsystem = IntakeSubsystem()
         self.driveSubsystem = DriveTrain(self.positioningSubsystem)
         self.shooterSubsystem = ShooterSubsystem(
             self.intakeSubsystem,
