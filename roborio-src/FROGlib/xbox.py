@@ -81,7 +81,7 @@ class FROGXboxDriver(CommandXboxController):
         return val
 
 
-class FROGXboxOperator(XboxController):
+class FROGXboxOperator(CommandXboxController):
     """Custom Xbox Controller class for the operator controller"""
 
     def __init__(self, port, deadband):

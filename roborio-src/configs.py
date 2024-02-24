@@ -156,11 +156,19 @@ leadScrewConfig.motion_magic.motion_magic_cruise_velocity = 20
 flywheelConfig = FROGTalonFXConfig(slot0gains=flywheelVoltageGains)
 sequencerMotorType = CANSparkMax.MotorType.kBrushless
 
-robotToLimeLightTransform = Transform3d(
-    Translation3d(
-        inchesToMeters(13),  # Forward from center
-        inchesToMeters(11.5),  # Left from center
-        inchesToMeters(22.625),  # Up from the floor
-    ),
-    Rotation3d(0, 0, math.pi),
-)
+climberMotorConfig = FROGTalonFXConfig(
+    feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(1)
+).with_motor_output(MotorOutputConfigs().with_neutral_mode(NeutralModeValue.BRAKE))
+leftClimberMotorConfig = climberMotorConfig
+rightClimberMotorConfig = climberMotorConfig
+rightClimberMotorConfig.motor_output.inverted = InvertedValue.CLOCKWISE_POSITIVE
+
+""" Don't think the following is needed anymore.  Leaving for reference."""
+# robotToLimeLightTransform = Transform3d(
+#     Translation3d(
+#         inchesToMeters(13),  # Forward from center
+#         inchesToMeters(11.5),  # Left from center
+#         inchesToMeters(22.625),  # Up from the floor
+#     ),
+#     Rotation3d(0, 0, math.pi),
+# )
