@@ -58,17 +58,7 @@ class RobotContainer:
         self.intakeSubsystem = IntakeSubsystem()
         self.climberSubsystem = ClimberSubsystem()
         self.driveSubsystem = DriveTrain(self.positioningSubsystem)
-        self.shooterSubsystem = ShooterSubsystem(
-            self.intakeSubsystem,
-            constants.kLeadScrewControllerID,
-            configs.leadScrewConfig,
-            constants.kFlyWheelControllerLeftID,
-            configs.flywheelConfig,
-            constants.kFlyWheelCOntrollerRightID,
-            configs.flywheelConfig,
-            constants.kSequencerControllerID,
-            configs.sequencerMotorType,
-        )
+        self.shooterSubsystem = ShooterSubsystem(self.intakeSubsystem)
 
         # Configure the button bindings
         self.configureButtonBindings()
