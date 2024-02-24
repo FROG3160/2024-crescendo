@@ -27,6 +27,7 @@ from pathplannerlib.auto import PathPlannerAuto, NamedCommands
 from subsystems.vision import PositioningSubsystem, TargetingSubsystem
 from subsystems.intake import IntakeSubsystem
 from subsystems.shooter import ShooterSubsystem
+from subsystems.climber import ClimberSubsystem
 from commands.drive.field_oriented import ManualDrive
 
 
@@ -55,6 +56,7 @@ class RobotContainer:
         self.positioningSubsystem = PositioningSubsystem()
         self.targetingSubsystem = TargetingSubsystem()
         self.intakeSubsystem = IntakeSubsystem()
+        self.climberSubsystem = ClimberSubsystem()
         self.driveSubsystem = DriveTrain(self.positioningSubsystem)
         self.shooterSubsystem = ShooterSubsystem(
             self.intakeSubsystem,
@@ -107,6 +109,14 @@ class RobotContainer:
         )
         self.driverController.b().onTrue(self.shooterSubsystem.shootCommand())
         self.driverController.y().onTrue(self.shooterSubsystem.stopShootingCommand())
+
+        self.operatorController.axisLessThan(
+            wpilib.XboxController.Axis.kLeftY, -0.5
+        ).whileTrue(self.climberSubsystem.get_ExtendCommand())
+        self.operatorController.axisGreaterThan(
+            wpilib.XboxController.Axis.kLeftY, 0.5
+        ).whileTrue(self.climberSubsystem.get_RetractCommand())
+
         # # Grab the hatch when the Circle button is pressed.
         # self.driverController.circle().onTrue(self.hatchSubsystem.grabHatch())
 
