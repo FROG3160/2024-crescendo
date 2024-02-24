@@ -92,7 +92,9 @@ class IntakeSubsystem(Subsystem):
     def runTransfer(self):
         self.state = self.State.Transferring
         self.transferMotorCommandedSpeed = kTransferSpeed
+        self.intakeMotorCommandedSpeed = kRollerSpeed
         self.transferMotor.set(self.transferMotorCommandedSpeed)
+        self.intakeMotor.set(self.intakeMotorCommandedSpeed)
 
     def stopIntake(self):
         self.intakeMotorCommandedSpeed = 0
@@ -104,7 +106,9 @@ class IntakeSubsystem(Subsystem):
 
     def stopTransfer(self):
         self.transferMotorCommandedSpeed = 0
+        self.intakeMotorCommandedSpeed = 0
         self.transferMotor.set(self.transferMotorCommandedSpeed)
+        self.intakeMotor.set(self.intakeMotorCommandedSpeed)
         if self.noteInIntake():
             self.state = self.State.Holding
         else:

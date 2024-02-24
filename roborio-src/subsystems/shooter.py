@@ -13,6 +13,7 @@ import configs
 from phoenix6.signals.spn_enums import NeutralModeValue, InvertedValue
 from ntcore import NetworkTableInstance
 from wpilib import DigitalInput, SmartDashboard
+from commands2.cmd import waitSeconds, waitUntil
 
 
 class ShooterSubsystem(Subsystem):
@@ -125,9 +126,21 @@ class ShooterSubsystem(Subsystem):
 
     def shootCommand(self) -> Command:
         return (
-            self.runOnce(self.runFlywheels)
-            .andThen(self.runSequencerCommand())
-            .onlyIf(self.flywheelAtSpeedIsTrue)
+            self.runFlywheelsCommand()  # run the flywheel at the commanded speed
+            .andThen(
+                waitUntil(self.flywheelAtSpeedIsTrue)
+            )  # wait until the flywheel is at speed
+            .andThen(
+                self.runSequencerCommand()
+            )  # run the sequencer to move the note into the flywheel
+            .andThen(
+                waitUntil(self.shooterSensor.get)
+            )  # wait until we no longer detect the note
+            .andThen(
+                self.stopSequencerCommand()
+            )  # could also call stopShootingCommand at the very end
+            .andThen(waitSeconds(1))  # wait 1 second
+            .andThen(self.stopFlywheelsCommand())
         )
 
     def stopShootingCommand(self) -> Command:
