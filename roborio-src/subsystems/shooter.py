@@ -127,13 +127,13 @@ class ShooterSubsystem(Subsystem):
         return (
             self.runFlywheelsCommand()  # run the flywheel at the commanded speed
             .andThen(
-                waitUntil(self.flywheelAtSpeedIsTrue())
+                waitUntil(self.flywheelAtSpeedIsTrue)
             )  # wait until the flywheel is at speed
             .andThen(
                 self.runSequencerCommand()
             )  # run the sequencer to move the note into the flywheel
             .andThen(
-                waitUntil(not self.noteInShooter())
+                waitUntil(self.shooterSensor.get)
             )  # wait until we no longer detect the note
             .andThen(
                 self.stopSequencerCommand()
