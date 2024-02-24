@@ -154,6 +154,10 @@ leadScrewConfig = FROGTalonFXConfig(
 leadScrewConfig.motion_magic.motion_magic_acceleration = 40
 leadScrewConfig.motion_magic.motion_magic_cruise_velocity = 20
 flywheelConfig = FROGTalonFXConfig(slot0gains=flywheelVoltageGains)
+leftFlywheelConfig = flywheelConfig.with_motor_output(
+    MotorOutputConfigs().with_inverted(InvertedValue.CLOCKWISE_POSITIVE)
+)
+rightFlywheelConfig = flywheelConfig
 sequencerMotorType = CANSparkMax.MotorType.kBrushless
 
 climberMotorConfig = FROGTalonFXConfig(

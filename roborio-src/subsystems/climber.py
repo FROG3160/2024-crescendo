@@ -21,11 +21,19 @@ class ClimberSubsystem(Subsystem):
     ):
         super().__init__()
         self.setName("Climber")
-        self.leftClimber = FROGTalonFX(kLeftClimberControllerID, leftClimberMotorConfig)
-        self.rightClimber = FROGTalonFX(
-            kRightClimberControllerID, rightClimberMotorConfig
-        )
         nt_table = f"{parent_nt}/{self.getName()}"
+        self.leftClimber = FROGTalonFX(
+            kLeftClimberControllerID,
+            leftClimberMotorConfig,
+            parent_nt=f"{nt_table}",
+            motor_name="LeftMotor",
+        )
+        self.rightClimber = FROGTalonFX(
+            kRightClimberControllerID,
+            rightClimberMotorConfig,
+            parent_nt=f"{nt_table}",
+            motor_name="RightMotor",
+        )
         self.motorCommandValue = 0
         self.motorControlType = ""
 

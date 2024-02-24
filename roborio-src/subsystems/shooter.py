@@ -9,11 +9,17 @@ from phoenix6.controls import (
     MotionMagicVoltage,
 )
 import constants
-import configs
+from configs import (
+    leadScrewConfig,
+    leftFlywheelConfig,
+    rightFlywheelConfig,
+    sequencerMotorType,
+)
 from phoenix6.signals.spn_enums import NeutralModeValue, InvertedValue
 from ntcore import NetworkTableInstance
 from wpilib import DigitalInput, SmartDashboard
 from commands2.cmd import waitSeconds, waitUntil
+from subsystems.intake import IntakeSubsystem
 
 
 class ShooterSubsystem(Subsystem):
@@ -23,34 +29,42 @@ class ShooterSubsystem(Subsystem):
 
     def __init__(
         self,
-        intake,
-        lead_screw_id: int,
-        lead_screw_config: FROGTalonFXConfig,
-        left_flywheel_id: int,
-        left_flywheel_config: FROGTalonFXConfig,
-        right_flywheel_id: int,
-        right_flywheel_config: FROGTalonFXConfig,
-        sequencer_id: int,
-        sequencer_motor_type,
+        intake: IntakeSubsystem,
         parent_nt: str = "Subsystems",
     ):
         super().__init__()
         self.setName("Shooter")
+        nt_table = f"{parent_nt}/{self.getName()}"
         # Very rudimentary system that allows speed control  of
         # the lead screw and flywheel on the operator Xbox controller triggers.
         # The NEO 550 will be used to pull and push the note out of
         # the intake and into the flywheel.
-        left_flywheel_config.motor_output.inverted = InvertedValue.CLOCKWISE_POSITIVE
-        right_flywheel_config.motor_output.inverted = (
-            InvertedValue.COUNTER_CLOCKWISE_POSITIVE
+        self.leadScrew = FROGTalonFX(
+            constants.kLeadScrewControllerID,
+            leadScrewConfig,
+            parent_nt=f"{nt_table}",
+            motor_name="LeadScrew",
         )
-        self.leadScrew = FROGTalonFX(lead_screw_id, lead_screw_config)
-        self.leftFlyWheel = FROGTalonFX(left_flywheel_id, left_flywheel_config)
-        self.rightFlyWheel = FROGTalonFX(right_flywheel_id, right_flywheel_config)
-        self.sequencer = FROGSparkMax(sequencer_id, sequencer_motor_type)
+        self.leftFlyWheel = FROGTalonFX(
+            constants.kFlyWheelControllerLeftID,
+            leftFlywheelConfig,
+            parent_nt=f"{nt_table}",
+            motor_name="LeftFlywheel",
+        )
+        self.rightFlyWheel = FROGTalonFX(
+            constants.kFlyWheelCOntrollerRightID,
+            rightFlywheelConfig,
+            parent_nt=f"{nt_table}",
+            motor_name="RightFlywheel",
+        )
+        self.sequencer = FROGSparkMax(
+            constants.kSequencerControllerID,
+            sequencerMotorType,
+            parent_nt=f"{nt_table}",
+            motor_name="Sequencer",
+        )
         self.shooterSensor = DigitalInput(constants.kShooterSensorChannel)
         self.intake = intake
-        nt_table = f"{parent_nt}/{self.getName()}"
 
         self._flywheelCommandedVelocity = (
             NetworkTableInstance.getDefault()

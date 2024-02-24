@@ -61,7 +61,7 @@ class FROGTalonFX(TalonFX):
         self.configurator.apply(self.config)
         if motor_name == "":
             motor_name = f"TalonFX({id})"
-        table = f"/{parent_nt}/{motor_name}"
+        table = f"{parent_nt}/{motor_name}"
         self._motorVelocityPub = (
             NetworkTableInstance.getDefault()
             .getFloatTopic(f"{table}/velocity")
@@ -153,14 +153,14 @@ class DriveUnit:
 
 class FROGSparkMax(CANSparkMax):
     def __init__(
-        self, id, motor_type, table_name: str = "Undefined", motor_name: str = ""
+        self, id, motor_type, parent_nt: str = "Undefined", motor_name: str = ""
     ):
         super().__init__(id, motor_type)
         self.encoder = self.getEncoder()
 
         if motor_name == "":
             motor_name = f"SparkMax({id})"
-        table = f"/{table_name}/{motor_name}"
+        table = f"{parent_nt}/{motor_name}"
 
         self._motorVelocityPub = (
             NetworkTableInstance.getDefault()
