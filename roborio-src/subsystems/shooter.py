@@ -41,6 +41,9 @@ class ShooterSubsystem(Subsystem):
         # The NEO 550 will be used to pull and push the note out of
         # the intake and into the flywheel.
         left_flywheel_config.motor_output.inverted = InvertedValue.CLOCKWISE_POSITIVE
+        right_flywheel_config.motor_output.inverted = (
+            InvertedValue.COUNTER_CLOCKWISE_POSITIVE
+        )
         self.leadScrew = FROGTalonFX(lead_screw_id, lead_screw_config)
         self.leftFlyWheel = FROGTalonFX(left_flywheel_id, left_flywheel_config)
         self.rightFlyWheel = FROGTalonFX(right_flywheel_id, right_flywheel_config)
@@ -96,8 +99,9 @@ class ShooterSubsystem(Subsystem):
 
     def flywheelAtSpeedIsTrue(self) -> bool:
         if (
-            self.flyWheelSpeed == self.leftFlyWheel.get_velocity()
-            and self.flyWheelSpeed == abs(self.rightFlyWheel.get_velocity())
+            abs(self.flyWheelSpeed - self.leftFlyWheel.get_velocity().value) < 5
+            and abs(self.flyWheelSpeed - abs(self.rightFlyWheel.get_velocity().value))
+            < 5
         ):
             return True
         else:
@@ -169,6 +173,7 @@ class ShooterSubsystem(Subsystem):
     def periodic(self) -> None:
         self.logTelemetry()
         SmartDashboard.putBoolean("ShooterDioSensor", self.noteInShooter())
+        SmartDashboard.putBoolean("FlywheelAtSpeed", self.flywheelAtSpeedIsTrue())
 
     def logTelemetry(self):
         self._flywheelCommandedVelocity.set(self.flyWheelSpeed)
