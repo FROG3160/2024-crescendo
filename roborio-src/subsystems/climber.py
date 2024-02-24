@@ -55,8 +55,8 @@ class ClimberSubsystem(Subsystem):
 
     def setVoltage(self, climberVoltage: float):
         motorControl = VoltageOut(climberVoltage)
-        self.motorCommandedValue = motorControl.output
-        self.motorControlType = motorControl.name()
+        self.motorCommandValue = motorControl.output
+        self.motorControlType = motorControl.name
         self.leftClimber.set_control(motorControl)
         self.rightClimber.set_control(motorControl)
 
