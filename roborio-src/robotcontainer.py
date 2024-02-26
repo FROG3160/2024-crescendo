@@ -107,6 +107,13 @@ class RobotContainer:
             wpilib.XboxController.Axis.kLeftY, 0.5
         ).whileTrue(self.climberSubsystem.get_RetractCommand())
 
+        self.operatorController.leftBumper().onTrue(
+            self.climberSubsystem.get_homeLeftClimber()
+        )
+        self.operatorController.rightBumper().onTrue(
+            self.climberSubsystem.get_homeRightClimber()
+        )
+
         # # Grab the hatch when the Circle button is pressed.
         # self.driverController.circle().onTrue(self.hatchSubsystem.grabHatch())
 

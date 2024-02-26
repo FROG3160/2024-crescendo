@@ -61,6 +61,39 @@ class ClimberSubsystem(Subsystem):
     def getTorque(self, motor: FROGTalonFX) -> float:
         return motor.get_torque_current().value
 
+    def isAtHome(self, motor: FROGTalonFX) -> bool:
+        return self.getTorque(motor) > 8
+
+    def leftClimberAtHome(self) -> bool:
+        return self.isAtHome(self.leftClimber)
+
+    def rightClimberAtHome(self) -> bool:
+        return self.isAtHome(self.rightClimber)
+
+    def resetMotorPosition(self, motor: FROGTalonFX, position: float):
+        motor.set_position(position)
+
+    def resetLeftClimberPosition(self):
+        self.resetMotorPosition(self.leftClimber, 85)
+
+    def resetRightClimberPosition(self):
+        self.resetMotorPosition(self.rightClimber, 85)
+
+    def homeMotor(self, motor):
+        """Runs motor with a low voltage in order to home it.
+
+        Args:
+            motor (FROGTalonFX): the motor to run
+        """
+        motorControl = VoltageOut(0.5)
+        motor.set_control(motorControl)
+
+    def homeLeft(self):
+        self.homeMotor(self.leftClimber)
+
+    def homeRight(self):
+        self.homeMotor(self.rightClimber)
+
     def setVoltage(self, climberVoltage: float):
         motorControl = VoltageOut(climberVoltage)
         self.motorCommandValue = motorControl.output
@@ -88,6 +121,16 @@ class ClimberSubsystem(Subsystem):
 
     def get_RetractCommand(self) -> Command:
         return self.startEnd(self.retract, self.stop)
+
+    def get_homeLeftClimber(self) -> Command:
+        return self.startEnd(self.homeLeft, self.resetLeftClimberPosition).until(
+            self.leftClimberAtHome
+        )
+
+    def get_homeRightClimber(self) -> Command:
+        return self.startEnd(self.homeRight, self.resetRightClimberPosition).until(
+            self.rightClimberAtHome
+        )
 
     def logTelemetry(self):
         self.leftClimber.logData()
