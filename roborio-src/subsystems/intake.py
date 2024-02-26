@@ -29,16 +29,21 @@ class IntakeSubsystem(Subsystem):
         """
         super().__init__()
         self.setName("Intake")
+        nt_table = f"{parent_nt}/{self.getName()}"
 
         self.intakeMotor = FROGSparkMax(
-            kIntakeRollerControllerID, FROGSparkMax.MotorType.kBrushless
+            kIntakeRollerControllerID,
+            FROGSparkMax.MotorType.kBrushless,
+            parent_nt=f"{nt_table}",
+            motor_name="IntakeRoller",
         )
         self.transferMotor = FROGSparkMax(
-            kTransferWheelsID, FROGSparkMax.MotorType.kBrushless
+            kTransferWheelsID,
+            FROGSparkMax.MotorType.kBrushless,
+            parent_nt=f"{nt_table}",
+            motor_name="TransferMotor",
         )
         self.intakeEmptySensor = DigitalInput(kIntakeSensorChannel)
-
-        nt_table = f"{parent_nt}/{self.getName()}"
 
         self._intakeMotorCommandedSpeed = (
             NetworkTableInstance.getDefault()
