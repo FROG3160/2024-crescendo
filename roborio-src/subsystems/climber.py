@@ -90,6 +90,8 @@ class ClimberSubsystem(Subsystem):
         return self.startEnd(self.retract, self.stop)
 
     def logTelemetry(self):
+        self.leftClimber.logData()
+        self.rightClimber.logData()
         self._motorCommandedValuePub.set(self.motorCommandValue)
         self._motorControlTypePub.set(self.motorControlType)
         self._leftMotorTorque.set(self.getTorque(self.leftClimber))

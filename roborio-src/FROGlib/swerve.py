@@ -164,6 +164,8 @@ class SwerveModule:
         else:
             # stop the drive motor, steer motor can stay where it is
             self.drive.set_control(VelocityVoltage(velocity=0, slot=1))
+        self.drive.logData()
+        self.steer.logData()
 
 
 class SwerveChassis(Subsystem):

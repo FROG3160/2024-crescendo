@@ -137,6 +137,8 @@ class IntakeSubsystem(Subsystem):
         SmartDashboard.putBoolean("IntakeDioSensor", self.noteInIntake())
 
     def logTelemetry(self):
+        self.intakeMotor.logData()
+        self.transferMotor.logData()
         self._intakeMotorCommandedSpeed.set(self.intakeMotorCommandedSpeed)
         self._transferMotorCommandedSpeed.set(self.transferMotorCommandedSpeed)
         self._intakeSensorCurrentState.set(self.noteInIntake())

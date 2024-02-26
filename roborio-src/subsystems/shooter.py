@@ -190,6 +190,10 @@ class ShooterSubsystem(Subsystem):
         SmartDashboard.putBoolean("FlywheelAtSpeed", self.flywheelAtSpeedIsTrue())
 
     def logTelemetry(self):
+        self.leftFlyWheel.logData()
+        self.rightFlyWheel.logData()
+        self.leadScrew.logData()
+        self.sequencer.logData()
         self._flywheelCommandedVelocity.set(self.flyWheelSpeed)
         self._shooterCommandedPosition.set(self.leadScrewPosition)
         self._sequencerCommandedSpeed.set(self.sequencerCommandedSpeed)

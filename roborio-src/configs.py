@@ -165,7 +165,7 @@ leftFlywheelConfig = FROGTalonFXConfig(
     slot0gains=leftFlywheelVoltageGains
 ).with_motor_output(clockwisePositiveMotorOutputConfig)
 rightFlywheelConfig = FROGTalonFXConfig(slot0gains=rightFlywheelVoltageGains)
-sequencerMotorCType = CANSparkMax.MotorType.kBrushless
+sequencerMotorType = CANSparkMax.MotorType.kBrushless
 
 leftClimberMotorConfig = FROGTalonFXConfig(
     feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(1)
