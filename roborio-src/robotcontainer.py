@@ -60,6 +60,10 @@ class RobotContainer:
         self.driveSubsystem = DriveTrain(self.positioningSubsystem)
         self.shooterSubsystem = ShooterSubsystem(self.intakeSubsystem)
 
+        NamedCommands.registerCommand(
+            "intakeNote", self.intakeSubsystem.intakeCommand()
+        )
+
         # Configure the button bindings
         self.configureButtonBindings()
 
