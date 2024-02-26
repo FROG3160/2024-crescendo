@@ -64,8 +64,12 @@ kShooterSensorChannel = 1
 kLeadScrewSlot0P = 0.5  # slot 0 for position
 kLeadScrewSlot1S = 0.14  # slot 1 for velocity
 kLeadScrewSlot1V = 0.42  # slot 1 for velocity
-kFlywheelVoltageS = 0.34
-kFlywheelVoltageV = 0.11
+kleftFlywheelVoltageS = 0.14
+kleftFlywheelVoltageV = 0.112
+kleftFlywheelVoltageP = 0.0025
+kRightFlywheelVoltageS = 0.16
+kRightFlywheelVoltageV = 0.1075
+kRightFlywheelVoltageP = 0.0025
 
 # Climber Motor IDs
 kLeftClimberControllerID = 7

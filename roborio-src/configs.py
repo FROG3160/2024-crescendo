@@ -28,6 +28,9 @@ driveVoltageGains = (
 
 holonomicTranslationPID = PIDConstants(5.0, 0.0, 0.0)
 holonomicRotationPID = PIDConstants(5.0, 0.0, 0.0)
+clockwisePositiveMotorOutputConfig = MotorOutputConfigs().with_inverted(
+    InvertedValue.CLOCKWISE_POSITIVE
+)
 
 swerveModuleFrontLeft = {
     "name": "FrontLeft",
@@ -137,35 +140,42 @@ leadScrewVelocityGains = (
 leadScrewVelocityGains.k_a = 0.01
 leadScrewVelocityGains.k_p = 4
 
-flywheelVoltageGains = (
+leftFlywheelVoltageGains = (
     Slot0Configs()
-    .with_k_s(constants.kFlywheelVoltageS)
-    .with_k_v(constants.kFlywheelVoltageV)
+    .with_k_s(constants.kleftFlywheelVoltageS)
+    .with_k_v(constants.kleftFlywheelVoltageV)
+    .with_k_v(constants.kleftFlywheelVoltageP)
+)
+rightFlywheelVoltageGains = (
+    Slot0Configs()
+    .with_k_s(constants.kRightFlywheelVoltageS)
+    .with_k_v(constants.kRightFlywheelVoltageV)
+    .with_k_p(constants.kRightFlywheelVoltageP)
 )
 leadScrewConfig = FROGTalonFXConfig(
     slot0gains=leadScrewPositionGains,
     slot1gains=leadScrewVelocityGains,
     feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(4),
 ).with_motor_output(
-    MotorOutputConfigs()
-    .with_neutral_mode(NeutralModeValue.BRAKE)
-    .with_inverted(InvertedValue.CLOCKWISE_POSITIVE)
+    clockwisePositiveMotorOutputConfig.with_neutral_mode(NeutralModeValue.BRAKE)
 )
 leadScrewConfig.motion_magic.motion_magic_acceleration = 40
 leadScrewConfig.motion_magic.motion_magic_cruise_velocity = 20
-flywheelConfig = FROGTalonFXConfig(slot0gains=flywheelVoltageGains)
-leftFlywheelConfig = flywheelConfig.with_motor_output(
-    MotorOutputConfigs().with_inverted(InvertedValue.CLOCKWISE_POSITIVE)
-)
-rightFlywheelConfig = flywheelConfig
-sequencerMotorType = CANSparkMax.MotorType.kBrushless
+leftFlywheelConfig = FROGTalonFXConfig(
+    slot0gains=leftFlywheelVoltageGains
+).with_motor_output(clockwisePositiveMotorOutputConfig)
+rightFlywheelConfig = FROGTalonFXConfig(slot0gains=rightFlywheelVoltageGains)
+sequencerMotorCType = CANSparkMax.MotorType.kBrushless
 
-climberMotorConfig = FROGTalonFXConfig(
+leftClimberMotorConfig = FROGTalonFXConfig(
     feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(1)
 ).with_motor_output(MotorOutputConfigs().with_neutral_mode(NeutralModeValue.BRAKE))
-leftClimberMotorConfig = climberMotorConfig
-rightClimberMotorConfig = climberMotorConfig
-rightClimberMotorConfig.motor_output.inverted = InvertedValue.CLOCKWISE_POSITIVE
+
+rightClimberMotorConfig = FROGTalonFXConfig(
+    feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(1)
+).with_motor_output(
+    clockwisePositiveMotorOutputConfig.with_neutral_mode(NeutralModeValue.BRAKE)
+)
 
 """ Don't think the following is needed anymore.  Leaving for reference."""
 # robotToLimeLightTransform = Transform3d(
