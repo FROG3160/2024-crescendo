@@ -142,12 +142,19 @@ class ShooterSubsystem(Subsystem):
     def runSequencerCommand(self) -> Command:
         return self.runOnce(self.runSequencer).withName("RunSequencer")
 
+    def setLeadscrewCommand(self) -> Command:
+        return self.runOnce(self.setLeadscrewPosition).withName("SetLeadscrew")
+
     def shootCommand(self) -> Command:
         return (
             self.runFlywheelsCommand()  # run the flywheel at the commanded speed
+            .andThen(self.setLeadscrewCommand())  # wait until the flywheel is at speed
             .andThen(
                 waitUntil(self.flywheelAtSpeedIsTrue)
-            )  # wait until the flywheel is at speed
+            )  # sets the leadscrew at the commanded position
+            .andThen(
+                waitUntil(self.getLeadscrewPositionIsTrue)
+            )  # wait until the leadscrew is at position
             .andThen(
                 self.runSequencerCommand()
             )  # run the sequencer to move the note into the flywheel
