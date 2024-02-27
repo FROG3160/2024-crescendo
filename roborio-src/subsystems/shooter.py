@@ -10,7 +10,7 @@ from phoenix6.controls import (
 )
 import constants
 from configs import (
-    leadScrewConfig,
+    leadscrewConfig,
     leftFlywheelConfig,
     rightFlywheelConfig,
     sequencerMotorType,
@@ -24,9 +24,6 @@ from subsystems.intake import IntakeSubsystem
 
 class ShooterSubsystem(Subsystem):
 
-    flyWheelSpeed: float
-    leadScrewPosition: float
-
     def __init__(
         self,
         intake: IntakeSubsystem,
@@ -39,11 +36,11 @@ class ShooterSubsystem(Subsystem):
         # the lead screw and flywheel on the operator Xbox controller triggers.
         # The NEO 550 will be used to pull and push the note out of
         # the intake and into the flywheel.
-        self.leadScrew = FROGTalonFX(
-            constants.kLeadScrewControllerID,
-            leadScrewConfig,
+        self.leadscrew = FROGTalonFX(
+            constants.kLeadscrewControllerID,
+            leadscrewConfig,
             parent_nt=f"{nt_table}",
-            motor_name="LeadScrew",
+            motor_name="Leadscrew",
         )
         self.leftFlyWheel = FROGTalonFX(
             constants.kFlyWheelControllerLeftID,
@@ -89,9 +86,14 @@ class ShooterSubsystem(Subsystem):
             .getBooleanTopic(f"{nt_table}/note_detected")
             .publish()
         )
-        self.flyWheelSpeed = 0
-        self.leadScrewPosition = self.leadScrew.get_position().value
-        self.sequencerCommandedSpeed = 0
+        self._leadscrewAtPosition = (
+            NetworkTableInstance.getDefault()
+            .getBooleanTopic(f"{nt_table}/leadscrew_at_position")
+            .publish()
+        )
+        self.flyWheelSpeed = 0.0
+        self.leadscrewPosition = 0.0
+        self.sequencerCommandedSpeed = 0.0
 
     def setFlywheelSpeed(self, flywheelSpeed: float):
         self.flyWheelSpeed = flywheelSpeed
@@ -114,7 +116,7 @@ class ShooterSubsystem(Subsystem):
     def stopFlywheelsCommand(self) -> Command:
         return self.runOnce(self.stopFlywheels).withName("StopFlywheels")
 
-    def flywheelAtSpeedIsTrue(self) -> bool:
+    def flywheelAtSpeed(self) -> bool:
         if (
             abs(self.flyWheelSpeed - self.leftFlyWheel.get_velocity().value) < 5
             and abs(self.flyWheelSpeed - abs(self.rightFlyWheel.get_velocity().value))
@@ -149,12 +151,19 @@ class ShooterSubsystem(Subsystem):
     def runSequencerCommand(self) -> Command:
         return self.runOnce(self.runSequencer).withName("RunSequencer")
 
+    def setLeadscrewCommand(self) -> Command:
+        return self.runOnce(self.moveLeadscrewToPosition).withName("SetLeadscrew")
+
     def shootCommand(self) -> Command:
         return (
             self.runFlywheelsCommand()  # run the flywheel at the commanded speed
+            .andThen(self.setLeadscrewCommand())
             .andThen(
-                waitUntil(self.flywheelAtSpeedIsTrue)
-            )  # wait until the flywheel is at speed
+                waitUntil(self.flywheelAtSpeed)
+            )  # sets the leadscrew at the commanded position
+            .andThen(
+                waitUntil(self.leadscrewAtPosition)
+            )  # wait until the leadscrew is at position
             .andThen(
                 self.runSequencerCommand()
             )  # run the sequencer to move the note into the flywheel
@@ -173,18 +182,24 @@ class ShooterSubsystem(Subsystem):
 
     def setLeadscrewPosition(self, leadscrewPosition: float):
         self.leadscrewPosition = leadscrewPosition
-        self.leadScrew.set_control(
-            MotionMagicVoltage(position=leadscrewPosition, slot=1)
+
+    def getLeadscrewPosition(self) -> float:
+        return self.leadscrew.get_position().value
+
+    def moveLeadscrewToPosition(self):
+        self.leadscrew.set_control(
+            MotionMagicVoltage(position=self.leadscrewPosition, slot=1)
         )
 
-    def getLeadscrewPositionIsTrue(self) -> bool:
-        if self.leadscrewPosition == self.leadScrew.get_position():
+    def leadscrewAtPosition(self) -> bool:
+        position_diff = self.leadscrewPosition - self.getLeadscrewPosition()
+        if abs(position_diff) < constants.kLeadscrewPositionTolerance:
             return True
         else:
             return False
 
-    def zeroLeadScrew(self):
-        self.leadScrew.set_position(0)
+    def zeroLeadscrew(self):
+        self.leadscrew.set_position(0)
 
     def noteInShooter(self) -> bool:
         return not self.shooterSensor.get()
@@ -198,14 +213,15 @@ class ShooterSubsystem(Subsystem):
         SmartDashboard.putBoolean(
             "ShooterPositionDioSensor", self.shooterPositionDetected()
         )
-        SmartDashboard.putBoolean("FlywheelAtSpeed", self.flywheelAtSpeedIsTrue())
+        SmartDashboard.putBoolean("FlywheelAtSpeed", self.flywheelAtSpeed())
 
     def logTelemetry(self):
         self.leftFlyWheel.logData()
         self.rightFlyWheel.logData()
-        self.leadScrew.logData()
+        self.leadscrew.logData()
         self.sequencer.logData()
         self._flywheelCommandedVelocity.set(self.flyWheelSpeed)
-        self._shooterCommandedPosition.set(self.leadScrewPosition)
+        self._shooterCommandedPosition.set(self.leadscrewPosition)
         self._sequencerCommandedSpeed.set(self.sequencerCommandedSpeed)
         self._shooterSensorCurrentState.set(self.noteInShooter())
+        self._leadscrewAtPosition.set(self.leadscrewAtPosition())

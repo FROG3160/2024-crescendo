@@ -50,7 +50,7 @@ kIntakeRollerControllerID = 41
 kTransferWheelsID = 42
 
 # Shooter Controller IDs
-kLeadScrewControllerID = 53
+kLeadscrewControllerID = 53
 kFlyWheelControllerLeftID = 51
 kFlyWheelCOntrollerRightID = 52
 kSequencerControllerID = 54
@@ -62,9 +62,9 @@ kShooterPositionSensorChannel = 2
 
 # Shooter Motor Gains
 # TODO: Tune these gains
-kLeadScrewSlot0P = 0.5  # slot 0 for position
-kLeadScrewSlot1S = 0.14  # slot 1 for velocity
-kLeadScrewSlot1V = 0.42  # slot 1 for velocity
+kLeadscrewSlot0P = 0.5  # slot 0 for position
+kLeadscrewSlot1S = 0.14  # slot 1 for velocity
+kLeadscrewSlot1V = 0.42  # slot 1 for velocity
 kleftFlywheelVoltageS = 0.14
 kleftFlywheelVoltageV = 0.112
 kleftFlywheelVoltageP = 0.0025
@@ -80,7 +80,8 @@ kRightClimberControllerID = 8
 kFalconMaxRps = 106
 
 # Lead Screw Rotations
-kLeadScrewRotations = 21
+kLeadscrewRotations = 21
+kLeadscrewPositionTolerance = 0.1
 
 # Swerve Drive Physical Attributes
 kTrackWidthMeters = inchesToMeters(21.5)

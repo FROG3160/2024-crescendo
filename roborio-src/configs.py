@@ -131,14 +131,14 @@ swerveModuleBackRight = {
 
 # Assuming that the control output for the lead screw would be Duty Cycle
 # and the control output for the flywheel would be Voltage
-leadScrewPositionGains = Slot0Configs().with_k_p(constants.kLeadScrewSlot0P)
-leadScrewVelocityGains = (
+leadscrewPositionGains = Slot0Configs().with_k_p(constants.kLeadscrewSlot0P)
+leadscrewVelocityGains = (
     Slot1Configs()
-    .with_k_s(constants.kLeadScrewSlot1S)
-    .with_k_v(constants.kLeadScrewSlot1V)
+    .with_k_s(constants.kLeadscrewSlot1S)
+    .with_k_v(constants.kLeadscrewSlot1V)
 )
-leadScrewVelocityGains.k_a = 0.01
-leadScrewVelocityGains.k_p = 4
+leadscrewVelocityGains.k_a = 0.01
+leadscrewVelocityGains.k_p = 4
 
 leftFlywheelVoltageGains = (
     Slot0Configs()
@@ -152,15 +152,15 @@ rightFlywheelVoltageGains = (
     .with_k_v(constants.kRightFlywheelVoltageV)
     .with_k_p(constants.kRightFlywheelVoltageP)
 )
-leadScrewConfig = FROGTalonFXConfig(
-    slot0gains=leadScrewPositionGains,
-    slot1gains=leadScrewVelocityGains,
+leadscrewConfig = FROGTalonFXConfig(
+    slot0gains=leadscrewPositionGains,
+    slot1gains=leadscrewVelocityGains,
     feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(4),
 ).with_motor_output(
     clockwisePositiveMotorOutputConfig.with_neutral_mode(NeutralModeValue.BRAKE)
 )
-leadScrewConfig.motion_magic.motion_magic_acceleration = 40
-leadScrewConfig.motion_magic.motion_magic_cruise_velocity = 20
+leadscrewConfig.motion_magic.motion_magic_acceleration = 40
+leadscrewConfig.motion_magic.motion_magic_cruise_velocity = 20
 leftFlywheelConfig = FROGTalonFXConfig(
     slot0gains=leftFlywheelVoltageGains
 ).with_motor_output(clockwisePositiveMotorOutputConfig)
