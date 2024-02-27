@@ -136,6 +136,7 @@ leadscrewVelocityGains = (
     Slot1Configs()
     .with_k_s(constants.kLeadscrewSlot1S)
     .with_k_v(constants.kLeadscrewSlot1V)
+    .with_k_p(constants.kLeadscrewSlot1P)
 )
 leadscrewVelocityGains.k_a = 0.01
 leadscrewVelocityGains.k_p = 4
