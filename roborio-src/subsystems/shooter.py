@@ -68,27 +68,32 @@ class ShooterSubsystem(Subsystem):
 
         self._flywheelCommandedVelocity = (
             NetworkTableInstance.getDefault()
-            .getFloatTopic(f"{nt_table}/flywheel_velocity")
+            .getFloatTopic(f"{nt_table}/FlywheelVelocity")
             .publish()
         )
         self._shooterCommandedPosition = (
             NetworkTableInstance.getDefault()
-            .getFloatTopic(f"{nt_table}/shooter_position")
+            .getFloatTopic(f"{nt_table}/CommandedPosition")
+            .publish()
+        )
+        self._shooterActualPositionPub = (
+            NetworkTableInstance.getDefault()
+            .getFloatTopic(f"{nt_table}/ActualPosition")
             .publish()
         )
         self._sequencerCommandedSpeed = (
             NetworkTableInstance.getDefault()
-            .getFloatTopic(f"{nt_table}/transfer_speed")
+            .getFloatTopic(f"{nt_table}/TransferSpeed")
             .publish()
         )
         self._shooterSensorCurrentState = (
             NetworkTableInstance.getDefault()
-            .getBooleanTopic(f"{nt_table}/note_detected")
+            .getBooleanTopic(f"{nt_table}/NoteDetected")
             .publish()
         )
         self._leadscrewAtPosition = (
             NetworkTableInstance.getDefault()
-            .getBooleanTopic(f"{nt_table}/leadscrew_at_position")
+            .getBooleanTopic(f"{nt_table}/AtPosition")
             .publish()
         )
         self.flyWheelSpeed = 0.0
@@ -177,6 +182,24 @@ class ShooterSubsystem(Subsystem):
             .andThen(self.stopFlywheelsCommand())
         )
 
+    def homeShooterCommand(self) -> Command:
+        return (
+            # move with positive voltage until sensor no longer reading
+            # move negative voltage until sensor reads
+            # set position
+            self.runLeadscrew(0.4)
+            .onlyWhile(self.shooterAtHome)
+            .andThen(self.runLeadscrew(-0.35))
+            .until(self.shooterAtHome)
+            .finallyDo(lambda interrupted: self.resetPosition(0))
+        )
+
+    def runLeadscrew(self, voltage) -> Command:
+        return self.runOnce(self.leadscrew.set_control(VoltageOut(voltage)))
+
+    def resetPosition(self, position):
+        self.leadscrew.set_position(position)
+
     def stopShootingCommand(self) -> Command:
         return self.runOnce(self.stopShooting)
 
@@ -204,15 +227,16 @@ class ShooterSubsystem(Subsystem):
     def noteInShooter(self) -> bool:
         return not self.shooterSensor.get()
 
-    def shooterPositionDetected(self) -> bool:
+    def shooterAtHome(self) -> bool:
         return not self.shooterPositionSensor.get()
+
+    def shooterNotAtHome(self) -> bool:
+        return self.shooterPositionSensor.get()
 
     def periodic(self) -> None:
         self.logTelemetry()
         SmartDashboard.putBoolean("ShooterDioSensor", self.noteInShooter())
-        SmartDashboard.putBoolean(
-            "ShooterPositionDioSensor", self.shooterPositionDetected()
-        )
+        SmartDashboard.putBoolean("ShooterPositionDioSensor", self.shooterAtHome())
         SmartDashboard.putBoolean("FlywheelAtSpeed", self.flywheelAtSpeed())
 
     def logTelemetry(self):
@@ -222,6 +246,7 @@ class ShooterSubsystem(Subsystem):
         self.sequencer.logData()
         self._flywheelCommandedVelocity.set(self.flyWheelSpeed)
         self._shooterCommandedPosition.set(self.leadscrewPosition)
+        self._shooterActualPositionPub.set(self.getLeadscrewPosition())
         self._sequencerCommandedSpeed.set(self.sequencerCommandedSpeed)
         self._shooterSensorCurrentState.set(self.noteInShooter())
         self._leadscrewAtPosition.set(self.leadscrewAtPosition())
