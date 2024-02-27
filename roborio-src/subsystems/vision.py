@@ -1,5 +1,6 @@
 from commands2 import Subsystem
-from wpimath.geometry import Pose3d
+from ntcore import NetworkTableInstance
+from wpimath.geometry import Pose3d, Pose2d
 from wpimath.kinematics import ChassisSpeeds
 from FROGlib.limelight import FROGPositioning, FROGTargeting
 from robotpy_apriltag import loadAprilTagLayoutField, AprilTagField
@@ -8,17 +9,31 @@ from wpilib import SmartDashboard
 
 
 class PositioningSubsystem(Subsystem):
-    def __init__(self):
+    def __init__(
+        self,
+        parent_nt: str = "Subsystems",
+    ):
         super().__init__()
-        self.estimator = FROGPositioning(kLimelightPositioning)
+        self.setName("LimePositioning")
+        nt_table = f"{parent_nt}/{self.getName()}"
+        self.estimator = FROGPositioning(
+            kLimelightPositioning,
+        )
+        self._visionPosePub = (
+            NetworkTableInstance.getDefault()
+            .getStructTopic(f"{nt_table}/command_value", Pose2d)
+            .publish()
+        )
 
     def periodic(self) -> None:
-        self.latestPose = self.estimator.getBotPoseEstimateBlue()
+        self.latestPose = self.estimator.getBotPoseEstimateBlue()[0]
         if self.latestPose:
             SmartDashboard.putString("Vision Estimate", self.latestPose[0].__str__())
+            self._visionPosePub.set(self.latestPose.toPose2d())
         self.latestTransform = self.estimator.getTargetTransform()
         if self.latestTransform:
             SmartDashboard.putString("Target Transform", self.latestTransform.__str__())
+        self._visionPosePub.set(self.latestPose.toPose2d())
 
     def getLatestPoseEstimate(self) -> tuple[Pose3d, float]:
         if self.latestPose:
