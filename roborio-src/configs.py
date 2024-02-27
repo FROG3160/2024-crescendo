@@ -144,7 +144,7 @@ leftFlywheelVoltageGains = (
     Slot0Configs()
     .with_k_s(constants.kleftFlywheelVoltageS)
     .with_k_v(constants.kleftFlywheelVoltageV)
-    .with_k_v(constants.kleftFlywheelVoltageP)
+    .with_k_p(constants.kleftFlywheelVoltageP)
 )
 rightFlywheelVoltageGains = (
     Slot0Configs()
