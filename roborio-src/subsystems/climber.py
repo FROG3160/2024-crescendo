@@ -94,6 +94,15 @@ class ClimberSubsystem(Subsystem):
     def homeRight(self):
         self.homeMotor(self.rightClimber)
 
+    def stopMotor(self, motor: FROGTalonFX):
+        motor.set_control(VoltageOut(0))
+
+    def stopLeftMotor(self):
+        self.stopMotor(self.leftClimber)
+
+    def stopRightMotor(self):
+        self.stopMotor(self.rightClimber)
+
     def setVoltage(self, climberVoltage: float):
         motorControl = VoltageOut(climberVoltage)
         self.motorCommandValue = motorControl.output
@@ -123,13 +132,17 @@ class ClimberSubsystem(Subsystem):
         return self.startEnd(self.retract, self.stop)
 
     def get_homeLeftClimber(self) -> Command:
-        return self.startEnd(self.homeLeft, self.resetLeftClimberPosition).until(
-            self.leftClimberAtHome
+        return (
+            self.startEnd(self.homeLeft, self.stopLeftMotor)
+            .until(self.leftClimberAtHome)
+            .finallyDo(lambda interrupted: self.resetLeftClimberPosition())
         )
 
     def get_homeRightClimber(self) -> Command:
-        return self.startEnd(self.homeRight, self.resetRightClimberPosition).until(
-            self.rightClimberAtHome
+        return (
+            self.startEnd(self.homeRight, self.stopRightMotor)
+            .until(self.rightClimberAtHome)
+            .finallyDo(lambda interrupted: self.resetRightClimberPosition())
         )
 
     def logTelemetry(self):
