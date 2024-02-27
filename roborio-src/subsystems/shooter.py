@@ -86,6 +86,11 @@ class ShooterSubsystem(Subsystem):
             .getBooleanTopic(f"{nt_table}/note_detected")
             .publish()
         )
+        self._leadScrewAtPosition = (
+            NetworkTableInstance.getDefault()
+            .getBooleanTopic(f"{nt_table}/leadscrew_at_position")
+            .publish()
+        )
         self.flyWheelSpeed = 0
         self.leadScrewPosition = self.leadScrew.get_position().value
         self.sequencerCommandedSpeed = 0
@@ -148,7 +153,9 @@ class ShooterSubsystem(Subsystem):
     def shootCommand(self) -> Command:
         return (
             self.runFlywheelsCommand()  # run the flywheel at the commanded speed
-            .andThen(self.setLeadscrewCommand())  # wait until the flywheel is at speed
+            .andThen(
+                self.moveLeadscrewToPosition()
+            )  # wait until the flywheel is at speed
             .andThen(
                 waitUntil(self.flywheelAtSpeedIsTrue)
             )  # sets the leadscrew at the commanded position
@@ -174,13 +181,15 @@ class ShooterSubsystem(Subsystem):
         )
 
     def setLeadscrewPosition(self, leadscrewPosition: float):
-        self.leadscrewPosition = leadscrewPosition
+        self.leadScrewPosition = leadscrewPosition
+
+    def moveLeadscrewToPosition(self):
         self.leadScrew.set_control(
-            MotionMagicVoltage(position=leadscrewPosition, slot=1)
+            MotionMagicVoltage(position=self.leadScrewPosition, slot=1)
         )
 
     def getLeadscrewPositionIsTrue(self) -> bool:
-        if self.leadscrewPosition == self.leadScrew.get_position():
+        if self.leadScrewPosition == self.leadScrew.get_position():
             return True
         else:
             return False
@@ -201,3 +210,4 @@ class ShooterSubsystem(Subsystem):
         self._shooterCommandedPosition.set(self.leadScrewPosition)
         self._sequencerCommandedSpeed.set(self.sequencerCommandedSpeed)
         self._shooterSensorCurrentState.set(self.noteInShooter())
+        self._leadScrewAtPosition.set(self.getLeadscrewPositionIsTrue())
