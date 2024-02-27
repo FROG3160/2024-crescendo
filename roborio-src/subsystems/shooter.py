@@ -131,6 +131,10 @@ class ShooterSubsystem(Subsystem):
     def stopSequencer(self):
         self.sequencer.stopMotor()
 
+    def stopShooting(self):
+        self.stopSequencer()
+        self.stopFlywheels()
+
     def loadShooterCommand(self) -> Command:
         return (
             self.startEnd(self.runSequencer, self.stopSequencer)
@@ -165,9 +169,7 @@ class ShooterSubsystem(Subsystem):
         )
 
     def stopShootingCommand(self) -> Command:
-        return self.runOnce(self.stopFlywheelsCommand) and self.runOnce(
-            self.stopSequencerCommand
-        )
+        return self.runOnce(self.stopShooting)
 
     def setLeadscrewPosition(self, leadscrewPosition: float):
         self.leadscrewPosition = leadscrewPosition
