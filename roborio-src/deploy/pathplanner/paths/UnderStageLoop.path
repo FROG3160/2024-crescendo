@@ -4,44 +4,44 @@
     {
       "anchor": {
         "x": 1.441414260288271,
-        "y": 7.357526843855119
+        "y": 7.284098432239799
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.4414142602882727,
-        "y": 6.857526843855119
+        "x": 2.4414142602882705,
+        "y": 6.784098432239799
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 4.172951172378196,
-        "y": 4.919703578226477
+        "x": 4.053619115541909,
+        "y": 4.791190792345998
       },
       "prevControl": {
-        "x": 3.5267811501633743,
-        "y": 5.6539876943796825
+        "x": 3.831998298332416,
+        "y": 5.098997482914737
       },
       "nextControl": {
-        "x": 4.28548834083154,
-        "y": 4.791820432256767
+        "x": 4.228906583554568,
+        "y": 4.54773597566175
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 4.172951172378196,
-        "y": 3.304278522689425
+        "x": 4.053619115541909,
+        "y": 3.38889104824473
       },
       "prevControl": {
-        "x": 4.68058449687464,
-        "y": 3.956949939899137
+        "x": 4.22237603577615,
+        "y": 3.642026428596091
       },
       "nextControl": {
-        "x": 3.7617520673323996,
-        "y": 2.7755939590591177
+        "x": 3.9172844181987303,
+        "y": 3.1843890022299624
       },
       "isLocked": false,
       "linkedName": null
@@ -64,12 +64,12 @@
     },
     {
       "anchor": {
-        "x": 3.3652386446096694,
-        "y": 5.228102907010823
+        "x": 2.7584394907817105,
+        "y": 5.4923406643966315
       },
       "prevControl": {
-        "x": 2.7043829400717847,
-        "y": 5.507130871149041
+        "x": 2.3591735914195437,
+        "y": 5.083336572367095
       },
       "nextControl": null,
       "isLocked": false,
@@ -84,38 +84,17 @@
     },
     {
       "waypointRelativePos": 2,
-      "rotationDegrees": 139.12759170251175,
+      "rotationDegrees": 134.99999999999991,
       "rotateFast": false
     },
     {
       "waypointRelativePos": 3,
-      "rotationDegrees": 0,
+      "rotationDegrees": 90.0,
       "rotateFast": false
     }
   ],
   "constraintZones": [],
-  "eventMarkers": [
-    {
-      "name": "Release Kraken",
-      "waypointRelativePos": 0.55,
-      "command": {
-        "type": "parallel",
-        "data": {
-          "commands": []
-        }
-      }
-    },
-    {
-      "name": "Run  Away",
-      "waypointRelativePos": 0.7,
-      "command": {
-        "type": "parallel",
-        "data": {
-          "commands": []
-        }
-      }
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 1.0,
     "maxAcceleration": 1.0,
@@ -124,7 +103,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -90.0,
+    "rotation": 45.0,
     "rotateFast": false
   },
   "reversed": false,
