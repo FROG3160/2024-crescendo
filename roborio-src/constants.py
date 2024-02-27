@@ -58,6 +58,7 @@ kSequencerControllerID = 54
 # IR Sensor DIO Channel
 kIntakeSensorChannel = 0
 kShooterSensorChannel = 1
+kShooterPositionSensorChannel = 2
 
 # Shooter Motor Gains
 # TODO: Tune these gains

@@ -64,6 +64,9 @@ class ShooterSubsystem(Subsystem):
             motor_name="Sequencer",
         )
         self.shooterSensor = DigitalInput(constants.kShooterSensorChannel)
+        self.shooterPositionSensor = DigitalInput(
+            constants.kShooterPositionSensorChannel
+        )
         self.intake = intake
 
         self._flywheelCommandedVelocity = (
@@ -184,9 +187,15 @@ class ShooterSubsystem(Subsystem):
     def noteInShooter(self) -> bool:
         return not self.shooterSensor.get()
 
+    def shooterPositionDetected(self) -> bool:
+        return not self.shooterPositionSensor.get()
+
     def periodic(self) -> None:
         self.logTelemetry()
         SmartDashboard.putBoolean("ShooterDioSensor", self.noteInShooter())
+        SmartDashboard.putBoolean(
+            "ShooterPositionDioSensor", self.shooterPositionDetected()
+        )
         SmartDashboard.putBoolean("FlywheelAtSpeed", self.flywheelAtSpeedIsTrue())
 
     def logTelemetry(self):
