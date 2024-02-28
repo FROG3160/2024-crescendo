@@ -80,9 +80,10 @@ class FROGTalonFX(TalonFX):
 
     def logData(self):
         """Logs data to network tables for this motor"""
-        self._motorVelocityPub.set(self.get_velocity().value)
-        self._motorPositionPub.set(self.get_position().value)
-        self._motorVoltagePub.set(self.get_motor_voltage().value)
+        pass
+        # self._motorVelocityPub.set(self.get_velocity().value)
+        # self._motorPositionPub.set(self.get_position().value)
+        # self._motorVoltagePub.set(self.get_motor_voltage().value)
 
 
 class GearStages:
@@ -180,8 +181,9 @@ class FROGSparkMax(CANSparkMax):
 
     def logData(self):
         """Logs data to network tables for this motor"""
-        self._motorVelocityPub.set(self.encoder.getVelocity())
-        self._motorPositionPub.set(self.encoder.getPosition())
-        self._motorVoltagePub.set(
-            self.getAppliedOutput()
-        )  # not sure if this is right or not
+        pass
+        # self._motorVelocityPub.set(self.encoder.getVelocity())
+        # self._motorPositionPub.set(self.encoder.getPosition())
+        # self._motorVoltagePub.set(
+        #     self.getAppliedOutput()
+        # )  # not sure if this is right or not
