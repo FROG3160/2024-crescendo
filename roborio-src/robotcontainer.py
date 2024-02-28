@@ -97,6 +97,7 @@ class RobotContainer:
         self.driverController.b().onTrue(self.shooterSubsystem.loadShooterCommand())
         self.driverController.rightBumper().onTrue(self.shooterSubsystem.shootCommand())
         self.driverController.y().onTrue(self.shooterSubsystem.stopShootingCommand())
+        self.driverController.start().onTrue(self.driveSubsystem.resetGyroCommand())
 
         self.operatorController.axisLessThan(
             wpilib.XboxController.Axis.kLeftY, -0.5
