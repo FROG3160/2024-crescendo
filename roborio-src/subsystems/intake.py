@@ -37,6 +37,7 @@ class IntakeSubsystem(Subsystem):
             parent_nt=f"{nt_table}",
             motor_name="IntakeRoller",
         )
+        self.intakeMotor.setInverted(True)
         self.transferMotor = FROGSparkMax(
             kTransferWheelsID,
             FROGSparkMax.MotorType.kBrushless,
