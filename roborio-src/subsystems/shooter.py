@@ -187,11 +187,13 @@ class ShooterSubsystem(Subsystem):
             # move with positive voltage until sensor no longer reading
             # move negative voltage until sensor reads
             # set position
-            self.runLeadscrewForwardCommand()
+            self.startEnd(self.runLeadscrewForward, self.stopLeadscrew)
             .onlyWhile(self.shooterAtHome)
-            .andThen(self.runLeadscrewBackwardCommand())
-            .until(self.shooterAtHome)
-            .andThen(self.stopLeadscrew())
+            .andThen(
+                self.startEnd(self.runLeadscrewBackward, self.stopLeadscrew).until(
+                    self.shooterAtHome
+                )
+            )
             .finallyDo(lambda interrupted: self.resetPosition(0))
         )
 
