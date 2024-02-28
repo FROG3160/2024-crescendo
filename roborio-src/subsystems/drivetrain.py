@@ -22,6 +22,7 @@ from wpilib import DriverStation
 from wpimath.geometry import Pose2d
 from subsystems.vision import PositioningSubsystem
 from wpilib import SmartDashboard
+from commands2 import Subsystem, Command
 
 
 class DriveTrain(SwerveChassis):
@@ -75,6 +76,9 @@ class DriveTrain(SwerveChassis):
         # This will flip the path being followed to the red side of the field.
         # THE ORIGIN WILL REMAIN ON THE BLUE SIDE
         return DriverStation.getAlliance() == DriverStation.Alliance.kRed
+
+    def resetGyroCommand(self) -> Command:
+        return self.runOnce(self.gyro.resetGyro)
 
     def periodic(self):
         self.estimatorPose = self.estimator.update(
