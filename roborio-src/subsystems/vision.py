@@ -26,14 +26,15 @@ class PositioningSubsystem(Subsystem):
         )
 
     def periodic(self) -> None:
-        self.latestPose = self.estimator.getBotPoseEstimateBlue()[0]
+        self.latestPose = self.estimator.getBotPoseEstimateBlue()
         if self.latestPose:
-            SmartDashboard.putString("Vision Estimate", self.latestPose[0].__str__())
-            self._visionPosePub.set(self.latestPose.toPose2d())
+            pose, timestamp = self.latestPose
+            if pose:
+                SmartDashboard.putString("Vision Estimate", pose.__str__())
+                self._visionPosePub.set(pose.toPose2d())
         self.latestTransform = self.estimator.getTargetTransform()
         if self.latestTransform:
             SmartDashboard.putString("Target Transform", self.latestTransform.__str__())
-        self._visionPosePub.set(self.latestPose.toPose2d())
 
     def getLatestPoseEstimate(self) -> tuple[Pose3d, float]:
         if self.latestPose:
