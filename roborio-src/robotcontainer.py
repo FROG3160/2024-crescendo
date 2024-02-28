@@ -113,9 +113,7 @@ class RobotContainer:
             self.climberSubsystem.get_homeRightClimber()
         )
 
-        self.operatorController.back().onTrue(
-            self.shooterSubsystem.homeShooterCommand()
-        )
+        self.operatorController.y().onTrue(self.shooterSubsystem.homeShooterCommand())
         # # Grab the hatch when the Circle button is pressed.
         # self.driverController.circle().onTrue(self.hatchSubsystem.grabHatch())
 

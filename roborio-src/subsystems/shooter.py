@@ -187,15 +187,28 @@ class ShooterSubsystem(Subsystem):
             # move with positive voltage until sensor no longer reading
             # move negative voltage until sensor reads
             # set position
-            self.runLeadscrew(0.4)
+            self.runLeadscrewForwardCommand()
             .onlyWhile(self.shooterAtHome)
-            .andThen(self.runLeadscrew(-0.35))
+            .andThen(self.runLeadscrewBackwardCommand())
             .until(self.shooterAtHome)
+            .andThen(self.stopLeadscrew())
             .finallyDo(lambda interrupted: self.resetPosition(0))
         )
 
-    def runLeadscrew(self, voltage) -> Command:
-        return self.runOnce(self.leadscrew.set_control(VoltageOut(voltage)))
+    def runLeadscrewForward(self):
+        self.leadscrew.set_control(VoltageOut(0.5))
+
+    def runLeadscrewBackward(self):
+        self.leadscrew.set_control(VoltageOut(-0.35))
+
+    def stopLeadscrew(self):
+        self.leadscrew.set_control(VoltageOut(0))
+
+    def runLeadscrewForwardCommand(self) -> Command:
+        return self.run(self.runLeadscrewForward)
+
+    def runLeadscrewBackwardCommand(self) -> Command:
+        return self.run(self.runLeadscrewBackward)
 
     def resetPosition(self, position):
         self.leadscrew.set_position(position)
