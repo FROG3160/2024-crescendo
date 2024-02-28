@@ -130,7 +130,7 @@ kProfiledP = 0.4
 kProfiledI = 0.0
 kProfiledD = 0.0
 
-kRollerSpeed = -0.5
+kRollerSpeed = 0.5
 kTransferSpeed = 0.5
 kSequencerSpeed = 0.3
 
