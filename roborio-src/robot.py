@@ -6,6 +6,7 @@
 #
 
 import typing
+from phoenix6 import SignalLogger
 import wpilib
 import rev
 import commands2
@@ -36,6 +37,10 @@ class MyRobot(commands2.TimedCommandRobot):
         """
         # Start recording to log
         DataLogManager.start()
+        # Set log path for ctre on the first USB drive found
+        SignalLogger.set_path("/media/sda1/ctre-logs/")
+        # # start it
+        SignalLogger.start()
 
         # Instantiate our RobotContainer.  This will perform all our button bindings, and put our
         # autonomous chooser on the dashboard.
