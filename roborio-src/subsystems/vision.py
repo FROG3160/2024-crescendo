@@ -14,14 +14,14 @@ class PositioningSubsystem(Subsystem):
         parent_nt: str = "Subsystems",
     ):
         super().__init__()
-        self.setName("LimePositioning")
+        self.setName("VisionPose")
         nt_table = f"{parent_nt}/{self.getName()}"
         self.estimator = FROGPositioning(
             kLimelightPositioning,
         )
         self._visionPosePub = (
             NetworkTableInstance.getDefault()
-            .getStructTopic(f"{nt_table}/command_value", Pose2d)
+            .getStructTopic(f"{nt_table}/pose2d", Pose2d)
             .publish()
         )
 
