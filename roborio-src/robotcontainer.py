@@ -92,6 +92,8 @@ class RobotContainer:
         and then passing it to a JoystickButton.
         """
 
+        # Driver Controller Bindings
+
         self.driverController.a().onTrue(self.intakeSubsystem.intakeCommand())
         self.driverController.x().onTrue(self.intakeSubsystem.stopIntakeCommand())
         self.driverController.b().onTrue(self.shooterSubsystem.loadShooterCommand())
@@ -99,21 +101,21 @@ class RobotContainer:
         self.driverController.y().onTrue(self.shooterSubsystem.stopShootingCommand())
         self.driverController.start().onTrue(self.driveSubsystem.resetGyroCommand())
 
+        # Operator Controller Bindings
         self.operatorController.axisLessThan(
             wpilib.XboxController.Axis.kLeftY, -0.5
         ).whileTrue(self.climberSubsystem.get_ExtendCommand())
         self.operatorController.axisGreaterThan(
             wpilib.XboxController.Axis.kLeftY, 0.5
         ).whileTrue(self.climberSubsystem.get_RetractCommand())
-
         self.operatorController.leftBumper().onTrue(
             self.climberSubsystem.get_homeLeftClimber()
         )
         self.operatorController.rightBumper().onTrue(
             self.climberSubsystem.get_homeRightClimber()
         )
-
         self.operatorController.y().onTrue(self.shooterSubsystem.homeShooterCommand())
+
         # # Grab the hatch when the Circle button is pressed.
         # self.driverController.circle().onTrue(self.hatchSubsystem.grabHatch())
 
