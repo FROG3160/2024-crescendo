@@ -76,11 +76,13 @@ kClimberMMV = 25
 kClimberMMA = 50
 
 kleftFlywheelVoltageS = 0.14
-kleftFlywheelVoltageV = 0.112
+kleftFlywheelVoltageV = 0.105
 kleftFlywheelVoltageP = 0.0025
+kLeftFlywheelVoltageA = 0.01
 kRightFlywheelVoltageS = 0.16
 kRightFlywheelVoltageV = 0.1075
 kRightFlywheelVoltageP = 0.0025
+kRightFlywheelVoltageA = 0.01
 
 # Climber Motor IDs
 kLeftClimberControllerID = 7
