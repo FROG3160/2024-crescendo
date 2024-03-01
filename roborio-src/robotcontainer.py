@@ -116,6 +116,10 @@ class RobotContainer:
         )
         self.operatorController.y().onTrue(self.shooterSubsystem.homeShooterCommand())
 
+        self.targetingSubsystem.getTargetInRangeTrigger().onTrue(
+            self.intakeSubsystem.intakeCommand()
+        )
+
         # # Grab the hatch when the Circle button is pressed.
         # self.driverController.circle().onTrue(self.hatchSubsystem.grabHatch())
 
