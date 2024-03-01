@@ -40,7 +40,7 @@ class MyRobot(commands2.TimedCommandRobot):
         # Set log path for ctre on the first USB drive found
         # TODO: https://github.com/FROG3160/2024-crescendo/issues/162 this doesn't work, check the Roborio to see if USB
         #   is really on /media/sda1
-        SignalLogger.set_path("/media/sda1/ctre-logs/")
+        # SignalLogger.set_path("/media/sda1/ctre-logs/")
         # # start it
         SignalLogger.start()
 

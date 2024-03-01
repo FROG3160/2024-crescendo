@@ -66,6 +66,15 @@ kLeadscrewSlot0P = 0.5  # slot 0 for position
 kLeadscrewSlot1S = 0.3  # slot 1 for velocity
 kLeadscrewSlot1V = 0.5  # slot 1 for velocity
 kLeadscrewSlot1P = 32
+kLeadscrewSlot1A = 0.01
+
+kClimberSlot0S = 0.2
+kClimberSlot0V = 0.105
+kClimberSlot0A = 0.01
+kClimberSlot0P = 2
+kClimberMMV = 25
+kClimberMMA = 50
+
 kleftFlywheelVoltageS = 0.14
 kleftFlywheelVoltageV = 0.112
 kleftFlywheelVoltageP = 0.0025
