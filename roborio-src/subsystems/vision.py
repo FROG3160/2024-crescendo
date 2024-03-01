@@ -1,4 +1,4 @@
-from commands2 import Subsystem
+from commands2 import Subsystem, button
 from ntcore import NetworkTableInstance
 from wpimath.geometry import Pose3d, Pose2d
 from wpimath.kinematics import ChassisSpeeds
@@ -45,6 +45,14 @@ class TargetingSubsystem(Subsystem):
     def __init__(self):
         super().__init__()
         self.camera = FROGTargeting(kLimelightTargeting)
+        self.ta = self.camera.ta
+
+    def getTargetInRange(self):
+        """Returns true if ta is more than 18"""
+        return float(self.ta or 0) > 18.0
+
+    def getTargetInRangeTrigger(self):
+        return button.Trigger(self.getTargetInRange)
 
     def calculate_vx(self):
         """Calculate X robot-oriented speed from the size of the target.  Return is inverted
