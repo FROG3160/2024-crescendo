@@ -1,5 +1,12 @@
 from commands2 import Subsystem, Command, cmd
-from FROGlib.motors import FROGTalonFX, FROGTalonFXConfig, FROGSparkMax
+from phoenix5 import TalonSRXControlMode
+from FROGlib.motors import (
+    FROGTalonFX,
+    FROGTalonFXConfig,
+    FROGSparkMax,
+    FROGTalonSRX,
+    FROGTalonSRXConfig,
+)
 from phoenix6.controls import (
     PositionDutyCycle,
     VelocityDutyCycle,
@@ -54,9 +61,9 @@ class ShooterSubsystem(Subsystem):
             parent_nt=f"{nt_table}",
             motor_name="RightFlywheel",
         )
-        self.sequencer = FROGSparkMax(
+        self.sequencer = FROGTalonSRX(
             constants.kSequencerControllerID,
-            sequencerMotorType,
+            FROGTalonSRXConfig(),
             parent_nt=f"{nt_table}",
             motor_name="Sequencer",
         )
@@ -81,7 +88,7 @@ class ShooterSubsystem(Subsystem):
             .getFloatTopic(f"{nt_table}/ActualPosition")
             .publish()
         )
-        self._sequencerCommandedSpeed = (
+        self._sequencerCommandedPercent = (
             NetworkTableInstance.getDefault()
             .getFloatTopic(f"{nt_table}/TransferSpeed")
             .publish()
@@ -98,7 +105,7 @@ class ShooterSubsystem(Subsystem):
         )
         self.flyWheelSpeed = 0.0
         self.leadscrewPosition = 0.0
-        self.sequencerCommandedSpeed = 0.0
+        self.sequencerCommandedPercent = 0.0
 
     def setFlywheelSpeed(self, flywheelSpeed: float):
         self.flyWheelSpeed = flywheelSpeed
@@ -131,12 +138,17 @@ class ShooterSubsystem(Subsystem):
         else:
             return False
 
+    def controlSequencer(self, percent):
+        self.sequencerCommandedPercent = percent
+        self.sequencer.set(
+            TalonSRXControlMode.PercentOutput, self.sequencerCommandedPercent
+        )
+
     def runSequencer(self):
-        self.sequencerCommandedSpeed = constants.kSequencerSpeed
-        self.sequencer.set(self.sequencerCommandedSpeed)
+        self.controlSequencer(constants.kSequencerPercent)
 
     def stopSequencer(self):
-        self.sequencer.stopMotor()
+        self.controlSequencer(0)
 
     def stopShooting(self):
         self.stopSequencer()
@@ -262,6 +274,6 @@ class ShooterSubsystem(Subsystem):
         self._flywheelCommandedVelocity.set(self.flyWheelSpeed)
         self._shooterCommandedPosition.set(self.leadscrewPosition)
         self._shooterActualPositionPub.set(self.getLeadscrewPosition())
-        self._sequencerCommandedSpeed.set(self.sequencerCommandedSpeed)
+        self._sequencerCommandedPercent.set(self.sequencerCommandedPercent)
         self._shooterSensorCurrentState.set(self.noteInShooter())
         self._leadscrewAtPosition.set(self.leadscrewAtPosition())

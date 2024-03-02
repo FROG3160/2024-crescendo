@@ -1,16 +1,26 @@
 # The intake consists of a roller bar (TalonSRX), an intake wheel(SparkMax), and a transfer wheel(SparkMax
 from enum import Enum, auto
-from FROGlib.motors import FROGSparkMax
+
+from phoenix5 import TalonSRXControlMode
+from FROGlib.motors import (
+    FROGSparkMax,
+    FROGTalonFX,
+    FROGTalonFXConfig,
+    FROGTalonSRX,
+    FROGTalonSRXConfig,
+)
 from commands2 import Subsystem, Command
 from constants import (
     kIntakeRollerControllerID,
     kTransferWheelsID,
-    kRollerSpeed,
-    kTransferSpeed,
+    kRollerVoltage,
+    kTransferPercent,
     kIntakeSensorChannel,
 )
 from wpilib import DigitalInput, SmartDashboard
 from ntcore import NetworkTableInstance
+import configs
+from phoenix6.controls import DutyCycleOut, VoltageOut
 
 
 class IntakeSubsystem(Subsystem):
@@ -31,27 +41,26 @@ class IntakeSubsystem(Subsystem):
         self.setName("Intake")
         nt_table = f"{parent_nt}/{self.getName()}"
 
-        self.intakeMotor = FROGSparkMax(
+        self.intakeMotor = FROGTalonFX(
             kIntakeRollerControllerID,
-            FROGSparkMax.MotorType.kBrushless,
+            configs.intakeMotorConfig,
             parent_nt=f"{nt_table}",
             motor_name="IntakeRoller",
         )
-        self.intakeMotor.setInverted(True)
-        self.transferMotor = FROGSparkMax(
+        self.transferMotor = FROGTalonSRX(
             kTransferWheelsID,
-            FROGSparkMax.MotorType.kBrushless,
+            FROGTalonSRXConfig(),
             parent_nt=f"{nt_table}",
             motor_name="TransferMotor",
         )
         self.intakeEmptySensor = DigitalInput(kIntakeSensorChannel)
 
-        self._intakeMotorCommandedSpeed = (
+        self._intakeMotorCommandedVoltage = (
             NetworkTableInstance.getDefault()
             .getFloatTopic(f"{nt_table}/intakeRoller/speed")
             .publish()
         )
-        self._transferMotorCommandedSpeed = (
+        self._transferMotorCommandedPercent = (
             NetworkTableInstance.getDefault()
             .getFloatTopic(f"{nt_table}/transferMotor/speed")
             .publish()
@@ -61,8 +70,8 @@ class IntakeSubsystem(Subsystem):
             .getBooleanTopic(f"{nt_table}/noteDetected/state")
             .publish()
         )
-        self.intakeMotorCommandedSpeed = 0
-        self.transferMotorCommandedSpeed = 0
+        self.intakeMotorCommandedVoltage = 0
+        self.transferMotorCommandedPercent = 0
 
         self.state = self.State.Disabled
 
@@ -92,39 +101,44 @@ class IntakeSubsystem(Subsystem):
 
     def runIntake(self) -> None:
         self.state = self.State.Intaking
-        self.intakeMotorCommandedSpeed = kRollerSpeed
-        self.intakeMotor.set(self.intakeMotorCommandedSpeed)
+        self.controlIntake(kRollerVoltage)
+
+    def controlIntake(self, voltage):
+        # setting it to an attribute so we can log the value if needed
+        self.intakeMotorCommandedVoltage = voltage
+        self.intakeMotor.set_control(VoltageOut(self.intakeMotorCommandedVoltage))
+
+    def controlTransfer(self, percent):
+        self.transferMotorCommandedPercent = percent
+        self.transferMotor.set(
+            TalonSRXControlMode.PercentOutput, self.transferMotorCommandedPercent
+        )
 
     def runTransfer(self):
         self.state = self.State.Transferring
-        self.transferMotorCommandedSpeed = kTransferSpeed
-        self.intakeMotorCommandedSpeed = kRollerSpeed
-        self.transferMotor.set(self.transferMotorCommandedSpeed)
-        self.intakeMotor.set(self.intakeMotorCommandedSpeed)
+        self.controlTransfer(kTransferPercent)
+        self.runIntake()
 
     def stopIntake(self):
-        self.intakeMotorCommandedSpeed = 0
-        self.intakeMotor.set(self.intakeMotorCommandedSpeed)
         if self.noteInIntake():
             self.state = self.State.Holding
         else:
             self.state = self.State.Waiting
+        self.controlIntake(0)
 
     def stopTransfer(self):
-        self.transferMotorCommandedSpeed = 0
-        self.intakeMotorCommandedSpeed = 0
-        self.transferMotor.set(self.transferMotorCommandedSpeed)
-        self.intakeMotor.set(self.intakeMotorCommandedSpeed)
         if self.noteInIntake():
             self.state = self.State.Holding
         else:
             self.state = self.State.Waiting
+        self.controlTransfer(0)
+        self.stopIntake()
 
     def isIntakeRunning(self):
-        return abs(self.intakeMotor.getAppliedOutput()) > 0.0
+        return abs(self.intakeMotor.getMotorVoltage()) > 0.0
 
     def isTransferRunning(self):
-        return abs(self.transferMotor.getAppliedOutput()) > 0.0
+        return abs(self.transferMotor.getMotorVoltage()) > 0.0
 
     def noteInIntake(self) -> bool:
         # intakeEmptySensor returns True when it's not detecting
@@ -140,6 +154,6 @@ class IntakeSubsystem(Subsystem):
     def logTelemetry(self):
         self.intakeMotor.logData()
         self.transferMotor.logData()
-        self._intakeMotorCommandedSpeed.set(self.intakeMotorCommandedSpeed)
-        self._transferMotorCommandedSpeed.set(self.transferMotorCommandedSpeed)
+        self._intakeMotorCommandedVoltage.set(self.intakeMotorCommandedVoltage)
+        self._transferMotorCommandedPercent.set(self.transferMotorCommandedPercent)
         self._intakeSensorCurrentState.set(self.noteInIntake())
