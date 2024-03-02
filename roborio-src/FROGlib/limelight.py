@@ -136,7 +136,7 @@ class FROGPositioning:
         """
         pX, pY, pZ, pRoll, pPitch, pYaw, msLatency = poseArray
         if msLatency == -1:
-            return None, None
+            return None, msLatency
         else:
             return Pose3d(
                 Translation3d(pX, pY, pZ), Rotation3d.fromDegrees(pRoll, pPitch, pYaw)

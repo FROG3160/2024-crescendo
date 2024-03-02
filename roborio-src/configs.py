@@ -137,9 +137,15 @@ leadscrewVelocityGains = (
     .with_k_s(constants.kLeadscrewSlot1S)
     .with_k_v(constants.kLeadscrewSlot1V)
     .with_k_p(constants.kLeadscrewSlot1P)
+    .with_k_a(constants.kLeadscrewSlot1A)
 )
-leadscrewVelocityGains.k_a = 0.01
-leadscrewVelocityGains.k_p = 4
+
+climberMotorGains = (
+    Slot0Configs()
+    .with_k_s(constants.kClimberSlot0S)
+    .with_k_v(constants.kClimberSlot0V)
+    .with_k_a(constants.kClimberSlot0A)
+)
 
 leftFlywheelVoltageGains = (
     Slot0Configs()
@@ -169,13 +175,22 @@ rightFlywheelConfig = FROGTalonFXConfig(slot0gains=rightFlywheelVoltageGains)
 sequencerMotorType = CANSparkMax.MotorType.kBrushless
 
 leftClimberMotorConfig = FROGTalonFXConfig(
-    feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(1)
+    slot0gains=climberMotorGains,
+    feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(1),
 ).with_motor_output(MotorOutputConfigs().with_neutral_mode(NeutralModeValue.BRAKE))
+leftClimberMotorConfig.motion_magic.motion_magic_acceleration = constants.kClimberMMA
+leftClimberMotorConfig.motion_magic.motion_magic_cruise_velocity = constants.kClimberMMV
+
 
 rightClimberMotorConfig = FROGTalonFXConfig(
-    feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(1)
+    slot0gains=climberMotorGains,
+    feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(1),
 ).with_motor_output(
     clockwisePositiveMotorOutputConfig.with_neutral_mode(NeutralModeValue.BRAKE)
+)
+rightClimberMotorConfig.motion_magic.motion_magic_acceleration = constants.kClimberMMA
+rightClimberMotorConfig.motion_magic.motion_magic_cruise_velocity = (
+    constants.kClimberMMV
 )
 
 """ Don't think the following is needed anymore.  Leaving for reference."""
