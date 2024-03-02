@@ -119,10 +119,6 @@ class MyRobot(commands2.TimedCommandRobot):
             wpilib.SmartDashboard.getNumber("flyspeed", 0)
         )
 
-        self.container.targetingSubsystem.getTargetInRangeTrigger().onTrue(
-            self.container.intakeSubsystem.intakeCommand()
-        )
-
     def testInit(self) -> None:
         # Cancels all running commands at the start of test mode
         commands2.CommandScheduler.getInstance().cancelAll()

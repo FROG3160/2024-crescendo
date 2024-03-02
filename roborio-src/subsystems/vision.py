@@ -52,7 +52,7 @@ class TargetingSubsystem(Subsystem):
         return float(self.ta or 0) > 18.0
 
     def getTargetInRangeTrigger(self):
-        return button.Trigger(self.getTargetInRange)
+        return button.Trigger(lambda: self.getTargetInRange())
 
     def calculate_vx(self):
         """Calculate X robot-oriented speed from the size of the target.  Return is inverted
