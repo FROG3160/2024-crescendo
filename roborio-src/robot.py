@@ -15,6 +15,7 @@ import configs
 from commands2.cmd import runOnce
 from wpimath.geometry import Pose2d
 from wpilib import DataLogManager, DriverStation
+from wpilib import RobotController
 
 from robotcontainer import RobotContainer
 
@@ -60,6 +61,20 @@ class MyRobot(commands2.TimedCommandRobot):
 
     def disabledPeriodic(self) -> None:
         """This function is called periodically when disabled"""
+
+    def robotPeriodic(self) -> None:
+        super().robotPeriodic()
+        canStatus = RobotController.getCANStatus()
+
+        SignalLogger.write_integer("CAN/busOffCount", canStatus.busOffCount)
+        SignalLogger.write_float(
+            "CAN/percentBusUtilization", canStatus.percentBusUtilization
+        )
+        SignalLogger.write_integer("CAN/receiveErrorCount", canStatus.receiveErrorCount)
+        SignalLogger.write_integer(
+            "CAN/transmitErrorCount", canStatus.transmitErrorCount
+        )
+        SignalLogger.write_integer("CAN/txFullCount", canStatus.txFullCount)
 
     def autonomousInit(self) -> None:
         """This autonomous runs the autonomous command selected by your RobotContainer class."""
