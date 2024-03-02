@@ -118,7 +118,7 @@ class FROGTalonSRX(TalonSRX):
             table_name: NetworksTable to put the motor data on
             motor_name: NetworksTable name
         """
-        super().__init__(device_id=id)
+        super().__init__(deviceNumber=id)
         self.config = motor_config
         self.configAllSettings(self.config)
 
