@@ -102,6 +102,6 @@ class FROGXboxOperator(CommandXboxController):
 
     def runSequencer(self):
         if self.getBButton():
-            return constants.kSequencerSpeed
+            return constants.kSequencerPercent
         else:
             return 0.0

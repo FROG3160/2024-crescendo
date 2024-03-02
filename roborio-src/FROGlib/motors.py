@@ -6,6 +6,7 @@ from phoenix6.configs.talon_fx_configs import FeedbackSensorSourceValue
 from phoenix6.configs.config_groups import Slot0Configs, Slot1Configs, FeedbackConfigs
 from phoenix6.signals.spn_enums import GravityTypeValue
 from rev import CANSparkMax, SparkAbsoluteEncoder
+from phoenix5 import TalonSRX, TalonSRXConfiguration
 
 
 class FROGFeedbackConfig(FeedbackConfigs):
@@ -34,6 +35,14 @@ class FROGTalonFXConfig(TalonFXConfiguration):
         self.feedback = feedback_config
         self.slot0 = slot0gains
         self.slot1 = slot1gains
+
+
+class FROGTalonSRXConfig(TalonSRXConfiguration):
+    """A subclass of TalonFXConfiguration that adds the ability to pass parameters to __init__
+    during instantiation instead of creating an instance and then setting attributes."""
+
+    def __init__(self):
+        super().__init__()
 
 
 class FROGTalonFX(TalonFX):
@@ -77,6 +86,63 @@ class FROGTalonFX(TalonFX):
             .getFloatTopic(f"{table}/voltage")
             .publish()
         )
+
+    def getMotorVoltage(self):
+        return self.get_motor_voltage().value
+
+    def logData(self):
+        """Logs data to network tables for this motor"""
+        pass
+        # self._motorVelocityPub.set(self.get_velocity().value)
+        # self._motorPositionPub.set(self.get_position().value)
+        # self._motorVoltagePub.set(self.get_motor_voltage().value)
+
+
+class FROGTalonSRX(TalonSRX):
+    """A subclass of TalonFX that allows us to pass in the config and apply it during
+    instantiation.
+    """
+
+    def __init__(
+        self,
+        id: int = 0,
+        motor_config: FROGTalonSRXConfig = FROGTalonSRXConfig(),
+        parent_nt: str = "Undefined",
+        motor_name: str = "",
+    ):
+        """Creates a TalonFX motor object with applied configuration
+
+        Args:
+            id (int, required): The CAN ID assigned to the motor.
+            motor_config (FROGTalonSRXConfig, required): The configuration to apply to the motor.
+            table_name: NetworksTable to put the motor data on
+            motor_name: NetworksTable name
+        """
+        super().__init__(device_id=id)
+        self.config = motor_config
+        self.configAllSettings(self.config)
+
+        if motor_name == "":
+            motor_name = f"TalonSRX({id})"
+        table = f"{parent_nt}/{motor_name}"
+        self._motorVelocityPub = (
+            NetworkTableInstance.getDefault()
+            .getFloatTopic(f"{table}/velocity")
+            .publish()
+        )
+        self._motorPositionPub = (
+            NetworkTableInstance.getDefault()
+            .getFloatTopic(f"{table}/position")
+            .publish()
+        )
+        self._motorVoltagePub = (
+            NetworkTableInstance.getDefault()
+            .getFloatTopic(f"{table}/voltage")
+            .publish()
+        )
+
+    def getMotorVoltage(self):
+        return self.getMotorOutputVoltage()
 
     def logData(self):
         """Logs data to network tables for this motor"""
@@ -178,6 +244,9 @@ class FROGSparkMax(CANSparkMax):
             .getFloatTopic(f"{table}/voltage")
             .publish()
         )
+
+    def getMotorVoltage(self):
+        return self.getAppliedOutput()
 
     def logData(self):
         """Logs data to network tables for this motor"""

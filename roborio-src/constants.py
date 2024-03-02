@@ -141,8 +141,8 @@ kProfiledP = 0.4
 kProfiledI = 0.0
 kProfiledD = 0.0
 
-kRollerSpeed = 0.5
-kTransferSpeed = 0.5
-kSequencerSpeed = 0.3
+kRollerVoltage = 6
+kTransferPercent = 0.5
+kSequencerPercent = 0.5
 
 kSpeakerPosition = Pose3d(0, 5.554, 2.07, Rotation3d(0, 0, 0))

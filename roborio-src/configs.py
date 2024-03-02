@@ -193,6 +193,10 @@ rightClimberMotorConfig.motion_magic.motion_magic_cruise_velocity = (
     constants.kClimberMMV
 )
 
+intakeMotorConfig = FROGTalonFXConfig().with_motor_output(
+    MotorOutputConfigs().with_inverted(InvertedValue.CLOCKWISE_POSITIVE)
+)
+
 """ Don't think the following is needed anymore.  Leaving for reference."""
 # robotToLimeLightTransform = Transform3d(
 #     Translation3d(
