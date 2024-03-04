@@ -132,14 +132,18 @@ class MyRobot(commands2.TimedCommandRobot):
                 lambda: self.container.shooterSubsystem.setLeadscrewPosition(
                     wpilib.SmartDashboard.getNumber("rotations", 0)
                 )
-            )
+            ).andThen(self.container.shooterSubsystem.setLeadscrewCommand())
         )
 
         self.container.operatorController.b().onTrue(
-            runOnce(lambda: self.container.shooterSubsystem.setLeadscrewPosition(8.5))
+            runOnce(
+                lambda: self.container.shooterSubsystem.setLeadscrewPosition(8.5)
+            ).andThen(self.container.shooterSubsystem.setLeadscrewCommand())
         )
         self.container.operatorController.x().onTrue(
-            runOnce(lambda: self.container.shooterSubsystem.setLeadscrewPosition(0))
+            runOnce(
+                lambda: self.container.shooterSubsystem.setLeadscrewPosition(0)
+            ).andThen(self.container.shooterSubsystem.setLeadscrewCommand())
         )
 
         self.container.shooterSubsystem.setFlywheelSpeed(
