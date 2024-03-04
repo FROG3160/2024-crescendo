@@ -28,6 +28,7 @@ from subsystems.vision import PositioningSubsystem, TargetingSubsystem
 from subsystems.intake import IntakeSubsystem
 from subsystems.shooter import ShooterSubsystem
 from subsystems.climber import ClimberSubsystem
+from subsystems.elevation import ElevationSubsystem
 from commands.drive.field_oriented import ManualDrive
 
 
@@ -57,6 +58,7 @@ class RobotContainer:
         self.targetingSubsystem = TargetingSubsystem()
         self.intakeSubsystem = IntakeSubsystem()
         self.climberSubsystem = ClimberSubsystem()
+        self.elevationSubsystem = ElevationSubsystem()
         self.driveSubsystem = DriveTrain(self.positioningSubsystem)
         self.shooterSubsystem = ShooterSubsystem(self.intakeSubsystem)
 
@@ -114,7 +116,11 @@ class RobotContainer:
         self.operatorController.rightBumper().onTrue(
             self.climberSubsystem.get_homeRightClimber()
         )
-        self.operatorController.y().onTrue(self.shooterSubsystem.homeShooterCommand())
+        self.operatorController.y().onTrue(
+            self.elevationSubsystem.homeShooterCommand().withInterruptBehavior(
+                commands2.InterruptionBehavior.kCancelIncoming
+            )
+        )
 
         self.targetingSubsystem.getTargetInRangeTrigger().onTrue(
             self.intakeSubsystem.intakeCommand()
