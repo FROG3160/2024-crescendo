@@ -132,7 +132,7 @@ kTranslationSlew = 2
 kRotSlew = 2
 
 kLimelightTargeting = "limelight-object"
-kLimelightPositioning = "limelight-at"
+kLimelightPositioning = "limelight-field"
 
 kProfiledMaxVelocity = math.pi * 8
 kProfiledMaxAccel = math.pi * 4
