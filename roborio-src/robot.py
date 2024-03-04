@@ -42,8 +42,9 @@ class MyRobot(commands2.TimedCommandRobot):
         # TODO: https://github.com/FROG3160/2024-crescendo/issues/162 this doesn't work, check the Roborio to see if USB
         #   is really on /media/sda1
         # SignalLogger.set_path("/media/sda1/ctre-logs/")
-        # # start it
-        SignalLogger.start()
+        # start SignalLogger if the robot is running it
+        if self.isReal():
+            SignalLogger.start()
 
         # Instantiate our RobotContainer.  This will perform all our button bindings, and put our
         # autonomous chooser on the dashboard.
@@ -62,23 +63,34 @@ class MyRobot(commands2.TimedCommandRobot):
     def disabledPeriodic(self) -> None:
         """This function is called periodically when disabled"""
 
-    def robotPeriodic(self) -> None:
-        super().robotPeriodic()
-        canStatus = RobotController.getCANStatus()
+    # I think the extra logging in robotPeriod is causing loop overruns
+    # def robotPeriodic(self) -> None:
+    #     super().robotPeriodic()
+    #     canStatus = RobotController.
 
-        SignalLogger.write_integer("CAN/busOffCount", canStatus.busOffCount)
-        SignalLogger.write_float(
-            "CAN/percentBusUtilization", canStatus.percentBusUtilization
-        )
-        SignalLogger.write_integer("CAN/receiveErrorCount", canStatus.receiveErrorCount)
-        SignalLogger.write_integer(
-            "CAN/transmitErrorCount", canStatus.transmitErrorCount
-        )
-        SignalLogger.write_integer("CAN/txFullCount", canStatus.txFullCount)
+    #     SignalLogger.write_integer("CAN/busOffCount", canStatus.busOffCount)
+    #     SignalLogger.write_float(
+    #         "CAN/percentBusUtilization", canStatus.percentBusUtilization
+    #     )
+    #     SignalLogger.write_integer("CAN/receiveErrorCount", canStatus.receiveErrorCount)
+    #     SignalLogger.write_integer(
+    #         "CAN/transmitErrorCount", canStatus.transmitErrorCount
+    #     )
+    #     SignalLogger.write_integer("CAN/txFullCount", canStatus.txFullCount)
 
     def autonomousInit(self) -> None:
         """This autonomous runs the autonomous command selected by your RobotContainer class."""
         self.autonomousCommand = self.container.getAutonomousCommand()
+        # when autonomous starts if we have an autonomous routine selected,
+        # set the starting pose for the robot to it.
+        if self.autonomousCommand:
+            print("Auto command found, setting pose.")
+            self.startingPose2d = self.autonomousCommand.getStartingPoseFromAutoFile(
+                self.autonomousCommand.getName()
+            )
+            print("Starting pose: " + self.startingPose2d.__str__())
+            self.container.driveSubsystem.resetPose(self.startingPose2d)
+
         self.container.driveSubsystem.enable()
         if self.autonomousCommand:
             self.autonomousCommand.schedule()

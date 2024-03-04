@@ -90,6 +90,8 @@ class FROGPositioning:
         ).subscribe([-99, -99, -99, 0, 0, 0, -1])
         self.nt_pipeline = self.network_table.getIntegerTopic("getpipe").subscribe(-1)
         # create the timer that we can use to the the FPGA timestamp
+        self.nt_tv = self.network_table.getFloatTopic("tv").subscribe(-1)
+        self.nt_tid = self.network_table.getFloatTopic("tid").subscribe(-1)
         self.timer = wpilib.Timer()
 
     def getPipelineNum(self):
@@ -105,23 +107,35 @@ class FROGPositioning:
     #         return *self.getBotPoseEstimateBlue(),
 
     def getBotPoseEstimate(self) -> Tuple[Pose3d, Any]:
-        return (*self.arrayToBotPoseEstimate(self.nt_botpose.get()),)
+        if self.nt_tv.get() > 0.0:
+            return (*self.arrayToBotPoseEstimate(self.nt_botpose.get()),)
+        else:
+            return (None, -1)
 
     def getBotPoseEstimateBlue(self) -> Tuple[Pose3d, Any]:
-        return (*self.arrayToBotPoseEstimate(self.nt_botpose_blue.get()),)
+        if self.nt_tv.get() > 0.0:
+            return (*self.arrayToBotPoseEstimate(self.nt_botpose_blue.get()),)
+        else:
+            return (None, -1)
 
     def getBotPoseEstimateRed(self) -> Tuple[Pose3d, Any]:
-        return (*self.arrayToBotPoseEstimate(self.nt_botpose_red.get()),)
+        if self.nt_tv.get() > 0.0:
+            return (*self.arrayToBotPoseEstimate(self.nt_botpose_red.get()),)
+        else:
+            return (None, -1)
 
     def getTargetTransform(self):
         transform_array = self.nt_targetpose_robotspace.get()
-        timestamp = transform_array[6]
-        transform = Transform3d(
-            Translation3d(transform_array[0], transform_array[1], transform_array[2]),
-            Rotation3d(transform_array[3], transform_array[4], transform_array[5]),
-        )
-        if timestamp > 0:
-            return transform, timestamp
+        if self.nt_tv.get() > 0.0:
+            print(f"TargetTransorm: {transform_array}")
+            # timestamp = transform_array[6]
+            transform = Transform3d(
+                Translation3d(
+                    transform_array[0], transform_array[1], transform_array[2]
+                ),
+                Rotation3d(transform_array[3], transform_array[4], transform_array[5]),
+            )
+            return transform  # , timestamp
 
     def arrayToBotPoseEstimate(self, poseArray) -> Tuple[Pose3d, Any]:
         """Takes limelight array data and creates a Pose3d object for
@@ -135,9 +149,6 @@ class FROGPositioning:
             Tuple[Pose3d, Any]: Returns vision Pose3d and timestamp.
         """
         pX, pY, pZ, pRoll, pPitch, pYaw, msLatency = poseArray
-        if msLatency == -1:
-            return None, msLatency
-        else:
-            return Pose3d(
-                Translation3d(pX, pY, pZ), Rotation3d.fromDegrees(pRoll, pPitch, pYaw)
-            ), self.timer.getFPGATimestamp() - (msLatency / 1000)
+        return Pose3d(
+            Translation3d(pX, pY, pZ), Rotation3d.fromDegrees(pRoll, pPitch, pYaw)
+        ), self.timer.getFPGATimestamp() - (msLatency / 1000)
