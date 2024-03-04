@@ -129,25 +129,21 @@ class MyRobot(commands2.TimedCommandRobot):
 
         self.container.operatorController.a().onTrue(
             runOnce(
-                lambda: self.container.shooterSubsystem.setLeadscrewPosition(
+                lambda: self.container.elevationSubsystem.setLeadscrewPosition(
                     wpilib.SmartDashboard.getNumber("rotations", 0)
                 )
-            ).andThen(self.container.shooterSubsystem.setLeadscrewCommand())
+            ).andThen(self.container.elevationSubsystem.setLeadscrewCommand())
         )
 
         self.container.operatorController.b().onTrue(
             runOnce(
-                lambda: self.container.shooterSubsystem.setLeadscrewPosition(8.5)
-            ).andThen(self.container.shooterSubsystem.setLeadscrewCommand())
+                lambda: self.container.elevationSubsystem.setLeadscrewPosition(8.5)
+            ).andThen(self.container.elevationSubsystem.setLeadscrewCommand())
         )
         self.container.operatorController.x().onTrue(
             runOnce(
-                lambda: self.container.shooterSubsystem.setLeadscrewPosition(0)
-            ).andThen(self.container.shooterSubsystem.setLeadscrewCommand())
-        )
-
-        self.container.shooterSubsystem.setFlywheelSpeed(
-            wpilib.SmartDashboard.getNumber("flyspeed", 0)
+                lambda: self.container.elevationSubsystem.setLeadscrewPosition(0)
+            ).andThen(self.container.elevationSubsystem.setLeadscrewCommand())
         )
 
     def testInit(self) -> None:
