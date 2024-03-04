@@ -141,7 +141,8 @@ kProfiledP = 0.4
 kProfiledI = 0.0
 kProfiledD = 0.0
 
-kRollerVoltage = 6
+kRollerVoltage = 3
+kRollerTransferVoltage = 1
 kTransferPercent = 0.5
 kSequencerPercent = 0.5
 

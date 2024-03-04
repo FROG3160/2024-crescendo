@@ -1,5 +1,5 @@
 from commands2 import Subsystem, Command, cmd
-from phoenix5 import TalonSRXControlMode
+from phoenix5 import StatusFrameEnhanced, TalonSRXControlMode
 from FROGlib.motors import (
     FROGTalonFX,
     FROGTalonFXConfig,
@@ -67,6 +67,8 @@ class ShooterSubsystem(Subsystem):
             parent_nt=f"{nt_table}",
             motor_name="Sequencer",
         )
+        self.sequencer.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 200)
+
         self.shooterSensor = DigitalInput(constants.kShooterSensorChannel)
         self.shooterPositionSensor = DigitalInput(
             constants.kShooterPositionSensorChannel

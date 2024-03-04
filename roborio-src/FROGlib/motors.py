@@ -6,7 +6,7 @@ from phoenix6.configs.talon_fx_configs import FeedbackSensorSourceValue
 from phoenix6.configs.config_groups import Slot0Configs, Slot1Configs, FeedbackConfigs
 from phoenix6.signals.spn_enums import GravityTypeValue
 from rev import CANSparkMax, SparkAbsoluteEncoder
-from phoenix5 import TalonSRX, TalonSRXConfiguration
+from phoenix5 import StatusFrameEnhanced, TalonSRX, TalonSRXConfiguration
 
 
 class FROGFeedbackConfig(FeedbackConfigs):
@@ -121,6 +121,7 @@ class FROGTalonSRX(TalonSRX):
         super().__init__(deviceNumber=id)
         self.config = motor_config
         self.configAllSettings(self.config)
+        self.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 250)
 
         if motor_name == "":
             motor_name = f"TalonSRX({id})"

@@ -1,7 +1,7 @@
 # The intake consists of a roller bar (TalonSRX), an intake wheel(SparkMax), and a transfer wheel(SparkMax
 from enum import Enum, auto
 
-from phoenix5 import TalonSRXControlMode
+from phoenix5 import StatusFrameEnhanced, TalonSRXControlMode
 from FROGlib.motors import (
     FROGSparkMax,
     FROGTalonFX,
@@ -16,6 +16,7 @@ from constants import (
     kRollerVoltage,
     kTransferPercent,
     kIntakeSensorChannel,
+    kRollerTransferVoltage,
 )
 from wpilib import DigitalInput, SmartDashboard
 from ntcore import NetworkTableInstance
@@ -52,6 +53,9 @@ class IntakeSubsystem(Subsystem):
             FROGTalonSRXConfig(),
             parent_nt=f"{nt_table}",
             motor_name="TransferMotor",
+        )
+        self.transferMotor.setStatusFramePeriod(
+            StatusFrameEnhanced.Status_2_Feedback0, 200
         )
         self.intakeEmptySensor = DigitalInput(kIntakeSensorChannel)
 
@@ -117,7 +121,7 @@ class IntakeSubsystem(Subsystem):
     def runTransfer(self):
         self.state = self.State.Transferring
         self.controlTransfer(kTransferPercent)
-        self.runIntake()
+        self.controlIntake(kRollerTransferVoltage)
 
     def stopIntake(self):
         if self.noteInIntake():

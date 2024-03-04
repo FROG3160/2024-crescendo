@@ -71,6 +71,13 @@ class SwerveModule:
         # create/configure cancoder
         self.encoder = FROGCanCoder(cancoder_id, cancoder_config)
 
+        self.drive.get_velocity().set_update_frequency(50)
+        self.steer.get_position().set_update_frequency(50)
+        self.encoder.get_absolute_position().set_update_frequency(50)
+        self.drive.optimize_bus_utilization()
+        self.steer.optimize_bus_utilization()
+        self.encoder.optimize_bus_utilization()
+
         # set module location
         self.location = location
         #
