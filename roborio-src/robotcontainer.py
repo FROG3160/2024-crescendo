@@ -29,6 +29,7 @@ from subsystems.intake import IntakeSubsystem
 from subsystems.shooter import ShooterSubsystem
 from subsystems.climber import ClimberSubsystem
 from subsystems.elevation import ElevationSubsystem
+from subsystems.elevation import ElevationSubsystem
 from commands.drive.field_oriented import ManualDrive
 
 
@@ -58,6 +59,7 @@ class RobotContainer:
         self.targetingSubsystem = TargetingSubsystem()
         self.intakeSubsystem = IntakeSubsystem()
         self.climberSubsystem = ClimberSubsystem()
+        self.elevationSubsystem = ElevationSubsystem()
         self.elevationSubsystem = ElevationSubsystem()
         self.driveSubsystem = DriveTrain(self.positioningSubsystem)
         self.shooterSubsystem = ShooterSubsystem(self.intakeSubsystem)
