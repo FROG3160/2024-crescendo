@@ -6,4 +6,6 @@ class LoadShooter(Command):
     def __init__(self, intake, shooter, elevation):
         self.intake = intake
         self.shooter = shooter
-        self.elvation = elevation
+        self.elevation = elevation
+
+        self.addRequirements(self.intake, self.shooter, self.elevation)
