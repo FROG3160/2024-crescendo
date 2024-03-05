@@ -16,6 +16,7 @@ class FROGTargeting:
         self.nt_tclass = self.network_table.getStringTopic("tclass").subscribe("None")
         self.nt_ta = self.network_table.getFloatTopic("ta").subscribe(0)
         self.nt_tx = self.network_table.getFloatTopic("tx").subscribe(-999)
+        self.nt_ty = self.network_table.getFloatTopic("ty").subscribe(-999)
         self.nt_tv = self.network_table.getIntegerTopic("tv").subscribe(0)
         self.nt_pipeline = self.network_table.getIntegerTopic("getpipe").subscribe(-1)
 
@@ -50,15 +51,15 @@ class FROGTargeting:
             self.tClass = self.nt_tclass.get()
             self.ta = self.nt_ta.get()
             self.tx = self.nt_tx.get()
+            self.ty = self.nt_ty.get()
             self.tv = self.nt_tv.get()
         else:
             self.zeroValues()
             # self.txFilter.reset()
             # self.taFilter.reset()
-            # should probably be put into the apriltag class
 
     def zeroValues(self):
-        self.tClass = self.ta = self.tx = self.tv = None
+        self.tClass = self.ta = self.tx = self.ty = self.tv = None
 
     # the calculates should probalby be put into the apriltag class
 

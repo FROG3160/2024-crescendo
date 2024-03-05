@@ -6,6 +6,7 @@ from FROGlib.limelight import FROGPositioning, FROGTargeting
 from robotpy_apriltag import loadAprilTagLayoutField, AprilTagField
 from constants import kLimelightPositioning, kLimelightTargeting
 from wpilib import SmartDashboard
+import math
 
 
 class PositioningSubsystem(Subsystem):
@@ -55,17 +56,18 @@ class TargetingSubsystem(Subsystem):
         return button.Trigger(lambda: self.getTargetInRange())
 
     def calculate_vx(self):
-        """Calculate X robot-oriented speed from the size of the target.  Return is inverted
-        since we need the robot to drive backwards toward the target to pick it up.
+        """Calculate X robot-oriented speed from the Y value of the target in the camera frame.
 
         Args:
-            targetArea (Float):  The target area determined by limelight.
+            targetY (Float):  The target Y value determined by limelight.
 
         Returns:
             Float: Velocity in the X direction (robot oriented)
         """
+        # The second argument in the min() method:
+        # speed(distance(ty))
         if targetVertical := self.camera.ty:
-            return min(-0.20, -(targetVertical * -0.0811 + 0.7432))
+            return min(1.05, (0.020833 * (14.7 * math.exp(0.0753 * targetVertical))))
 
     def calculate_vt(self):
         """Calculate the rotational speed from the X value of the target in the camera frame.
@@ -80,7 +82,8 @@ class TargetingSubsystem(Subsystem):
             Float: Rotational velocity with CCW (left, robot oriented) positive.
         """
         if targetX := self.camera.tx:
-            return -(targetX / 25)
+            return -(targetX / 20)
+            # return -(targetX / 25)
 
     def getChassisSpeeds(self):
         """Get calculated velocities from vision target data"""
