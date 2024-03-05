@@ -1,4 +1,4 @@
-from commands2 import Subsystem, button
+from commands2 import Subsystem
 from ntcore import NetworkTableInstance
 from wpimath.geometry import Pose3d, Pose2d
 from wpimath.kinematics import ChassisSpeeds
@@ -49,9 +49,6 @@ class TargetingSubsystem(Subsystem):
     def getTargetInRange(self):
         """Returns true if ta is more than 18"""
         return float(self.camera.ta or 0) > 18.0
-
-    def getTargetInRangeTrigger(self):
-        return button.Trigger(lambda: self.getTargetInRange())
 
     def calculate_vx(self):
         """Calculate X robot-oriented speed from the size of the target.  Return is inverted
