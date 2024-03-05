@@ -95,6 +95,8 @@ class MyRobot(commands2.TimedCommandRobot):
         if self.autonomousCommand:
             self.autonomousCommand.schedule()
 
+        self.container.elevationSubsystem.homeShooterCommand().schedule()
+
     def autonomousPeriodic(self) -> None:
         """This function is called periodically during autonomous"""
 
@@ -110,6 +112,7 @@ class MyRobot(commands2.TimedCommandRobot):
         if self.autonomousCommand:
             self.autonomousCommand.cancel()
         self.container.driveSubsystem.enable()
+        self.container.elevationSubsystem.homeShooterCommand().schedule()
 
     def teleopPeriodic(self) -> None:
         """This function is called periodically during operator control"""
