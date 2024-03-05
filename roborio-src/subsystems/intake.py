@@ -152,7 +152,10 @@ class IntakeSubsystem(Subsystem):
 
     def periodic(self) -> None:
         #  as a method of subystem, this is run every loop
-        self.logTelemetry()
+        # self.logTelemetry()
+        self.publishOnSmartDashboard()
+
+    def publishOnSmartDashboard(self):
         SmartDashboard.putBoolean("IntakeDioSensor", self.noteInIntake())
 
     def logTelemetry(self):

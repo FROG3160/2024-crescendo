@@ -271,7 +271,10 @@ class ShooterSubsystem(Subsystem):
         return self.shooterPositionSensor.get()
 
     def periodic(self) -> None:
-        self.logTelemetry()
+        # self.logTelemetry()
+        self.publishOnSmartDashboard()
+
+    def publishOnSmartDashboard(self):
         SmartDashboard.putBoolean("ShooterDioSensor", self.noteInShooter())
         SmartDashboard.putBoolean("ShooterPositionDioSensor", self.shooterAtHome())
         SmartDashboard.putBoolean("FlywheelAtSpeed", self.flywheelAtSpeed())
