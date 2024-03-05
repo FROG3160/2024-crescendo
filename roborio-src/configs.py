@@ -7,6 +7,7 @@ from phoenix6.configs.config_groups import (
     Slot0Configs,
     Slot1Configs,
     MotorOutputConfigs,
+    MotionMagicConfigs,
 )
 from phoenix6.signals.spn_enums import FeedbackSensorSourceValue
 from pathplannerlib.config import PIDConstants
@@ -28,9 +29,28 @@ driveVoltageGains = (
 
 holonomicTranslationPID = PIDConstants(5.0, 0.0, 0.0)
 holonomicRotationPID = PIDConstants(5.0, 0.0, 0.0)
-clockwisePositiveMotorOutputConfig = MotorOutputConfigs().with_inverted(
-    InvertedValue.CLOCKWISE_POSITIVE
+
+motorOutputCCWPandBrake = (
+    MotorOutputConfigs()
+    .with_inverted(InvertedValue.COUNTER_CLOCKWISE_POSITIVE)
+    .with_neutral_mode(NeutralModeValue.BRAKE)
 )
+motorOutputCCWPandCoast = (
+    MotorOutputConfigs()
+    .with_inverted(InvertedValue.COUNTER_CLOCKWISE_POSITIVE)
+    .with_neutral_mode(NeutralModeValue.COAST)
+)
+motorOutputCWPandBrake = (
+    MotorOutputConfigs()
+    .with_inverted(InvertedValue.CLOCKWISE_POSITIVE)
+    .with_neutral_mode(NeutralModeValue.BRAKE)
+)
+motorOutputCWPandCoast = (
+    MotorOutputConfigs()
+    .with_inverted(InvertedValue.CLOCKWISE_POSITIVE)
+    .with_neutral_mode(NeutralModeValue.COAST)
+)
+
 
 swerveModuleFrontLeft = {
     "name": "FrontLeft",
@@ -129,8 +149,6 @@ swerveModuleBackRight = {
     "cancoder_config": FROGCANCoderConfig(constants.kBackRightOffset),
 }
 
-# Assuming that the control output for the lead screw would be Duty Cycle
-# and the control output for the flywheel would be Voltage
 leadscrewPositionGains = Slot0Configs().with_k_p(constants.kLeadscrewSlot0P)
 leadscrewVelocityGains = (
     Slot1Configs()
@@ -152,45 +170,70 @@ leftFlywheelVoltageGains = (
     .with_k_s(constants.kleftFlywheelVoltageS)
     .with_k_v(constants.kleftFlywheelVoltageV)
     .with_k_p(constants.kleftFlywheelVoltageP)
+    .with_k_a(constants.kLeftFlywheelVoltageA)
 )
 rightFlywheelVoltageGains = (
     Slot0Configs()
     .with_k_s(constants.kRightFlywheelVoltageS)
     .with_k_v(constants.kRightFlywheelVoltageV)
     .with_k_p(constants.kRightFlywheelVoltageP)
+    .with_k_a(constants.kRightFlywheelVoltageA)
 )
-leadscrewConfig = FROGTalonFXConfig(
-    slot0gains=leadscrewPositionGains,
-    slot1gains=leadscrewVelocityGains,
-    feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(4),
-).with_motor_output(
-    clockwisePositiveMotorOutputConfig.with_neutral_mode(NeutralModeValue.BRAKE)
+
+mmLeadscrew = (
+    MotionMagicConfigs()
+    .with_motion_magic_acceleration(constants.kLeadscrewMMA)
+    .with_motion_magic_cruise_velocity(constants.kLeadscrewMMV)
 )
-leadscrewConfig.motion_magic.motion_magic_acceleration = 40
-leadscrewConfig.motion_magic.motion_magic_cruise_velocity = 20
-leftFlywheelConfig = FROGTalonFXConfig(
-    slot0gains=leftFlywheelVoltageGains
-).with_motor_output(clockwisePositiveMotorOutputConfig)
-rightFlywheelConfig = FROGTalonFXConfig(slot0gains=rightFlywheelVoltageGains)
-sequencerMotorType = CANSparkMax.MotorType.kBrushless
-
-leftClimberMotorConfig = FROGTalonFXConfig(
-    slot0gains=climberMotorGains,
-    feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(1),
-).with_motor_output(MotorOutputConfigs().with_neutral_mode(NeutralModeValue.BRAKE))
-leftClimberMotorConfig.motion_magic.motion_magic_acceleration = constants.kClimberMMA
-leftClimberMotorConfig.motion_magic.motion_magic_cruise_velocity = constants.kClimberMMV
-
-
-rightClimberMotorConfig = FROGTalonFXConfig(
-    slot0gains=climberMotorGains,
-    feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(1),
-).with_motor_output(
-    clockwisePositiveMotorOutputConfig.with_neutral_mode(NeutralModeValue.BRAKE)
+leadscrewConfig = (
+    FROGTalonFXConfig(
+        slot0gains=leadscrewPositionGains,
+        slot1gains=leadscrewVelocityGains,
+        feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(4),
+    )
+    .with_motor_output(motorOutputCWPandBrake)
+    .with_motion_magic(mmLeadscrew)
 )
-rightClimberMotorConfig.motion_magic.motion_magic_acceleration = constants.kClimberMMA
-rightClimberMotorConfig.motion_magic.motion_magic_cruise_velocity = (
-    constants.kClimberMMV
+
+mmFlywheel = (
+    MotionMagicConfigs()
+    .with_motion_magic_acceleration(constants.kFlywheelMMA)
+    .with_motion_magic_cruise_velocity(constants.kFlywheelMMV)
+)
+
+leftFlywheelConfig = (
+    FROGTalonFXConfig(slot0gains=leftFlywheelVoltageGains)
+    .with_motor_output(motorOutputCWPandCoast)
+    .with_motion_magic(mmFlywheel)
+)
+rightFlywheelConfig = (
+    FROGTalonFXConfig(slot0gains=rightFlywheelVoltageGains)
+    .with_motor_output(motorOutputCCWPandCoast)
+    .with_motion_magic(mmFlywheel)
+)
+
+mmClimber = (
+    MotionMagicConfigs()
+    .with_motion_magic_acceleration(constants.kClimberMMA)
+    .with_motion_magic_cruise_velocity(constants.kClimberMMV)
+)
+
+leftClimberMotorConfig = (
+    FROGTalonFXConfig(
+        slot0gains=climberMotorGains,
+        feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(1),
+    )
+    .with_motor_output(motorOutputCCWPandBrake)
+    .with_motion_magic(mmClimber)
+)
+
+rightClimberMotorConfig = (
+    FROGTalonFXConfig(
+        slot0gains=climberMotorGains,
+        feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(1),
+    )
+    .with_motor_output(motorOutputCWPandBrake)
+    .with_motion_magic(mmClimber)
 )
 
 intakeMotorConfig = FROGTalonFXConfig().with_motor_output(

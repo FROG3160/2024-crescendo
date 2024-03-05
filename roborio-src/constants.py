@@ -67,6 +67,8 @@ kLeadscrewSlot1S = 0.3  # slot 1 for velocity
 kLeadscrewSlot1V = 0.5  # slot 1 for velocity
 kLeadscrewSlot1P = 32
 kLeadscrewSlot1A = 0.01
+kLeadscrewMMA = 40
+kLeadscrewMMV = 20
 
 kClimberSlot0S = 0.2
 kClimberSlot0V = 0.105
@@ -76,13 +78,17 @@ kClimberMMV = 25
 kClimberMMA = 50
 
 kleftFlywheelVoltageS = 0.14
-kleftFlywheelVoltageV = 0.105
-kleftFlywheelVoltageP = 0.0025
+kleftFlywheelVoltageV = 0.11
+kleftFlywheelVoltageP = 0.16
 kLeftFlywheelVoltageA = 0.01
+
 kRightFlywheelVoltageS = 0.16
 kRightFlywheelVoltageV = 0.1075
-kRightFlywheelVoltageP = 0.0025
+kRightFlywheelVoltageP = 0.16
 kRightFlywheelVoltageA = 0.01
+
+kFlywheelMMA = 400
+kFlywheelMMV = 100
 
 # Climber Motor IDs
 kLeftClimberControllerID = 7
@@ -143,7 +149,10 @@ kProfiledD = 0.0
 
 kRollerVoltage = 3
 kRollerTransferVoltage = 1
-kTransferPercent = 0.5
-kSequencerPercent = 0.5
+kTransferPercent = 0.75
+kSequencerShootPercent = 0.75
+kSequencerTransferPercent = 0.75
+kSequencerHomeReversePercent = 0.2
+kSequencerHomeForwardPercent = 0.1
 
 kSpeakerPosition = Pose3d(0, 5.554, 2.07, Rotation3d(0, 0, 0))
