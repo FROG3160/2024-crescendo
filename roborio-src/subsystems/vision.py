@@ -45,11 +45,10 @@ class TargetingSubsystem(Subsystem):
     def __init__(self):
         super().__init__()
         self.camera = FROGTargeting(kLimelightTargeting)
-        self.ta = self.camera.ta
 
     def getTargetInRange(self):
         """Returns true if ta is more than 18"""
-        return float(self.ta or 0) > 18.0
+        return float(self.camera.ta or 0) > 18.0
 
     def getTargetInRangeTrigger(self):
         return button.Trigger(lambda: self.getTargetInRange())
@@ -88,3 +87,4 @@ class TargetingSubsystem(Subsystem):
 
     def periodic(self) -> None:
         self.camera.getTarget()
+        SmartDashboard.putBoolean("TargetInRange", self.getTargetInRange())
