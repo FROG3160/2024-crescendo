@@ -1,5 +1,5 @@
 from commands2 import Subsystem, Command, cmd
-from phoenix5 import StatusFrameEnhanced, TalonSRXControlMode
+from phoenix5 import StatusFrameEnhanced, TalonSRXControlMode, NeutralMode
 from FROGlib.motors import (
     FROGTalonFX,
     FROGTalonFXConfig,
@@ -61,6 +61,7 @@ class ShooterSubsystem(Subsystem):
             parent_nt=f"{nt_table}",
             motor_name="Sequencer",
         )
+        self.sequencer.setNeutralMode(NeutralMode.Brake)
         self.sequencer.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 200)
 
         self.shooterSensor = DigitalInput(constants.kShooterSensorChannel)
@@ -136,7 +137,10 @@ class ShooterSubsystem(Subsystem):
             TalonSRXControlMode.PercentOutput, self.sequencerCommandedPercent
         )
 
-    def runSequencer(self):
+    def loadWithSequencer(self):
+        self.controlSequencer(constants.kLoadWheelsPercent)
+
+    def fireWithSequencer(self):
         self.controlSequencer(constants.kSequencerShootPercent)
 
     def stopSequencer(self):
@@ -148,24 +152,39 @@ class ShooterSubsystem(Subsystem):
 
     def loadShooterCommand(self) -> Command:
         return (
-            self.startEnd(self.runSequencer, self.stopSequencer)
+            self.startEnd(self.loadWithSequencer, self.stopSequencer)
             .until(self.noteInShooter)
             .withName("RunSequencer")
             .deadlineWith(self.intake.transferCommand())
+            .andThen(self.homeNoteCommand())
+        )
+
+    def homeNoteCommand(self) -> Command:
+        return (
+            self.startEnd(
+                lambda: self.controlSequencer(-0.5), lambda: self.controlSequencer(0)
+            )
+            .onlyWhile(self.noteInShooter)
+            .andThen(
+                self.startEnd(
+                    lambda: self.controlSequencer(0.2), lambda: self.controlSequencer(0)
+                )
+            )
+            .until(self.noteInShooter)
         )
 
     def stopSequencerCommand(self) -> Command:
         return self.runOnce(self.stopSequencer).withName("StopSequencer")
 
-    def runSequencerCommand(self) -> Command:
-        return self.runOnce(self.runSequencer).withName("RunSequencer")
+    def fireSequencerCommand(self) -> Command:
+        return self.runOnce(self.fireWithSequencer).withName("RunSequencer")
 
     def shootCommand(self) -> Command:
         return (
             self.runFlywheelsCommand()  # run the flywheel at the commanded speed
             .andThen(waitUntil(self.flywheelAtSpeed))
             .andThen(
-                self.runSequencerCommand()
+                self.fireSequencerCommand()
             )  # run the sequencer to move the note into the flywheel
             .andThen(
                 waitUntil(self.shooterSensor.get)

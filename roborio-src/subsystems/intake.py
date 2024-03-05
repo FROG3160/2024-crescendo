@@ -14,9 +14,9 @@ from constants import (
     kIntakeRollerControllerID,
     kTransferWheelsID,
     kRollerVoltage,
-    kTransferPercent,
     kIntakeSensorChannel,
     kRollerTransferVoltage,
+    kLoadWheelsPercent,
 )
 from wpilib import DigitalInput, SmartDashboard
 from ntcore import NetworkTableInstance
@@ -120,7 +120,7 @@ class IntakeSubsystem(Subsystem):
 
     def runTransfer(self):
         self.state = self.State.Transferring
-        self.controlTransfer(kTransferPercent)
+        self.controlTransfer(kLoadWheelsPercent)
         self.controlIntake(kRollerTransferVoltage)
 
     def stopIntake(self):
