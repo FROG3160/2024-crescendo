@@ -137,7 +137,7 @@ kDebouncePeriod = 0.5
 kTranslationSlew = 2
 kRotSlew = 2
 
-kLimelightTargeting = "limelight-object"
+kLimelightTargeting = "limelight-targets"
 kLimelightPositioning = "limelight-field"
 
 kProfiledMaxVelocity = math.pi * 8
