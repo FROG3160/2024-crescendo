@@ -34,7 +34,9 @@ class PositioningSubsystem(Subsystem):
         if latency != -1:
             SmartDashboard.putString("Vision Estimate", pose.__str__())
             self._visionPosePub.set(pose.toPose2d())
-        SmartDashboard.putNumber("Calculated Range", self.getDistanctToTag(7))
+            tagrange, azimuth = self.getRangeAzimuth(8)
+            SmartDashboard.putNumber("Calculated Range", tagrange)
+            SmartDashboard.putNumber("Calculated Azimuth", azimuth)
 
         # if self.latestTransform:
         #     SmartDashboard.putString("Target Transform", self.latestTransform.__str__())
@@ -43,11 +45,11 @@ class PositioningSubsystem(Subsystem):
         if self.latestPose:
             return (self.latestPose[0], self.latestPose[1])
 
-    def getDistanctToTag(self, tag):
+    def getRangeAzimuth(self, tag):
         tagPose = self.fieldLayout.getTagPose(tag)
         transform = tagPose - self.latestPose[0]
         solution = ShootingSolution(transform.translation())
-        return solution.calculateRange()
+        return solution.calculateRange(), solution.calculateAzimuth()
 
 
 class TargetingSubsystem(Subsystem):
