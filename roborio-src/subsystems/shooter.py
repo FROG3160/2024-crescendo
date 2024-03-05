@@ -20,7 +20,6 @@ from configs import (
     leadscrewConfig,
     leftFlywheelConfig,
     rightFlywheelConfig,
-    sequencerMotorType,
 )
 from phoenix6.signals.spn_enums import NeutralModeValue, InvertedValue
 from ntcore import NetworkTableInstance
@@ -108,6 +107,8 @@ class ShooterSubsystem(Subsystem):
         self.flyWheelSpeed = 0.0
         self.leadscrewPosition = 0.0
         self.sequencerCommandedPercent = 0.0
+        self.leftFlyWheelSpeedFactor = 0.8
+        self.rightFlyWheelSpeedFactor = 1.0
 
     def setFlywheelSpeed(self, flywheelSpeed: float):
         self.flyWheelSpeed = flywheelSpeed
@@ -117,7 +118,7 @@ class ShooterSubsystem(Subsystem):
             VelocityVoltage(velocity=self.flyWheelSpeed, slot=0)
         )
         self.rightFlyWheel.set_control(
-            VelocityVoltage(velocity=self.flyWheelSpeed, slot=0)
+            VelocityVoltage(velocity=self.flyWheelSpeed * 0.6, slot=0)
         )
 
     def runFlywheelsCommand(self) -> Command:
@@ -132,8 +133,15 @@ class ShooterSubsystem(Subsystem):
 
     def flywheelAtSpeed(self) -> bool:
         if (
-            abs(self.flyWheelSpeed - self.leftFlyWheel.get_velocity().value) < 5
-            and abs(self.flyWheelSpeed - abs(self.rightFlyWheel.get_velocity().value))
+            abs(
+                self.flyWheelSpeed * self.leftFlyWheelSpeedFactor
+                - self.leftFlyWheel.get_velocity().value
+            )
+            < 5
+            and abs(
+                self.flyWheelSpeed * self.rightFlyWheelSpeedFactor
+                - abs(self.rightFlyWheel.get_velocity().value)
+            )
             < 5
         ):
             return True
@@ -147,7 +155,7 @@ class ShooterSubsystem(Subsystem):
         )
 
     def runSequencer(self):
-        self.controlSequencer(constants.kSequencerPercent)
+        self.controlSequencer(constants.kSequencerShootPercent)
 
     def stopSequencer(self):
         self.controlSequencer(0)
