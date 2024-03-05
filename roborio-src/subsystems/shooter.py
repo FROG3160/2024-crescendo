@@ -92,7 +92,6 @@ class ShooterSubsystem(Subsystem):
 
     def runFlywheels(self):
         self.flyWheelSpeed = SmartDashboard.getNumber("flyspeed", 0)
-        self.leftFlyWheel.get
         self.leftFlyWheel.set_control(
             VelocityVoltage(
                 velocity=self.flyWheelSpeed * self.leftFlyWheelSpeedFactor, slot=0
