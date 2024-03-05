@@ -115,10 +115,14 @@ class ShooterSubsystem(Subsystem):
 
     def runFlywheels(self):
         self.leftFlyWheel.set_control(
-            VelocityVoltage(velocity=self.flyWheelSpeed, slot=0)
+            VelocityVoltage(
+                velocity=self.flyWheelSpeed * self.leftFlyWheelSpeedFactor, slot=0
+            )
         )
         self.rightFlyWheel.set_control(
-            VelocityVoltage(velocity=self.flyWheelSpeed * 0.6, slot=0)
+            VelocityVoltage(
+                velocity=self.flyWheelSpeed * self.rightFlyWheelSpeedFactor, slot=0
+            )
         )
 
     def runFlywheelsCommand(self) -> Command:
