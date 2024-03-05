@@ -121,22 +121,22 @@ class RobotContainer:
                 commands2.InterruptionBehavior.kCancelIncoming
             )
         )
-        self.container.operatorController.a().onTrue(
+        self.operatorController.a().onTrue(
             runOnce(
-                lambda: self.container.elevationSubsystem.setLeadscrewPosition(
+                lambda: self.elevationSubsystem.setLeadscrewPosition(
                     wpilib.SmartDashboard.getNumber("rotations", 0)
                 )
-            ).andThen(self.container.elevationSubsystem.setLeadscrewCommand())
+            ).andThen(self.elevationSubsystem.setLeadscrewCommand())
         )
-        self.container.operatorController.b().onTrue(
-            runOnce(
-                lambda: self.container.elevationSubsystem.setLeadscrewPosition(8.5)
-            ).andThen(self.container.elevationSubsystem.setLeadscrewCommand())
+        self.operatorController.b().onTrue(
+            runOnce(lambda: self.elevationSubsystem.setLeadscrewPosition(8.5)).andThen(
+                self.elevationSubsystem.setLeadscrewCommand()
+            )
         )
-        self.container.operatorController.x().onTrue(
-            runOnce(
-                lambda: self.container.elevationSubsystem.setLeadscrewPosition(0)
-            ).andThen(self.container.elevationSubsystem.setLeadscrewCommand())
+        self.operatorController.x().onTrue(
+            runOnce(lambda: self.elevationSubsystem.setLeadscrewPosition(0)).andThen(
+                self.elevationSubsystem.setLeadscrewCommand()
+            )
         )
 
         self.targetingSubsystem.getTargetInRangeTrigger().onTrue(
