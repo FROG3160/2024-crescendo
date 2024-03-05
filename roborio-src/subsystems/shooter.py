@@ -17,7 +17,6 @@ from phoenix6.controls import (
 )
 import constants
 from configs import (
-    leadscrewConfig,
     leftFlywheelConfig,
     rightFlywheelConfig,
 )
@@ -25,14 +24,12 @@ from phoenix6.signals.spn_enums import NeutralModeValue, InvertedValue
 from ntcore import NetworkTableInstance
 from wpilib import DigitalInput, SmartDashboard
 from commands2.cmd import waitSeconds, waitUntil
-from subsystems.intake import IntakeSubsystem
 
 
 class ShooterSubsystem(Subsystem):
 
     def __init__(
         self,
-        intake: IntakeSubsystem,
         parent_nt: str = "Subsystems",
     ):
         super().__init__()
@@ -65,8 +62,6 @@ class ShooterSubsystem(Subsystem):
         self.sequencer.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 200)
 
         self.shooterSensor = DigitalInput(constants.kShooterSensorChannel)
-
-        self.intake = intake
 
         self._flywheelCommandedVelocity = (
             NetworkTableInstance.getDefault()
@@ -149,15 +144,6 @@ class ShooterSubsystem(Subsystem):
     def stopShooting(self):
         self.stopSequencer()
         self.stopFlywheels()
-
-    def loadShooterCommand(self) -> Command:
-        return (
-            self.startEnd(self.loadWithSequencer, self.stopSequencer)
-            .until(self.noteInShooter)
-            .withName("RunSequencer")
-            .deadlineWith(self.intake.transferCommand())
-            .andThen(self.homeNoteCommand())
-        )
 
     def homeNoteCommand(self) -> Command:
         return (

@@ -84,6 +84,13 @@ class ElevationSubsystem(Subsystem):
             MotionMagicVoltage(position=self.leadscrewPosition, slot=1)
         )
 
+    def moveToLoad(self):
+        self.setLeadscrewPosition(0)
+        self.moveLeadscrewToPosition()
+
+    def readyToLoad(self):
+        return self.leadscrewPosition == 0 and self.leadscrewAtPosition()
+
     def periodic(self):
         self.logTelemetry()
         SmartDashboard.putBoolean("ShooterPositionDioSensor", self.shooterAtHome())

@@ -30,7 +30,7 @@ from subsystems.shooter import ShooterSubsystem
 from subsystems.climber import ClimberSubsystem
 from subsystems.elevation import ElevationSubsystem
 from commands.drive.field_oriented import ManualDrive
-from commands.shooter.intake_and_shoot import IntakeAndLoad
+from commands.shooter.load import IntakeAndLoad, loadShooterCommand
 
 
 class RobotContainer:
@@ -99,7 +99,9 @@ class RobotContainer:
 
         self.driverController.a().onTrue(self.intakeSubsystem.intakeCommand())
         self.driverController.x().onTrue(self.intakeSubsystem.stopIntakeCommand())
-        self.driverController.b().onTrue(self.shooterSubsystem.loadShooterCommand())
+        self.driverController.b().onTrue(
+            loadShooterCommand(self.shooterSubsystem, self.intakeSubsystem)
+        )
         self.driverController.rightBumper().onTrue(self.shooterSubsystem.shootCommand())
         self.driverController.y().onTrue(self.shooterSubsystem.stopShootingCommand())
         self.driverController.start().onTrue(self.driveSubsystem.resetGyroCommand())
