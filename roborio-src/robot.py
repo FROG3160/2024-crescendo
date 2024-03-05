@@ -127,25 +127,6 @@ class MyRobot(commands2.TimedCommandRobot):
         #         print("Starting pose: " + self.startingPose2d().__str__())
         #         self.container.driveSubsystem.resetPose(self.startingPose2d)
 
-        self.container.operatorController.a().onTrue(
-            runOnce(
-                lambda: self.container.elevationSubsystem.setLeadscrewPosition(
-                    wpilib.SmartDashboard.getNumber("rotations", 0)
-                )
-            ).andThen(self.container.elevationSubsystem.setLeadscrewCommand())
-        )
-
-        self.container.operatorController.b().onTrue(
-            runOnce(
-                lambda: self.container.elevationSubsystem.setLeadscrewPosition(8.5)
-            ).andThen(self.container.elevationSubsystem.setLeadscrewCommand())
-        )
-        self.container.operatorController.x().onTrue(
-            runOnce(
-                lambda: self.container.elevationSubsystem.setLeadscrewPosition(0)
-            ).andThen(self.container.elevationSubsystem.setLeadscrewCommand())
-        )
-
     def testInit(self) -> None:
         # Cancels all running commands at the start of test mode
         commands2.CommandScheduler.getInstance().cancelAll()
