@@ -20,7 +20,7 @@ from constants import (
     kTranslationSlew,
     kRotSlew,
 )
-
+from commands2.cmd import runOnce
 from FROGlib.xbox import FROGXboxDriver, FROGXboxOperator
 from subsystems.drivetrain import DriveTrain
 from pathplannerlib.auto import PathPlannerAuto, NamedCommands
@@ -120,6 +120,23 @@ class RobotContainer:
             self.elevationSubsystem.homeShooterCommand().withInterruptBehavior(
                 commands2.InterruptionBehavior.kCancelIncoming
             )
+        )
+        self.container.operatorController.a().onTrue(
+            runOnce(
+                lambda: self.container.elevationSubsystem.setLeadscrewPosition(
+                    wpilib.SmartDashboard.getNumber("rotations", 0)
+                )
+            ).andThen(self.container.elevationSubsystem.setLeadscrewCommand())
+        )
+        self.container.operatorController.b().onTrue(
+            runOnce(
+                lambda: self.container.elevationSubsystem.setLeadscrewPosition(8.5)
+            ).andThen(self.container.elevationSubsystem.setLeadscrewCommand())
+        )
+        self.container.operatorController.x().onTrue(
+            runOnce(
+                lambda: self.container.elevationSubsystem.setLeadscrewPosition(0)
+            ).andThen(self.container.elevationSubsystem.setLeadscrewCommand())
         )
 
         self.targetingSubsystem.getTargetInRangeTrigger().onTrue(
