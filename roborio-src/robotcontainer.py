@@ -30,6 +30,7 @@ from subsystems.shooter import ShooterSubsystem
 from subsystems.climber import ClimberSubsystem
 from subsystems.elevation import ElevationSubsystem
 from commands.drive.field_oriented import ManualDrive
+from commands.shooter.intake_and_shoot import IntakeAndLoad
 
 
 class RobotContainer:
@@ -56,7 +57,7 @@ class RobotContainer:
         # then pass it in to the subsystems needing it.
         self.positioningSubsystem = PositioningSubsystem()
         self.targetingSubsystem = TargetingSubsystem()
-        self.intakeSubsystem = IntakeSubsystem()
+        self.intakeSubsystem = IntakeSubsystem(self.targetingSubsystem)
         self.climberSubsystem = ClimberSubsystem()
         self.elevationSubsystem = ElevationSubsystem()
         self.driveSubsystem = DriveTrain(self.positioningSubsystem)
@@ -139,8 +140,10 @@ class RobotContainer:
             )
         )
 
-        self.targetingSubsystem.getTargetInRangeTrigger().onTrue(
-            self.intakeSubsystem.intakeCommand()
+        self.intakeSubsystem.getTargetInRangeTrigger().onTrue(
+            IntakeAndLoad(
+                self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
+            )
         )
 
         # # Grab the hatch when the Circle button is pressed.
