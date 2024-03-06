@@ -9,19 +9,20 @@ from FROGlib.motors import (
     FROGTalonSRX,
     FROGTalonSRXConfig,
 )
-from commands2 import Subsystem, Command
+from commands2 import Subsystem, Command, button
 from constants import (
     kIntakeRollerControllerID,
     kTransferWheelsID,
     kRollerVoltage,
-    kTransferPercent,
     kIntakeSensorChannel,
     kRollerTransferVoltage,
+    kLoadWheelsPercent,
 )
 from wpilib import DigitalInput, SmartDashboard
 from ntcore import NetworkTableInstance
 import configs
 from phoenix6.controls import DutyCycleOut, VoltageOut
+from subsystems.vision import TargetingSubsystem
 
 
 class IntakeSubsystem(Subsystem):
@@ -32,7 +33,7 @@ class IntakeSubsystem(Subsystem):
         Holding = auto()  # Note loaded, but not yet transferred
         Transferring = auto()  # moving note to shooter
 
-    def __init__(self, parent_nt: str = "Subsystems"):
+    def __init__(self, camera: TargetingSubsystem, parent_nt: str = "Subsystems"):
         """A Subsystem that takes notes from the field and delivers them to the shooter
 
         Args:
@@ -41,6 +42,7 @@ class IntakeSubsystem(Subsystem):
         super().__init__()
         self.setName("Intake")
         nt_table = f"{parent_nt}/{self.getName()}"
+        self.camera = camera
 
         self.intakeMotor = FROGTalonFX(
             kIntakeRollerControllerID,
@@ -78,10 +80,26 @@ class IntakeSubsystem(Subsystem):
         self.transferMotorCommandedPercent = 0
 
         self.state = self.State.Disabled
+        self._intakeAllowed = True
+
+    def getTargetInRangeTrigger(self):
+        return button.Trigger(
+            lambda: self.camera.getTargetInRange() and self.intakeAllowed()
+        )
+
+    def intakeAllowed(self) -> bool:
+        return self._intakeAllowed
+
+    def disallowIntake(self):
+        self._intakeAllowed = False
+
+    def allowIntake(self):
+        self._intakeAllowed = True
 
     def intakeCommand(self) -> Command:
         # return a command that starts the intakeMotor
         # and then waits for noteDetected() goes True
+        # as long as intakeAllowed()
         return (
             self.startEnd(self.runIntake, self.stopIntake)
             .until(self.noteInIntake)
@@ -120,7 +138,7 @@ class IntakeSubsystem(Subsystem):
 
     def runTransfer(self):
         self.state = self.State.Transferring
-        self.controlTransfer(kTransferPercent)
+        self.controlTransfer(kLoadWheelsPercent)
         self.controlIntake(kRollerTransferVoltage)
 
     def stopIntake(self):
@@ -152,8 +170,12 @@ class IntakeSubsystem(Subsystem):
 
     def periodic(self) -> None:
         #  as a method of subystem, this is run every loop
-        self.logTelemetry()
+        # self.logTelemetry()
+        self.publishOnSmartDashboard()
+
+    def publishOnSmartDashboard(self):
         SmartDashboard.putBoolean("IntakeDioSensor", self.noteInIntake())
+        SmartDashboard.putBoolean("IntakeAllowed", self.intakeAllowed())
 
     def logTelemetry(self):
         self.intakeMotor.logData()

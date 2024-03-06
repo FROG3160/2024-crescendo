@@ -332,7 +332,7 @@ class SwerveChassis(Subsystem):
             self.setStatesFromSpeeds()  # apply chassis Speeds
         for module, state in zip(self.modules, self.moduleStates):
             module.setState(state)
-        self.logTelemetry()
+        # self.logTelemetry()
 
     # Resets the pose by resetting the gyro and running
     # the resetPosition method of the estimator.

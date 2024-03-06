@@ -123,7 +123,8 @@ class ClimberSubsystem(Subsystem):
         self.setVoltage(0)
 
     def periodic(self) -> None:
-        self.logTelemetry()
+        # self.logTelemetry()
+        pass
 
     def get_ExtendCommand(self) -> Command:
         return self.startEnd(self.extend, self.stop)

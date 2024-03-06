@@ -99,9 +99,3 @@ class FROGXboxOperator(CommandXboxController):
 
     def getFlyWheelSpeed(self):
         return self.getRightTriggerAxis()
-
-    def runSequencer(self):
-        if self.getBButton():
-            return constants.kSequencerPercent
-        else:
-            return 0.0

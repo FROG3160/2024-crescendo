@@ -1,4 +1,4 @@
-from commands2 import Subsystem, button
+from commands2 import Subsystem
 from ntcore import NetworkTableInstance
 from wpimath.geometry import Pose3d, Pose2d
 from wpimath.kinematics import ChassisSpeeds
@@ -7,6 +7,8 @@ from robotpy_apriltag import loadAprilTagLayoutField, AprilTagField
 from constants import kLimelightPositioning, kLimelightTargeting
 from wpilib import SmartDashboard
 import math
+from FROGlib.utils import ShootingSolution
+
 
 
 class PositioningSubsystem(Subsystem):
@@ -25,6 +27,7 @@ class PositioningSubsystem(Subsystem):
             .getStructTopic(f"{nt_table}/pose2d", Pose2d)
             .publish()
         )
+        self.fieldLayout = loadAprilTagLayoutField(AprilTagField.k2024Crescendo)
 
     def periodic(self) -> None:
         self.latestPose = self.estimator.getBotPoseEstimateBlue()
@@ -33,6 +36,9 @@ class PositioningSubsystem(Subsystem):
         if latency != -1:
             SmartDashboard.putString("Vision Estimate", pose.__str__())
             self._visionPosePub.set(pose.toPose2d())
+            tagrange, azimuth = self.getRangeAzimuth(8)
+            SmartDashboard.putNumber("Calculated Range", tagrange)
+            SmartDashboard.putNumber("Calculated Azimuth", azimuth)
 
         # if self.latestTransform:
         #     SmartDashboard.putString("Target Transform", self.latestTransform.__str__())
@@ -41,19 +47,21 @@ class PositioningSubsystem(Subsystem):
         if self.latestPose:
             return (self.latestPose[0], self.latestPose[1])
 
+    def getRangeAzimuth(self, tag):
+        tagPose = self.fieldLayout.getTagPose(tag)
+        transform = tagPose - self.latestPose[0]
+        solution = ShootingSolution(transform.translation())
+        return solution.calculateRange(), solution.calculateAzimuth()
+
 
 class TargetingSubsystem(Subsystem):
     def __init__(self):
         super().__init__()
         self.camera = FROGTargeting(kLimelightTargeting)
-        self.ta = self.camera.ta
 
     def getTargetInRange(self):
         """Returns true if ta is more than 18"""
-        return float(self.ta or 0) > 18.0
-
-    def getTargetInRangeTrigger(self):
-        return button.Trigger(lambda: self.getTargetInRange())
+        return float(self.camera.ta or 0) > 18.0
 
     def calculate_vx(self):
         """Calculate X robot-oriented speed from the Y value of the target in the camera frame.
@@ -90,3 +98,4 @@ class TargetingSubsystem(Subsystem):
 
     def periodic(self) -> None:
         self.camera.getTarget()
+        SmartDashboard.putBoolean("TargetInRange", self.getTargetInRange())

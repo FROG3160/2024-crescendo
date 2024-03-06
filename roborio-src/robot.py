@@ -95,6 +95,8 @@ class MyRobot(commands2.TimedCommandRobot):
         if self.autonomousCommand:
             self.autonomousCommand.schedule()
 
+        self.container.elevationSubsystem.homeShooterCommand().schedule()
+
     def autonomousPeriodic(self) -> None:
         """This function is called periodically during autonomous"""
 
@@ -110,6 +112,7 @@ class MyRobot(commands2.TimedCommandRobot):
         if self.autonomousCommand:
             self.autonomousCommand.cancel()
         self.container.driveSubsystem.enable()
+        self.container.elevationSubsystem.homeShooterCommand().schedule()
 
     def teleopPeriodic(self) -> None:
         """This function is called periodically during operator control"""
@@ -126,29 +129,6 @@ class MyRobot(commands2.TimedCommandRobot):
         #         )
         #         print("Starting pose: " + self.startingPose2d().__str__())
         #         self.container.driveSubsystem.resetPose(self.startingPose2d)
-
-        self.container.operatorController.a().onTrue(
-            runOnce(
-                lambda: self.container.shooterSubsystem.setLeadscrewPosition(
-                    wpilib.SmartDashboard.getNumber("rotations", 0)
-                )
-            ).andThen(self.container.shooterSubsystem.setLeadscrewCommand())
-        )
-
-        self.container.operatorController.b().onTrue(
-            runOnce(
-                lambda: self.container.shooterSubsystem.setLeadscrewPosition(8.5)
-            ).andThen(self.container.shooterSubsystem.setLeadscrewCommand())
-        )
-        self.container.operatorController.x().onTrue(
-            runOnce(
-                lambda: self.container.shooterSubsystem.setLeadscrewPosition(0)
-            ).andThen(self.container.shooterSubsystem.setLeadscrewCommand())
-        )
-
-        self.container.shooterSubsystem.setFlywheelSpeed(
-            wpilib.SmartDashboard.getNumber("flyspeed", 0)
-        )
 
     def testInit(self) -> None:
         # Cancels all running commands at the start of test mode

@@ -20,7 +20,7 @@ from constants import (
     kTranslationSlew,
     kRotSlew,
 )
-
+from commands2.cmd import runOnce
 from FROGlib.xbox import FROGXboxDriver, FROGXboxOperator
 from subsystems.drivetrain import DriveTrain
 from pathplannerlib.auto import PathPlannerAuto, NamedCommands
@@ -28,7 +28,10 @@ from subsystems.vision import PositioningSubsystem, TargetingSubsystem
 from subsystems.intake import IntakeSubsystem
 from subsystems.shooter import ShooterSubsystem
 from subsystems.climber import ClimberSubsystem
+from subsystems.elevation import ElevationSubsystem
 from commands.drive.field_oriented import ManualDrive
+from commands.shooter.load import IntakeAndLoad, loadShooterCommand
+from commands.shooter.fire import Fire
 
 
 class RobotContainer:
@@ -55,8 +58,9 @@ class RobotContainer:
         # then pass it in to the subsystems needing it.
         self.positioningSubsystem = PositioningSubsystem()
         self.targetingSubsystem = TargetingSubsystem()
-        self.intakeSubsystem = IntakeSubsystem()
+        self.intakeSubsystem = IntakeSubsystem(self.targetingSubsystem)
         self.climberSubsystem = ClimberSubsystem()
+        self.elevationSubsystem = ElevationSubsystem()
         self.driveSubsystem = DriveTrain(self.positioningSubsystem)
         self.shooterSubsystem = ShooterSubsystem(self.intakeSubsystem)
 
@@ -96,8 +100,12 @@ class RobotContainer:
 
         self.driverController.a().onTrue(self.intakeSubsystem.intakeCommand())
         self.driverController.x().onTrue(self.intakeSubsystem.stopIntakeCommand())
-        self.driverController.b().onTrue(self.shooterSubsystem.loadShooterCommand())
-        self.driverController.rightBumper().onTrue(self.shooterSubsystem.shootCommand())
+        self.driverController.b().onTrue(
+            loadShooterCommand(self.shooterSubsystem, self.intakeSubsystem)
+        )
+        self.driverController.rightBumper().onTrue(
+            Fire(self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem)
+        )
         self.driverController.y().onTrue(self.shooterSubsystem.stopShootingCommand())
         self.driverController.start().onTrue(self.driveSubsystem.resetGyroCommand())
 
@@ -114,10 +122,33 @@ class RobotContainer:
         self.operatorController.rightBumper().onTrue(
             self.climberSubsystem.get_homeRightClimber()
         )
-        self.operatorController.y().onTrue(self.shooterSubsystem.homeShooterCommand())
+        self.operatorController.y().onTrue(
+            self.elevationSubsystem.homeShooterCommand().withInterruptBehavior(
+                commands2.InterruptionBehavior.kCancelIncoming
+            )
+        )
+        self.operatorController.a().onTrue(
+            runOnce(
+                lambda: self.elevationSubsystem.setLeadscrewPosition(
+                    wpilib.SmartDashboard.getNumber("rotations", 0)
+                )
+            ).andThen(self.elevationSubsystem.setLeadscrewCommand())
+        )
+        self.operatorController.b().onTrue(
+            runOnce(lambda: self.elevationSubsystem.setLeadscrewPosition(8.5)).andThen(
+                self.elevationSubsystem.setLeadscrewCommand()
+            )
+        )
+        self.operatorController.x().onTrue(
+            runOnce(lambda: self.elevationSubsystem.setLeadscrewPosition(0)).andThen(
+                self.elevationSubsystem.setLeadscrewCommand()
+            )
+        )
 
-        self.targetingSubsystem.getTargetInRangeTrigger().onTrue(
-            self.intakeSubsystem.intakeCommand()
+        self.intakeSubsystem.getTargetInRangeTrigger().onTrue(
+            IntakeAndLoad(
+                self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
+            )
         )
 
         # # Grab the hatch when the Circle button is pressed.
