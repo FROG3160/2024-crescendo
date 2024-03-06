@@ -313,7 +313,6 @@ class SwerveChassis(Subsystem):
     # returns a Pose with rotation flipped
     def getAutoPose(self) -> Pose2d:
         if DriverStation.getAlliance() == DriverStation.Alliance.kRed:
-            print("FOUND RED ALLIANCE")
             translation = self.estimator.getEstimatedPosition().translation()
             rotation = self.gyro.getRotation2d().rotateBy(Rotation2d(math.pi))
             return Pose2d(translation, rotation)
@@ -359,7 +358,6 @@ class SwerveChassis(Subsystem):
         )
 
     def robotOrientedDrive(self, vX, vY, vT):
-        print(f"Velocities: {vX}, {vY}, {vT}")
         self.chassisSpeeds = ChassisSpeeds(vX, vY, vT)
 
     def setChassisSpeeds(self, chassis_speeds):

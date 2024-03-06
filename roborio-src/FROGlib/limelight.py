@@ -128,7 +128,6 @@ class FROGPositioning:
     def getTargetTransform(self):
         transform_array = self.nt_targetpose_robotspace.get()
         if self.nt_tv.get() > 0.0:
-            print(f"TargetTransorm: {transform_array}")
             # timestamp = transform_array[6]
             transform = Transform3d(
                 Translation3d(
