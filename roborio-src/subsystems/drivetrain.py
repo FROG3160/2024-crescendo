@@ -49,7 +49,7 @@ class DriveTrain(SwerveChassis):
 
         # Configure the AutoBuilder last
         AutoBuilder.configureHolonomic(
-            self.getPose,  # Robot pose supplier
+            self.getAutoPose,  # Robot pose supplier
             self.resetPose,  # Method to reset odometry (will be called if your auto has a starting pose)
             self.getRobotRelativeSpeeds,  # ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
             self.setChassisSpeeds,  # Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
