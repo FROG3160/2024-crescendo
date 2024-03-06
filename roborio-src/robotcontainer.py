@@ -29,7 +29,7 @@ from subsystems.intake import IntakeSubsystem
 from subsystems.shooter import ShooterSubsystem
 from subsystems.climber import ClimberSubsystem
 from subsystems.elevation import ElevationSubsystem
-from commands.drive.field_oriented import ManualDrive
+from commands.drive.field_oriented import ManualDrive, DriveToTarget
 from commands.shooter.load import IntakeAndLoad, loadShooterCommand
 from commands.shooter.fire import Fire
 
@@ -100,8 +100,11 @@ class RobotContainer:
 
         self.driverController.a().onTrue(self.intakeSubsystem.intakeCommand())
         self.driverController.x().onTrue(self.intakeSubsystem.stopIntakeCommand())
-        self.driverController.b().onTrue(
-            loadShooterCommand(self.shooterSubsystem, self.intakeSubsystem)
+        # self.driverController.b().onTrue(
+        #     loadShooterCommand(self.shooterSubsystem, self.intakeSubsystem)
+        # )
+        self.driverController.b().whileTrue(
+            DriveToTarget(self.driveSubsystem, self.targetingSubsystem)
         )
         self.driverController.rightBumper().onTrue(
             Fire(self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem)
