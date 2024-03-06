@@ -52,7 +52,7 @@ class MyRobot(commands2.TimedCommandRobot):
 
         self.startingPose2d = Pose2d(0, 0, 0)
 
-        wpilib.SmartDashboard.putNumber("Flywheel Speed", 6.25)
+        wpilib.SmartDashboard.putNumber("Flywheel Speed", 100)
         wpilib.SmartDashboard.putNumber("Shooter Pos", 0)
         wpilib.SmartDashboard.putData("Shooter", self.container.shooterSubsystem)
         wpilib.SmartDashboard.putData("DriveTrain", self.container.driveSubsystem)
