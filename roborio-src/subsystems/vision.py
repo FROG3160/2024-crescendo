@@ -75,6 +75,8 @@ class TargetingSubsystem(Subsystem):
         # speed(distance(ty))
         if targetVertical := self.camera.ty:
             return min(1.05, (0.020833 * (14.7 * math.exp(0.0753 * targetVertical))))
+        else:
+            return 0
 
     def calculate_vt(self):
         """Calculate the rotational speed from the X value of the target in the camera frame.
@@ -90,6 +92,8 @@ class TargetingSubsystem(Subsystem):
         """
         if targetX := self.camera.tx:
             return -(targetX / 25)
+        else:
+            return 0
 
     def getChassisSpeeds(self):
         """Get calculated velocities from vision target data"""

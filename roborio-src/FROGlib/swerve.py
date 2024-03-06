@@ -350,7 +350,7 @@ class SwerveChassis(Subsystem):
         )
 
     def robotOrientedDrive(self, vX, vY, vT):
-        self.logger.info(f"Velocities: {vX}, {vY}, {vT}")
+        print(f"Velocities: {vX}, {vY}, {vT}")
         self.chassisSpeeds = ChassisSpeeds(vX, vY, vT)
 
     def setChassisSpeeds(self, chassis_speeds):
