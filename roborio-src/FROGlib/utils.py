@@ -1,5 +1,5 @@
 import math
-from wpimath.geometry import Transform3d, Translation3d
+from wpimath.geometry import Transform3d, Translation3d, Rotation2d, Pose3d
 
 
 def constrain_radians(rads):
@@ -24,34 +24,67 @@ def getAngleFromTransform(transform: Transform3d) -> float:
     return math.atan2(translation.y, translation.x)
 
 
-class ShootingSolution:
-    def __init__(self, translation: Translation3d):
-        self.x = translation.x
-        self.y = translation.y
-        self.z = translation.z
-        self.range = self.calculateRange()
-        self.azimuth = self.calculateAzimuth()
-        self.elevation = self.calculateElevation()
+class RobotRelativeTarget:
+    def __init__(
+        self, robotPose: Pose3d, targetPose: Pose3d, isBlueAlliance: bool = False
+    ):
+        """Takes BlueAlliance-oriented robot and target poses and calculates field-oriented values for each alliance.
 
-    def calculateRange(self):
-        return math.sqrt(self.x**2 + self.y**2 + self.z**2)
-
-    def calculateAzimuth(self):
-        return math.atan2(self.y, self.x)
-
-    def calculateElevation(self):
-        return math.acos(math.sqrt(self.x**2 + self.y**2) / self.range)
+        Args:
+            robotPose (Pose3d): The Blue Alliance robot pose
+            targetPose (Pose3d): _description_
+            isBlueAlliance (bool, optional): _description_. Defaults to False.
+        """
+        self.toTagFromRobot = targetPose - robotPose
+        self._x = self.toTagFromRobot.x
+        self._y = self.toTagFromRobot.y
+        self._z = self.toTagFromRobot.z
+        self._heading = Rotation2d(self._x, self._y)
+        self._flippedHeading = self._heading.rotateBy(Rotation2d(math.pi))
+        if isBlueAlliance:
+            self.driveHeading = self._heading
+            self.firingHeading = self._flippedHeading
+            self.fieldX = self._x
+            self.fieldY = self._y
+            self.fieldZ = self._z
+        else:
+            self.driveHeading = self._flippedHeading
+            self.firingHeading = self._heading
+            self.fieldX = -self._x
+            self.fieldY = -self._y
+            self.fieldZ = self._z
+        # the length across the floor...  2 dimensions
+        self.distance = math.sqrt(self.fieldX**2 + self.fieldY**2)
+        # the length to the target including height... 3 dimensions
+        self.range = math.sqrt(self.fieldX**2 + self.fieldY**2 + self.fieldZ**2)
+        self.elevation = Rotation2d(math.acos(self.distance / self.range))
 
 
 # from robotpy_apriltag import loadAprilTagLayoutField, AprilTagField
 # from wpimath.geometry import Pose3d, Rotation3d
+
 # field = loadAprilTagLayoutField(AprilTagField.k2024Crescendo)
 # field.setOrigin(field.OriginPosition.kBlueAllianceWallRightSide)
-# robotPose = Pose3d(13, 0, 0, Rotation3d(0, 0, 0))
-# tagPose =  field.getTagPose(7)
-# print(tagPose.__str__())
-# test = tagPose - robotPose
-# print(test.__str__())
-# ss = ShootingSolution(test.translation())
-# from math import degrees
-# print(degrees(ss.calculateAzimuth()))
+# robotPose = Pose3d(14, 5, 0.04, Rotation3d(0, 0, 0))
+# print(f"robot pose: {robotPose}")
+# tagPose = field.getTagPose(5)
+# print(f"tag pose: {tagPose}")
+# test = robotPose - tagPose
+# print(f"transform: {test}")
+# isBlueAlliance = True
+# rrt = RobotRelativeTarget(robotPose, tagPose, isBlueAlliance)
+
+# print()
+# print(f"Is Blue Aliance: {isBlueAlliance}")
+# print(
+#     f"Distance Forward: {rrt.fieldX}, Distance Left: {rrt.fieldY}, Distance Up: {rrt.fieldZ}"
+# )
+# print(
+#     f"Distance:, {rrt.distance}, Heading: {rrt.driveHeading.degrees()}, Firing Heading: {rrt.firingHeading.degrees()}, Elevation: {rrt.elevation.degrees()}"
+# )
+# # print(f"RedReversed: {degrees(constrain_radians(ss.azimuth - math.pi))}")
+# # print(f"{Rotation2d(ss.x, ss.y).degrees()}")
+# print()
+# print()
+# for tag in field.getTags():
+#     print(f"Tag: {tag.ID}, {tag.pose}")
