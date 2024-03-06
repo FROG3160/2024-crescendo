@@ -100,6 +100,9 @@ class MyRobot(commands2.TimedCommandRobot):
             self.autonomousCommand.cancel()
         self.container.driveSubsystem.enable()
         self.container.elevationSubsystem.homeShooterCommand().schedule()
+        # Run the elevation homing routine while we are running teleop at home
+        if not DriverStation.isFMSAttached():
+            self.container.elevationSubsystem.homeShooterCommand().schedule()
 
     def teleopPeriodic(self) -> None:
         """This function is called periodically during operator control"""
@@ -116,6 +119,8 @@ class MyRobot(commands2.TimedCommandRobot):
         #         )
         #         print("Starting pose: " + self.startingPose2d().__str__())
         #         self.container.driveSubsystem.resetPose(self.startingPose2d)
+
+    DriverStation.isFMSAttached()
 
     def testInit(self) -> None:
         # Cancels all running commands at the start of test mode
