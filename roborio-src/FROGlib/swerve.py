@@ -3,6 +3,7 @@ from logging import Logger
 from typing import Tuple
 from commands2 import Subsystem
 from ntcore import NetworkTableInstance
+from wpilib import DriverStation
 from wpimath.geometry import Translation2d, Rotation2d
 from wpimath.kinematics import (
     SwerveModuleState,
@@ -309,6 +310,16 @@ class SwerveChassis(Subsystem):
         rotation = self.gyro.getRotation2d()
         return Pose2d(translation, rotation)
 
+    # returns a Pose with rotation flipped
+    def getAutoPose(self) -> Pose2d:
+        if DriverStation.getAlliance() == DriverStation.Alliance.kRed:
+            print("FOUND RED ALLIANCE")
+            translation = self.estimator.getEstimatedPosition().translation()
+            rotation = self.gyro.getRotation2d().rotateBy(Rotation2d(math.pi))
+            return Pose2d(translation, rotation)
+        else:
+            return self.getPose()
+
     def lockChassis(self):
         # getting the "angle" of each module location on the robot.
         # this gives us the angle back to the center of the robot from
@@ -334,10 +345,8 @@ class SwerveChassis(Subsystem):
             module.setState(state)
         # self.logTelemetry()
 
-    # Resets the pose by resetting the gyro and running
-    # the resetPosition method of the estimator.
+    # Resets the pose by running the resetPosition method of the estimator.
     def resetPose(self, pose: Pose2d):
-        self.gyro.resetGyro()
         self.estimator.resetPosition(
             self.gyro.getRotation2d(),
             tuple(
