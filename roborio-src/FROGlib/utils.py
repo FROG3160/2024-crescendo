@@ -1,5 +1,12 @@
 import math
-from wpimath.geometry import Transform3d, Translation3d, Rotation2d, Pose3d
+from wpimath.geometry import (
+    Transform3d,
+    Translation3d,
+    Rotation2d,
+    Pose3d,
+    Pose2d,
+    Transform2d,
+)
 
 
 def constrain_radians(rads):
@@ -26,8 +33,10 @@ def getAngleFromTransform(transform: Transform3d) -> float:
 
 class RobotRelativeTarget:
     def __init__(
-        self, robotPose: Pose3d, targetPose: Pose3d, isBlueAlliance: bool = False
+        self, robotPose: Pose2d, targetPose: Pose3d, isBlueAlliance: bool = False
     ):
+        # the docstring isn't really correct, but I don't have the time to wordsmith it
+        # it gets x and y distances and uses those to calculate a robot-relative angle
         """Takes BlueAlliance-oriented robot and target poses and calculates field-oriented values for each alliance.
 
         Args:
@@ -35,10 +44,10 @@ class RobotRelativeTarget:
             targetPose (Pose3d): _description_
             isBlueAlliance (bool, optional): _description_. Defaults to False.
         """
-        self.toTagFromRobot = targetPose - robotPose
+        self.toTagFromRobot = targetPose.toPose2d() - robotPose
         self._x = self.toTagFromRobot.x
         self._y = self.toTagFromRobot.y
-        self._z = self.toTagFromRobot.z
+        self._z = targetPose.z
         self._heading = Rotation2d(self._x, self._y)
         self._flippedHeading = self._heading.rotateBy(Rotation2d(math.pi))
         if isBlueAlliance:
@@ -58,6 +67,7 @@ class RobotRelativeTarget:
         # the length to the target including height... 3 dimensions
         self.range = math.sqrt(self.fieldX**2 + self.fieldY**2 + self.fieldZ**2)
         self.elevation = Rotation2d(math.acos(self.distance / self.range))
+        self.driveVT = self.firingHeading.degrees() / 90
 
 
 # from robotpy_apriltag import loadAprilTagLayoutField, AprilTagField
