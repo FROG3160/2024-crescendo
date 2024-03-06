@@ -82,12 +82,11 @@ class TargetingSubsystem(Subsystem):
             Float: Rotational velocity with CCW (left, robot oriented) positive.
         """
         if targetX := self.camera.tx:
-            return -(targetX / 20)
-            # return -(targetX / 25)
+            return -(targetX / 25)
 
     def getChassisSpeeds(self):
         """Get calculated velocities from vision target data"""
-        return ChassisSpeeds(self.calculate_vx, 0, self.calculate_vt)
+        return ChassisSpeeds(self.calculate_vx(), 0, self.calculate_vt())
 
     def periodic(self) -> None:
         self.camera.getTarget()
