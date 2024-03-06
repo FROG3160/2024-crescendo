@@ -52,31 +52,18 @@ class MyRobot(commands2.TimedCommandRobot):
 
         self.startingPose2d = Pose2d(0, 0, 0)
 
-        wpilib.SmartDashboard.putNumber("flyspeed", 8.8)
-        wpilib.SmartDashboard.putNumber("rotations", -1.5)
+        wpilib.SmartDashboard.putNumber("Flywheel Speed", 6.25)
+        wpilib.SmartDashboard.putNumber("Shooter Pos", 0)
         wpilib.SmartDashboard.putData("Shooter", self.container.shooterSubsystem)
         wpilib.SmartDashboard.putData("DriveTrain", self.container.driveSubsystem)
+        wpilib.SmartDashboard.putData("Intake", self.container.intakeSubsystem)
+        wpilib.SmartDashboard.putData("Elevation", self.container.elevationSubsystem)
 
     def disabledInit(self) -> None:
         """This function is called once each time the robot enters Disabled mode."""
 
     def disabledPeriodic(self) -> None:
         """This function is called periodically when disabled"""
-
-    # I think the extra logging in robotPeriod is causing loop overruns
-    # def robotPeriodic(self) -> None:
-    #     super().robotPeriodic()
-    #     canStatus = RobotController.
-
-    #     SignalLogger.write_integer("CAN/busOffCount", canStatus.busOffCount)
-    #     SignalLogger.write_float(
-    #         "CAN/percentBusUtilization", canStatus.percentBusUtilization
-    #     )
-    #     SignalLogger.write_integer("CAN/receiveErrorCount", canStatus.receiveErrorCount)
-    #     SignalLogger.write_integer(
-    #         "CAN/transmitErrorCount", canStatus.transmitErrorCount
-    #     )
-    #     SignalLogger.write_integer("CAN/txFullCount", canStatus.txFullCount)
 
     def autonomousInit(self) -> None:
         """This autonomous runs the autonomous command selected by your RobotContainer class."""

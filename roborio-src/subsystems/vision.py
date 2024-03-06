@@ -10,7 +10,6 @@ import math
 from FROGlib.utils import ShootingSolution
 
 
-
 class PositioningSubsystem(Subsystem):
     def __init__(
         self,
@@ -98,4 +97,4 @@ class TargetingSubsystem(Subsystem):
 
     def periodic(self) -> None:
         self.camera.getTarget()
-        SmartDashboard.putBoolean("TargetInRange", self.getTargetInRange())
+        SmartDashboard.putBoolean("Note In Range", self.getTargetInRange())

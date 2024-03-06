@@ -93,7 +93,7 @@ class ElevationSubsystem(Subsystem):
 
     def periodic(self):
         self.logTelemetry()
-        SmartDashboard.putBoolean("ShooterPositionDioSensor", self.shooterAtHome())
+        # SmartDashboard.putBoolean("ShooterPositionAtHome", self.shooterAtHome())
 
     def runLeadscrewForward(self):
         self.leadscrew.set_control(VoltageOut(0.5))

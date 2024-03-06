@@ -87,7 +87,7 @@ class ShooterSubsystem(Subsystem):
         self.flyWheelSpeed = flywheelSpeed
 
     def runFlywheels(self):
-        self.flyWheelSpeed = SmartDashboard.getNumber("flyspeed", 0)
+        self.flyWheelSpeed = SmartDashboard.getNumber("Flywheel Speed", 0)
         self.leftFlyWheel.set_control(
             VelocityVoltage(
                 velocity=self.flyWheelSpeed * self.leftFlyWheelSpeedFactor, slot=0
@@ -194,8 +194,8 @@ class ShooterSubsystem(Subsystem):
         self.publishOnSmartDashboard()
 
     def publishOnSmartDashboard(self):
-        SmartDashboard.putBoolean("ShooterDioSensor", self.noteInShooter())
-        SmartDashboard.putBoolean("FlywheelAtSpeed", self.flywheelAtSpeed())
+        SmartDashboard.putBoolean("Note in Shooter", self.noteInShooter())
+        SmartDashboard.putBoolean("Flywheel At Speed", self.flywheelAtSpeed())
 
     def logTelemetry(self):
         self.leftFlyWheel.logData()

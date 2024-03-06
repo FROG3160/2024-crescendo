@@ -133,7 +133,7 @@ class RobotContainer:
         self.operatorController.a().onTrue(
             runOnce(
                 lambda: self.elevationSubsystem.setLeadscrewPosition(
-                    wpilib.SmartDashboard.getNumber("rotations", 0)
+                    wpilib.SmartDashboard.getNumber("Shooter Pos", 0)
                 )
             ).andThen(self.elevationSubsystem.setLeadscrewCommand())
         )

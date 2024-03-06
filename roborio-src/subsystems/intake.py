@@ -174,8 +174,8 @@ class IntakeSubsystem(Subsystem):
         self.publishOnSmartDashboard()
 
     def publishOnSmartDashboard(self):
-        SmartDashboard.putBoolean("IntakeDioSensor", self.noteInIntake())
-        SmartDashboard.putBoolean("IntakeAllowed", self.intakeAllowed())
+        SmartDashboard.putBoolean("Note in Intake", self.noteInIntake())
+        SmartDashboard.putBoolean("IntakeAuto", self.intakeAllowed())
 
     def logTelemetry(self):
         self.intakeMotor.logData()
