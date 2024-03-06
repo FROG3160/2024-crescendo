@@ -110,17 +110,18 @@ class ShooterSubsystem(Subsystem):
         return self.runOnce(self.stopFlywheels).withName("StopFlywheels")
 
     def flywheelAtSpeed(self) -> bool:
+        flywheelTolerance = self.flyWheelSpeed * 0.1
         if (
             abs(
                 self.flyWheelSpeed * self.leftFlyWheelSpeedFactor
                 - self.leftFlyWheel.get_velocity().value
             )
-            < 5
+            < flywheelTolerance
             and abs(
                 self.flyWheelSpeed * self.rightFlyWheelSpeedFactor
                 - abs(self.rightFlyWheel.get_velocity().value)
             )
-            < 5
+            < flywheelTolerance
         ):
             return True
         else:
