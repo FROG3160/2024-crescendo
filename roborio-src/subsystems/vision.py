@@ -3,11 +3,9 @@ from ntcore import NetworkTableInstance
 from wpimath.geometry import Pose3d, Pose2d
 from wpimath.kinematics import ChassisSpeeds
 from FROGlib.limelight import FROGPositioning, FROGTargeting
-from robotpy_apriltag import loadAprilTagLayoutField, AprilTagField
 from constants import kLimelightPositioning, kLimelightTargeting
 from wpilib import SmartDashboard
 import math
-from FROGlib.utils import ShootingSolution
 
 
 class PositioningSubsystem(Subsystem):
@@ -26,7 +24,6 @@ class PositioningSubsystem(Subsystem):
             .getStructTopic(f"{nt_table}/pose2d", Pose2d)
             .publish()
         )
-        self.fieldLayout = loadAprilTagLayoutField(AprilTagField.k2024Crescendo)
 
     def periodic(self) -> None:
         self.latestPose = self.estimator.getBotPoseEstimateBlue()
@@ -35,9 +32,6 @@ class PositioningSubsystem(Subsystem):
         if latency != -1:
             SmartDashboard.putString("Vision Estimate", pose.__str__())
             self._visionPosePub.set(pose.toPose2d())
-            tagrange, azimuth = self.getRangeAzimuth(8)
-            SmartDashboard.putNumber("Calculated Range", tagrange)
-            SmartDashboard.putNumber("Calculated Azimuth", azimuth)
 
         # if self.latestTransform:
         #     SmartDashboard.putString("Target Transform", self.latestTransform.__str__())
@@ -45,12 +39,6 @@ class PositioningSubsystem(Subsystem):
     def getLatestPoseEstimate(self) -> tuple[Pose3d, float]:
         if self.latestPose:
             return (self.latestPose[0], self.latestPose[1])
-
-    def getRangeAzimuth(self, tag):
-        tagPose = self.fieldLayout.getTagPose(tag)
-        transform = tagPose - self.latestPose[0]
-        solution = ShootingSolution(transform.translation())
-        return solution.calculateRange(), solution.calculateAzimuth()
 
 
 class TargetingSubsystem(Subsystem):
@@ -74,7 +62,9 @@ class TargetingSubsystem(Subsystem):
         # The second argument in the min() method:
         # speed(distance(ty))
         if targetVertical := self.camera.ty:
-            return min(1.05, (0.020833 * (14.7 * math.exp(0.0753 * targetVertical))))
+            return min(
+                1.05, (0.020833 * (14.7 * math.exp(0.0753 * targetVertical))) * 2
+            )
         else:
             return 0
 

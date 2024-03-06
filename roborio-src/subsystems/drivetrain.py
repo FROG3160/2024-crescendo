@@ -1,5 +1,7 @@
 # High level objects that control our drivetrain
 import math
+
+from robotpy_apriltag import AprilTagField, loadAprilTagLayoutField
 from FROGlib.swerve import SwerveChassis, SwerveModule
 from FROGlib.sensors import FROGGyro
 from constants import (
@@ -23,6 +25,7 @@ from wpimath.geometry import Pose2d
 from subsystems.vision import PositioningSubsystem
 from wpilib import SmartDashboard
 from commands2 import Subsystem, Command
+from FROGlib.utils import RobotRelativeTarget
 
 
 class DriveTrain(SwerveChassis):
@@ -46,6 +49,7 @@ class DriveTrain(SwerveChassis):
             parent_nt=parent_nt,
         )
         self.vision = vision
+        self.fieldLayout = loadAprilTagLayoutField(AprilTagField.k2024Crescendo)
 
         # Configure the AutoBuilder last
         AutoBuilder.configureHolonomic(
@@ -63,6 +67,7 @@ class DriveTrain(SwerveChassis):
             self.shouldFlipPath,  # Supplier to control path flipping based on alliance color
             self,  # Reference to this subsystem to set requirements
         )
+        self.isBlueAlliance = not self.shouldFlipPath()
 
     def setFieldPosition(self, pose: Pose2d):
         self.estimator.resetPosition(
@@ -79,6 +84,24 @@ class DriveTrain(SwerveChassis):
 
     def resetGyroCommand(self) -> Command:
         return self.runOnce(self.gyro.resetGyro)
+
+    def getRangeAzimuth(self, tag):
+        tagPose = self.fieldLayout.getTagPose(tag)
+        robotToTarget = RobotRelativeTarget(
+            self.estimatorPose, tagPose, not self.shouldFlipPath()
+        )
+        return (
+            robotToTarget.distance,
+            robotToTarget.firingHeading,
+            robotToTarget.driveVT,
+        )
+
+    def getvTtoTag(self, tagnum):
+        tagPose = self.fieldLayout.getTagPose(tagnum)
+        robotToTarget = RobotRelativeTarget(
+            self.estimatorPose, tagPose, not self.shouldFlipPath()
+        )
+        return robotToTarget.driveVT
 
     def periodic(self):
         self.estimatorPose = self.estimator.update(
