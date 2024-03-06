@@ -68,15 +68,6 @@ class MyRobot(commands2.TimedCommandRobot):
     def autonomousInit(self) -> None:
         """This autonomous runs the autonomous command selected by your RobotContainer class."""
         self.autonomousCommand = self.container.getAutonomousCommand()
-        # when autonomous starts if we have an autonomous routine selected,
-        # set the starting pose for the robot to it.
-        if self.autonomousCommand:
-            print("Auto command found, setting pose.")
-            self.startingPose2d = self.autonomousCommand.getStartingPoseFromAutoFile(
-                self.autonomousCommand.getName()
-            )
-            print("Starting pose: " + self.startingPose2d.__str__())
-            self.container.driveSubsystem.resetPose(self.startingPose2d)
 
         self.container.driveSubsystem.enable()
         if self.autonomousCommand:
@@ -106,21 +97,6 @@ class MyRobot(commands2.TimedCommandRobot):
 
     def teleopPeriodic(self) -> None:
         """This function is called periodically during operator control"""
-
-        # reset pose
-        # if self.container.operatorController.getBackButtonPressed():
-        #     self.autonomousCommand = self.container.getAutonomousCommand()
-        #     if self.autonomousCommand:
-        #         print("Auto command found, setting pose.")
-        #         self.startingPose2d = (
-        #             self.autonomousCommand.getStartingPoseFromAutoFile(
-        #                 self.autonomousCommand.getName()
-        #             )
-        #         )
-        #         print("Starting pose: " + self.startingPose2d().__str__())
-        #         self.container.driveSubsystem.resetPose(self.startingPose2d)
-
-    DriverStation.isFMSAttached()
 
     def testInit(self) -> None:
         # Cancels all running commands at the start of test mode
