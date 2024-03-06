@@ -69,15 +69,16 @@ class ManualDrive(Command):
         rightStickY = self.controller.getRightY()
         gyroYawCCW = self.drive.gyro.getYawCCW()
         if rightStickY > 0.5:
-            if self.resetController:
-                # this is the first time we hit this conditional, so
-                # reset the controller
-                self.resetController = False
-                self.resetRotationController()
-            # Rotate to 0 degrees, point downfield
-            vT = self.profiledRotationController.calculate(
-                math.radians(gyroYawCCW), math.radians(0)
-            )
+            # if self.resetController:
+            #     # this is the first time we hit this conditional, so
+            #     # reset the controller
+            #     self.resetController = False
+            #     self.resetRotationController()
+            # # Rotate to 0 degrees, point downfield
+            # vT = self.profiledRotationController.calculate(
+            #     math.radians(gyroYawCCW), math.radians(0)
+            # )
+            vT = self.drive.getvTtoTag(7)
             self._calculated_vT.set(vT)
         elif rightStickY < -0.5:
             if self.resetController:
