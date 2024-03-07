@@ -20,6 +20,10 @@ import constants
 from configs import leadscrewConfig
 
 
+def clamp(v, minval, maxval):
+    return max(min(v, maxval), minval)
+
+
 class ElevationSubsystem(Subsystem):
 
     def __init__(self, parent_nt: str = "Subsystems"):
@@ -55,8 +59,12 @@ class ElevationSubsystem(Subsystem):
         )
         self.tagDistance = None
 
-    def getLeadscrewPosition(self) -> float:
+    def getCurrentLeadscrewPosition(self) -> float:
         return self.leadscrew.get_position().value
+
+    def calcPositionForSpeaker(self):
+        calculatedPosition = self.tagDistance * 3.9877 - 6.3804
+        return clamp(calculatedPosition, 0, 8)
 
     def homeShooterCommand(self) -> Command:
         return (
@@ -74,23 +82,30 @@ class ElevationSubsystem(Subsystem):
         )
 
     def leadscrewAtPosition(self) -> bool:
-        position_diff = self.leadscrewPosition - self.getLeadscrewPosition()
+        position_diff = self.leadscrewPosition - self.getCurrentLeadscrewPosition()
         if abs(position_diff) < constants.kLeadscrewPositionTolerance:
             return True
         else:
             return False
 
-    def moveLeadscrewToPosition(self):
+    def runMotorWithControl(self):
         self.leadscrew.set_control(
             MotionMagicVoltage(position=self.leadscrewPosition, slot=1)
         )
 
-    def moveToLoad(self):
-        self.setLeadscrewPosition(0)
-        self.moveLeadscrewToPosition()
+    def autoMoveWithDistance(self):
+        self.setLeadscrewPosition(self.calcPositionForSpeaker())
+        self.runMotorWithControl()
 
-    def moveToLoadCommand(self):
-        return self.runOnce(self.moveToLoad)
+    def autoMoveRunWithDistanceCommand(self) -> Command:
+        return self.run(self.autoMoveWithDistance)
+
+    def moveToLoadPosition(self):
+        self.setLeadscrewPosition(0)
+        self.runMotorWithControl()
+
+    def moveToLoadPositionCommand(self):
+        return self.runOnce(self.moveToLoadPosition)
 
     def readyToLoad(self):
         return self.leadscrewPosition == 0 and self.leadscrewAtPosition()
@@ -121,7 +136,7 @@ class ElevationSubsystem(Subsystem):
         ).with_reverse_soft_limit_enable(True)
 
     def setLeadscrewCommand(self) -> Command:
-        return self.runOnce(self.moveLeadscrewToPosition).withName("SetLeadscrew")
+        return self.runOnce(self.runMotorWithControl).withName("SetLeadscrew")
 
     def setLeadscrewPosition(self, leadscrewPosition: float):
         self.leadscrewPosition = leadscrewPosition
@@ -143,5 +158,5 @@ class ElevationSubsystem(Subsystem):
 
     def logTelemetry(self):
         self._shooterCommandedPosition.set(self.leadscrewPosition)
-        self._shooterActualPositionPub.set(self.getLeadscrewPosition())
+        self._shooterActualPositionPub.set(self.getCurrentLeadscrewPosition())
         self._leadscrewAtPosition.set(self.leadscrewAtPosition())
