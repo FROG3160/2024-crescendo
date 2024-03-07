@@ -44,9 +44,10 @@ class IntakeAndLoad(SequentialCommandGroup):
             # first
             self.intake.intakeCommand(),
             runOnce(self.intake.disallowIntake, self.intake),
-            runOnce(self.elevation.moveToLoad),
+            runOnce(self.elevation.moveToLoadPosition),
             waitUntil(self.elevation.readyToLoad),
             loadShooterCommand(self.shooter, self.intake),
+            self.elevation.autoMoveRunWithDistanceCommand(),
         ]
         super().__init__(command_list)
 

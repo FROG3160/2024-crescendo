@@ -18,7 +18,6 @@ class Fire(SequentialCommandGroup):
         self.elevation = elevation
 
         command_list = [
-            # need to start moving the leadscrew here
             self.shooter.runFlywheelsCommand(),
             waitUntil(self.readyToFire),
             waitUntil(self.elevation.leadscrewAtPosition),
@@ -28,7 +27,7 @@ class Fire(SequentialCommandGroup):
             waitSeconds(0.5),
             runOnce(self.intake.allowIntake, self.intake),
             self.shooter.stopFlywheelsCommand(),
-            self.elevation.moveToLoad(),
+            self.elevation.moveToLoadPositionCommand(),
         ]
         super().__init__(command_list)
 

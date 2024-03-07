@@ -62,7 +62,9 @@ class RobotContainer:
         self.intakeSubsystem = IntakeSubsystem(self.targetingSubsystem)
         self.climberSubsystem = ClimberSubsystem()
         self.elevationSubsystem = ElevationSubsystem()
-        self.driveSubsystem = DriveTrain(self.positioningSubsystem)
+        self.driveSubsystem = DriveTrain(
+            self.positioningSubsystem, self.elevationSubsystem
+        )
         self.shooterSubsystem = ShooterSubsystem(self.intakeSubsystem)
 
         # Configure the button bindings

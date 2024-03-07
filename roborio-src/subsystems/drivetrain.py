@@ -116,10 +116,6 @@ class DriveTrain(SwerveChassis):
         )
         return robotToTarget.driveVT
 
-    def updateElevation(self):
-        pass
-        # self.elevation.
-
     def periodic(self):
         self.estimatorPose = self.estimator.update(
             self.gyro.getRotation2d(), tuple(self.getModulePositions())
@@ -133,6 +129,8 @@ class DriveTrain(SwerveChassis):
             "Drive Estimator", self.estimator.getEstimatedPosition().__str__()
         )
         distance, azimuth, vt = self.getTargeting()
+        # update elevation with the needed distance
+        self.elevation.setTagDistance(distance)
         SmartDashboard.putNumber("Calculated Distance", distance)
         SmartDashboard.putNumber("Calculated Firing Heading", azimuth.degrees())
         SmartDashboard.putNumber("Calculated VT", vt)
