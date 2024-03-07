@@ -50,7 +50,7 @@ kIntakeRollerControllerID = 41
 kTransferWheelsID = 42
 
 # Shooter Controller IDs
-kLeadscrewControllerID = 53
+kLeadscrewControllerID = 50  # 53
 kFlyWheelControllerLeftID = 51
 kFlyWheelCOntrollerRightID = 52
 kSequencerControllerID = 54
