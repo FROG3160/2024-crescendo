@@ -102,7 +102,7 @@ class RobotContainer:
         self.driverController.b().whileTrue(
             DriveToTarget(self.driveSubsystem, self.targetingSubsystem)
         )
-        self.driverController.rightBumper().onTrue(
+        self.driverController.leftTrigger().onTrue(
             Fire(self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem)
         )
         self.driverController.y().onTrue(self.shooterSubsystem.stopShootingCommand())
