@@ -23,13 +23,19 @@ from pathplannerlib.config import (
 from wpilib import DriverStation
 from wpimath.geometry import Pose2d
 from subsystems.vision import PositioningSubsystem
+from subsystems.elevation import ElevationSubsystem
 from wpilib import SmartDashboard
 from commands2 import Subsystem, Command
 from FROGlib.utils import RobotRelativeTarget
 
 
 class DriveTrain(SwerveChassis):
-    def __init__(self, vision: PositioningSubsystem, parent_nt: str = "Subsystems"):
+    def __init__(
+        self,
+        vision: PositioningSubsystem,
+        elevation: ElevationSubsystem,
+        parent_nt: str = "Subsystems",
+    ):
         super().__init__(
             swerve_module_configs=(
                 configs.swerveModuleFrontLeft,
@@ -48,7 +54,10 @@ class DriveTrain(SwerveChassis):
             max_rotation_speed=kMaxChassisRadiansPerSec,
             parent_nt=parent_nt,
         )
+        # We need data from the vision system
         self.vision = vision
+        # We need to send data to the elevation system
+        self.elevation = elevation
         self.fieldLayout = loadAprilTagLayoutField(AprilTagField.k2024Crescendo)
 
         # Configure the AutoBuilder last
@@ -120,6 +129,8 @@ class DriveTrain(SwerveChassis):
             "Drive Estimator", self.estimator.getEstimatedPosition().__str__()
         )
         distance, azimuth, vt = self.getTargeting()
+        # update elevation with the needed distance
+        self.elevation.setTagDistance(distance)
         SmartDashboard.putNumber("Calculated Distance", distance)
         SmartDashboard.putNumber("Calculated Firing Heading", azimuth.degrees())
         SmartDashboard.putNumber("Calculated VT", vt)
