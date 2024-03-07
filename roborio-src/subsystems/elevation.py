@@ -53,6 +53,7 @@ class ElevationSubsystem(Subsystem):
             .getBooleanTopic(f"{nt_table}/AtPosition")
             .publish()
         )
+        self.tagDistance = None
 
     def getLeadscrewPosition(self) -> float:
         return self.leadscrew.get_position().value
@@ -124,6 +125,9 @@ class ElevationSubsystem(Subsystem):
 
     def setLeadscrewPosition(self, leadscrewPosition: float):
         self.leadscrewPosition = leadscrewPosition
+
+    def setTagDistance(self, distance):
+        self.tagDistance = distance
 
     def shooterAtHome(self) -> bool:
         return not self.shooterPositionSensor.get()
