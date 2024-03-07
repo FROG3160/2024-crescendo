@@ -88,6 +88,9 @@ class ElevationSubsystem(Subsystem):
         self.setLeadscrewPosition(0)
         self.moveLeadscrewToPosition()
 
+    def moveToLoadCommand(self):
+        return self.runOnce(self.moveToLoad)
+
     def readyToLoad(self):
         return self.leadscrewPosition == 0 and self.leadscrewAtPosition()
 

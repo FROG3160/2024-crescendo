@@ -62,9 +62,7 @@ class TargetingSubsystem(Subsystem):
         # The second argument in the min() method:
         # speed(distance(ty))
         if targetVertical := self.camera.ty:
-            return min(
-                1.05, (0.020833 * (14.7 * math.exp(0.0753 * targetVertical))) * 2
-            )
+            return min(2, (0.020833 * (14.7 * math.exp(0.0753 * targetVertical))) * 2)
         else:
             return 0
 

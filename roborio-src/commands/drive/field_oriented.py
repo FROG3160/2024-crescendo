@@ -78,7 +78,7 @@ class ManualDrive(Command):
             # vT = self.profiledRotationController.calculate(
             #     math.radians(gyroYawCCW), math.radians(0)
             # )
-            vT = self.drive.getvTtoTag(7)
+            vT = self.drive.getvTtoTag()
             self._calculated_vT.set(vT)
         elif rightStickY < -0.5:
             if self.resetController:

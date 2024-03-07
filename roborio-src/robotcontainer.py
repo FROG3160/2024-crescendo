@@ -29,7 +29,8 @@ from subsystems.intake import IntakeSubsystem
 from subsystems.shooter import ShooterSubsystem
 from subsystems.climber import ClimberSubsystem
 from subsystems.elevation import ElevationSubsystem
-from commands.drive.field_oriented import ManualDrive, DriveToTarget
+from commands.drive.field_oriented import ManualDrive
+from commands.drive.robot_oriented import DriveToTarget
 from commands.shooter.load import IntakeAndLoad, loadShooterCommand
 from commands.shooter.fire import Fire
 
@@ -96,13 +97,8 @@ class RobotContainer:
         and then passing it to a JoystickButton.
         """
 
-        # Driver Controller Bindings
+        """DRIVER CONTROLS"""
 
-        self.driverController.a().onTrue(self.intakeSubsystem.intakeCommand())
-        self.driverController.x().onTrue(self.intakeSubsystem.stopIntakeCommand())
-        # self.driverController.b().onTrue(
-        #     loadShooterCommand(self.shooterSubsystem, self.intakeSubsystem)
-        # )
         self.driverController.b().whileTrue(
             DriveToTarget(self.driveSubsystem, self.targetingSubsystem)
         )
@@ -112,6 +108,8 @@ class RobotContainer:
         self.driverController.y().onTrue(self.shooterSubsystem.stopShootingCommand())
         self.driverController.start().onTrue(self.driveSubsystem.resetGyroCommand())
 
+        """OPERATOR CONTROLS"""
+
         # Operator Controller Bindings
         self.operatorController.axisLessThan(
             wpilib.XboxController.Axis.kLeftY, -0.5
@@ -119,34 +117,41 @@ class RobotContainer:
         self.operatorController.axisGreaterThan(
             wpilib.XboxController.Axis.kLeftY, 0.5
         ).whileTrue(self.climberSubsystem.get_RetractCommand())
+
         self.operatorController.leftBumper().onTrue(
             self.climberSubsystem.get_homeLeftClimber()
         )
         self.operatorController.rightBumper().onTrue(
             self.climberSubsystem.get_homeRightClimber()
         )
+
+        self.operatorController.a().onTrue(self.intakeSubsystem.intakeCommand())
+        self.operatorController.b().onTrue(
+            loadShooterCommand(self.shooterSubsystem, self.intakeSubsystem)
+        )
+        self.operatorController.x().onTrue(self.intakeSubsystem.stopIntakeCommand())
         self.operatorController.y().onTrue(
             self.elevationSubsystem.homeShooterCommand().withInterruptBehavior(
                 commands2.InterruptionBehavior.kCancelIncoming
             )
         )
-        self.operatorController.a().onTrue(
-            runOnce(
-                lambda: self.elevationSubsystem.setLeadscrewPosition(
-                    wpilib.SmartDashboard.getNumber("Shooter Pos", 0)
-                )
-            ).andThen(self.elevationSubsystem.setLeadscrewCommand())
-        )
-        self.operatorController.b().onTrue(
-            runOnce(lambda: self.elevationSubsystem.setLeadscrewPosition(8.5)).andThen(
-                self.elevationSubsystem.setLeadscrewCommand()
-            )
-        )
-        self.operatorController.x().onTrue(
-            runOnce(lambda: self.elevationSubsystem.setLeadscrewPosition(0)).andThen(
-                self.elevationSubsystem.setLeadscrewCommand()
-            )
-        )
+        # self.operatorController.a().onTrue(
+        #     runOnce(
+        #         lambda: self.elevationSubsystem.setLeadscrewPosition(
+        #             wpilib.SmartDashboard.getNumber("Shooter Pos", 0)
+        #         )
+        #     ).andThen(self.elevationSubsystem.setLeadscrewCommand())
+        # )
+        # self.operatorController.b().onTrue(
+        #     runOnce(lambda: self.elevationSubsystem.setLeadscrewPosition(8.5)).andThen(
+        #         self.elevationSubsystem.setLeadscrewCommand()
+        #     )
+        # )
+        # self.operatorController.x().onTrue(
+        #     runOnce(lambda: self.elevationSubsystem.setLeadscrewPosition(0)).andThen(
+        #         self.elevationSubsystem.setLeadscrewCommand()
+        #     )
+        # )
 
         self.intakeSubsystem.getTargetInRangeTrigger().onTrue(
             IntakeAndLoad(
