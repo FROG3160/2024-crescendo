@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 2.8947741881248894,
-      "y": 5.55076982040085
+      "x": 1.094434492906992,
+      "y": 4.348392164717821
     },
     "rotation": 0
   },
@@ -14,7 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Note to Note"
+            "pathName": "blue middle out"
           }
         }
       ]
