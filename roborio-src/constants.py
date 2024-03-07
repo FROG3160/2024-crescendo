@@ -100,6 +100,8 @@ kFalconMaxRps = 106
 # Lead Screw Rotations
 kLeadscrewRotations = 21
 kLeadscrewPositionTolerance = 0.01
+kLeadscrewForwardLimit = 8.0
+kLeadscrewReverseLimit = -2.0
 
 # Swerve Drive Physical Attributes
 kTrackWidthMeters = inchesToMeters(21.5)
