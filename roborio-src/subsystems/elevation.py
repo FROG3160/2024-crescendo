@@ -112,6 +112,12 @@ class ElevationSubsystem(Subsystem):
 
     def resetPosition(self, position):
         self.leadscrew.set_position(position)
+        self.leadscrew.config.software_limit_switch.with_forward_soft_limit_threshold(
+            constants.kLeadscrewForwardLimit
+        ).with_forward_soft_limit_enable(True)
+        self.leadscrew.config.software_limit_switch.with_reverse_soft_limit_threshold(
+            constants.kLeadscrewReverseLimit
+        ).with_reverse_soft_limit_enable(True)
 
     def setLeadscrewCommand(self) -> Command:
         return self.runOnce(self.moveLeadscrewToPosition).withName("SetLeadscrew")
