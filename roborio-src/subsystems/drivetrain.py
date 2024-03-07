@@ -115,6 +115,10 @@ class DriveTrain(SwerveChassis):
         SmartDashboard.putString(
             "Drive Estimator", self.estimator.getEstimatedPosition().__str__()
         )
+        distance, azimuth, vt = self.getRangeAzimuth(7)
+        SmartDashboard.putNumber("Calculated Distance", distance)
+        SmartDashboard.putNumber("Calculated Firing Heading", azimuth.degrees())
+        SmartDashboard.putNumber("Calculated VT", vt)
 
         # run periodic method of the superclass, in this case SwerveChassis.periodic()
         super().periodic()
