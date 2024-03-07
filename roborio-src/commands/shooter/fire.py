@@ -21,6 +21,7 @@ class Fire(SequentialCommandGroup):
             # need to start moving the leadscrew here
             self.shooter.runFlywheelsCommand(),
             waitUntil(self.readyToFire),
+            waitUntil(self.elevation.leadscrewAtPosition),
             self.shooter.fireSequencerCommand(),
             waitUntil(self.shooter.shooterSensor.get),
             self.shooter.stopSequencerCommand(),
