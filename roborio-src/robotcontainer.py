@@ -67,6 +67,17 @@ class RobotContainer:
         )
         self.shooterSubsystem = ShooterSubsystem(self.intakeSubsystem)
 
+        NamedCommands.registerCommand(
+            "Fire Command",
+            Fire(self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem),
+        )
+        NamedCommands.registerCommand(
+            "Intake Blind Command",
+            IntakeAndLoad(
+                self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
+            ),
+        )
+
         # Configure the button bindings
         self.configureButtonBindings()
 
@@ -101,15 +112,15 @@ class RobotContainer:
 
         """DRIVER CONTROLS"""
 
-        # self.driverController.a().onTrue(
-        #     self.elevationSubsystem.autoMoveRunWithDistanceCommand()
-        # )
+        self.driverController.a().onTrue(
+            self.elevationSubsystem.autoMoveRunWithDistanceCommand()
+        )
         self.driverController.b().whileTrue(
             DriveToTarget(self.driveSubsystem, self.targetingSubsystem)
         )
-        # self.driverController.x().onTrue(
-        #     self.elevationSubsystem.moveToLoadPositionCommand()
-        # )
+        self.driverController.x().onTrue(
+            self.elevationSubsystem.moveToLoadPositionCommand()
+        )
         self.driverController.y().onTrue(self.shooterSubsystem.stopShootingCommand())
 
         self.driverController.leftTrigger().onTrue(
