@@ -78,6 +78,11 @@ class RobotContainer:
             ManualDrive(self.driverController, self.driveSubsystem)
         )
 
+        # Keep elevation at home/load, when it's not doing anything else
+        self.elevationSubsystem.setDefaultCommand(
+            self.elevationSubsystem.moveToLoadPositionCommand()
+        )
+
         # Chooser
         self.chooser = wpilib.SendableChooser()
 
