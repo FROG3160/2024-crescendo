@@ -67,6 +67,17 @@ class RobotContainer:
         )
         self.shooterSubsystem = ShooterSubsystem(self.intakeSubsystem)
 
+        NamedCommands.registerCommand(
+            "Fire Command",
+            Fire(self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem),
+        )
+        NamedCommands.registerCommand(
+            "Intake Blind Command",
+            IntakeAndLoad(
+                self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
+            ),
+        )
+
         # Configure the button bindings
         self.configureButtonBindings()
 
