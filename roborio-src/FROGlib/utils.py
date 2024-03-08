@@ -50,18 +50,18 @@ class RobotRelativeTarget:
         self._z = targetPose.z
         self._heading = Rotation2d(self._x, self._y)
         self._flippedHeading = self._heading.rotateBy(Rotation2d(math.pi))
-        if isBlueAlliance:
-            self.driveHeading = self._heading
-            self.firingHeading = self._flippedHeading
-            self.fieldX = self._x
-            self.fieldY = self._y
-            self.fieldZ = self._z
-        else:
-            self.driveHeading = self._flippedHeading
-            self.firingHeading = self._heading
-            self.fieldX = -self._x
-            self.fieldY = -self._y
-            self.fieldZ = self._z
+        # if isBlueAlliance:
+        self.driveHeading = self._heading
+        self.firingHeading = self._flippedHeading
+        self.fieldX = self._x
+        self.fieldY = self._y
+        self.fieldZ = self._z
+        # else:
+        #     self.driveHeading = self._flippedHeading
+        #     self.firingHeading = self._heading
+        #     self.fieldX = -self._x
+        #     self.fieldY = -self._y
+        #     self.fieldZ = self._z
         # the length across the floor...  2 dimensions
         self.distance = math.sqrt(self.fieldX**2 + self.fieldY**2)
         # the length to the target including height... 3 dimensions

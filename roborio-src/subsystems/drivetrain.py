@@ -23,13 +23,19 @@ from pathplannerlib.config import (
 from wpilib import DriverStation
 from wpimath.geometry import Pose2d
 from subsystems.vision import PositioningSubsystem
+from subsystems.elevation import ElevationSubsystem
 from wpilib import SmartDashboard
 from commands2 import Subsystem, Command
 from FROGlib.utils import RobotRelativeTarget
 
 
 class DriveTrain(SwerveChassis):
-    def __init__(self, vision: PositioningSubsystem, parent_nt: str = "Subsystems"):
+    def __init__(
+        self,
+        vision: PositioningSubsystem,
+        elevation: ElevationSubsystem,
+        parent_nt: str = "Subsystems",
+    ):
         super().__init__(
             swerve_module_configs=(
                 configs.swerveModuleFrontLeft,
@@ -48,7 +54,10 @@ class DriveTrain(SwerveChassis):
             max_rotation_speed=kMaxChassisRadiansPerSec,
             parent_nt=parent_nt,
         )
+        # We need data from the vision system
         self.vision = vision
+        # We need to send data to the elevation system
+        self.elevation = elevation
         self.fieldLayout = loadAprilTagLayoutField(AprilTagField.k2024Crescendo)
 
         # Configure the AutoBuilder last
@@ -69,6 +78,16 @@ class DriveTrain(SwerveChassis):
         )
         self.isBlueAlliance = not self.shouldFlipPath()
 
+    def shouldFlipPath(self):
+        # Boolean supplier that controls when the path will be mirrored for the red alliance
+        # This will flip the path being followed to the red side of the field.
+        # THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+        return DriverStation.getAlliance() == DriverStation.Alliance.kRed
+
+    def getSpeakerTagNum(self):
+        # should return 7 is false and 4 if True
+        return [7, 4][self.shouldFlipPath()]
+
     def setFieldPosition(self, pose: Pose2d):
         self.estimator.resetPosition(
             self.gyro.getRotation2d(),
@@ -76,17 +95,11 @@ class DriveTrain(SwerveChassis):
             pose,
         )
 
-    def shouldFlipPath(self):
-        # Boolean supplier that controls when the path will be mirrored for the red alliance
-        # This will flip the path being followed to the red side of the field.
-        # THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-        return DriverStation.getAlliance() == DriverStation.Alliance.kRed
-
     def resetGyroCommand(self) -> Command:
         return self.runOnce(self.gyro.resetGyro)
 
-    def getRangeAzimuth(self, tag):
-        tagPose = self.fieldLayout.getTagPose(tag)
+    def getTargeting(self):
+        tagPose = self.fieldLayout.getTagPose(self.getSpeakerTagNum())
         robotToTarget = RobotRelativeTarget(
             self.estimatorPose, tagPose, not self.shouldFlipPath()
         )
@@ -96,8 +109,8 @@ class DriveTrain(SwerveChassis):
             robotToTarget.driveVT,
         )
 
-    def getvTtoTag(self, tagnum):
-        tagPose = self.fieldLayout.getTagPose(tagnum)
+    def getvTtoTag(self):
+        tagPose = self.fieldLayout.getTagPose(self.getSpeakerTagNum())
         robotToTarget = RobotRelativeTarget(
             self.estimatorPose, tagPose, not self.shouldFlipPath()
         )
@@ -115,6 +128,12 @@ class DriveTrain(SwerveChassis):
         SmartDashboard.putString(
             "Drive Estimator", self.estimator.getEstimatedPosition().__str__()
         )
+        distance, azimuth, vt = self.getTargeting()
+        # update elevation with the needed distance
+        self.elevation.setTagDistance(distance)
+        SmartDashboard.putNumber("Calculated Distance", distance)
+        SmartDashboard.putNumber("Calculated Firing Heading", azimuth.degrees())
+        SmartDashboard.putNumber("Calculated VT", vt)
 
         # run periodic method of the superclass, in this case SwerveChassis.periodic()
         super().periodic()

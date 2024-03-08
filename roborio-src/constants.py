@@ -50,7 +50,7 @@ kIntakeRollerControllerID = 41
 kTransferWheelsID = 42
 
 # Shooter Controller IDs
-kLeadscrewControllerID = 53
+kLeadscrewControllerID = 50  # 53
 kFlyWheelControllerLeftID = 51
 kFlyWheelCOntrollerRightID = 52
 kSequencerControllerID = 54
@@ -100,6 +100,8 @@ kFalconMaxRps = 106
 # Lead Screw Rotations
 kLeadscrewRotations = 21
 kLeadscrewPositionTolerance = 0.01
+kLeadscrewForwardLimit = 8.0
+kLeadscrewReverseLimit = -2.0
 
 # Swerve Drive Physical Attributes
 kTrackWidthMeters = inchesToMeters(21.5)

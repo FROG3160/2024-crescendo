@@ -62,12 +62,8 @@ class TargetingSubsystem(Subsystem):
             Float: Velocity in the X direction (robot oriented)
         """
         if self.camera.ty is not None:
-            self.Ty = self.filter.calculate(float(self.camera.ty))
-        # The second argument in the min() method:
-        # speed(distance(ty))
-        if targetVertical := self.Ty:
-            return min(
-                1.05, (0.020833 * (14.7 * math.exp(0.0753 * targetVertical))) * 2
+            return self.filter.calculate(
+                min(2.0, (0.020833 * (14.7 * math.exp(0.0753 * targetVertical))) * 2)
             )
         else:
             return 0
