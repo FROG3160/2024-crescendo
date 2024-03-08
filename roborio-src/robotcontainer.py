@@ -33,6 +33,7 @@ from commands.drive.field_oriented import ManualDrive
 from commands.drive.robot_oriented import DriveToTarget
 from commands.shooter.load import IntakeAndLoad, loadShooterCommand
 from commands.shooter.fire import Fire
+from commands.drive.robot_oriented import DriveToTarget
 
 
 class RobotContainer:
@@ -67,16 +68,7 @@ class RobotContainer:
         )
         self.shooterSubsystem = ShooterSubsystem(self.intakeSubsystem)
 
-        NamedCommands.registerCommand(
-            "Fire Command",
-            Fire(self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem),
-        )
-        NamedCommands.registerCommand(
-            "Intake Blind Command",
-            IntakeAndLoad(
-                self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
-            ),
-        )
+        self.registerNamedCommands()
 
         # Configure the button bindings
         self.configureButtonBindings()
@@ -84,6 +76,11 @@ class RobotContainer:
         # Configure default commands
         self.driveSubsystem.setDefaultCommand(
             ManualDrive(self.driverController, self.driveSubsystem)
+        )
+
+        # Keep elevation at home/load, when it's not doing anything else
+        self.elevationSubsystem.setDefaultCommand(
+            self.elevationSubsystem.moveToLoadPositionCommand()
         )
 
         # Chooser
@@ -102,6 +99,22 @@ class RobotContainer:
 
         # Put the chooser on the dashboard
         wpilib.SmartDashboard.putData("PathPlanner Autos", self.chooser)
+
+    def registerNamedCommands(self):
+
+        NamedCommands.registerCommand(
+            "Fire",
+            Fire(self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem),
+        )
+        NamedCommands.registerCommand(
+            "Intake And Load",
+            IntakeAndLoad(
+                self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
+            ),
+        )
+        NamedCommands.registerCommand(
+            "Drive To Note", DriveToTarget(self.driveSubsystem, self.targetingSubsystem)
+        )
 
     def configureButtonBindings(self):
         """
