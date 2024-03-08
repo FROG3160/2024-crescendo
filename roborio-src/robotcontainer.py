@@ -112,15 +112,15 @@ class RobotContainer:
 
         """DRIVER CONTROLS"""
 
-        # self.driverController.a().onTrue(
-        #     self.elevationSubsystem.autoMoveRunWithDistanceCommand()
-        # )
+        self.driverController.a().onTrue(
+            self.elevationSubsystem.autoMoveRunWithDistanceCommand()
+        )
         self.driverController.b().whileTrue(
             DriveToTarget(self.driveSubsystem, self.targetingSubsystem)
         )
-        # self.driverController.x().onTrue(
-        #     self.elevationSubsystem.moveToLoadPositionCommand()
-        # )
+        self.driverController.x().onTrue(
+            self.elevationSubsystem.moveToLoadPositionCommand()
+        )
         self.driverController.y().onTrue(self.shooterSubsystem.stopShootingCommand())
 
         self.driverController.leftTrigger().onTrue(

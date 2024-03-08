@@ -11,6 +11,7 @@ from phoenix6.controls import (
 from ntcore import NetworkTableInstance
 from constants import kLeftClimberControllerID, kRightClimberControllerID
 from configs import leftClimberMotorConfig, rightClimberMotorConfig
+from wpilib import DriverStation
 
 
 class ClimberSubsystem(Subsystem):
@@ -110,11 +111,19 @@ class ClimberSubsystem(Subsystem):
         self.leftClimber.set_control(motorControl)
         self.rightClimber.set_control(motorControl)
 
+    def setPosition(self, position: float):
+        self.leftClimber.set_control(MotionMagicVoltage(position, slot=0))
+        self.rightClimber.set_control(MotionMagicVoltage(position, slot=0))
+
     def extend(self):
-        self.setVoltage(-3)
+        if DriverStation.getMatchTime() < 20:
+            self.setPosition(0)
+        # self.setVoltage(-3)
 
     def retract(self):
-        self.setVoltage(3)
+        self.setPosition(85)
+
+        # self.setVoltage(3)
 
     def retractSlow(self):
         self.setVoltage(0.5)
@@ -123,7 +132,7 @@ class ClimberSubsystem(Subsystem):
         self.setVoltage(0)
 
     def periodic(self) -> None:
-        # self.logTelemetry()
+        # self.logTelemet
         pass
 
     def get_ExtendCommand(self) -> Command:

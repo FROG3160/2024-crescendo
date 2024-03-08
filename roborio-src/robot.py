@@ -74,6 +74,9 @@ class MyRobot(commands2.TimedCommandRobot):
             self.autonomousCommand.schedule()
 
         self.container.elevationSubsystem.homeShooterCommand().schedule()
+        self.container.climberSubsystem.get_homeLeftClimber().andThen(
+            self.container.climberSubsystem.get_homeRightClimber()
+        ).schedule()
 
     def autonomousPeriodic(self) -> None:
         """This function is called periodically during autonomous"""
@@ -94,6 +97,9 @@ class MyRobot(commands2.TimedCommandRobot):
         # Run the elevation homing routine while we are running teleop at home
         if not DriverStation.isFMSAttached():
             self.container.elevationSubsystem.homeShooterCommand().schedule()
+            self.container.climberSubsystem.get_homeLeftClimber().andThen(
+                self.container.climberSubsystem.get_homeRightClimber()
+            ).schedule()
 
     def teleopPeriodic(self) -> None:
         """This function is called periodically during operator control"""
