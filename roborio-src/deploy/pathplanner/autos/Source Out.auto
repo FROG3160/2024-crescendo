@@ -2,19 +2,25 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.0066866689552871,
-      "y": 2.242444389876904
+      "x": 0.6612630837363241,
+      "y": 4.404003794501376
     },
-    "rotation": 0
+    "rotation": -60.0
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "Fire"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "blue far right out"
+            "pathName": "Source side out"
           }
         }
       ]

@@ -2,19 +2,25 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.1236837675575602,
-      "y": 7.283069387991508
+      "x": 0.6693223142543847,
+      "y": 6.68566507864723
     },
-    "rotation": 0.0
+    "rotation": 60.0
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "Fire"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "Blue amp out"
+            "pathName": "Amp side out"
           }
         }
       ]
