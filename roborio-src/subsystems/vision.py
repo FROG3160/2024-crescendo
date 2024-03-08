@@ -6,6 +6,7 @@ from FROGlib.limelight import FROGPositioning, FROGTargeting
 from constants import kLimelightPositioning, kLimelightTargeting
 from wpilib import SmartDashboard
 import math
+from wpimath.filter import MedianFilter
 
 
 class PositioningSubsystem(Subsystem):
@@ -45,6 +46,7 @@ class TargetingSubsystem(Subsystem):
     def __init__(self):
         super().__init__()
         self.camera = FROGTargeting(kLimelightTargeting)
+        self.filter = MedianFilter(5)
 
     def getTargetInRange(self):
         """Returns true if ta is more than 18"""
@@ -59,10 +61,10 @@ class TargetingSubsystem(Subsystem):
         Returns:
             Float: Velocity in the X direction (robot oriented)
         """
-        # The second argument in the min() method:
-        # speed(distance(ty))
-        if targetVertical := self.camera.ty:
-            return min(2, (0.020833 * (14.7 * math.exp(0.0753 * targetVertical))) * 2)
+        if self.camera.ty is not None:
+            return self.filter.calculate(
+                min(2.0, (0.020833 * (14.7 * math.exp(0.0753 * targetVertical))) * 2)
+            )
         else:
             return 0
 
