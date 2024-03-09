@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.2977105906762236,
-      "y": 1.5775872121139263
+      "x": 1.3950925173499227,
+      "y": 1.499681670774967
     },
     "rotation": 0
   },
@@ -12,9 +12,15 @@
     "data": {
       "commands": [
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 10.0
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "Straight Out"
+            "pathName": "Source to Speaker"
           }
         }
       ]
