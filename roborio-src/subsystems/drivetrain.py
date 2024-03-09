@@ -27,6 +27,7 @@ from subsystems.elevation import ElevationSubsystem
 from wpilib import SmartDashboard
 from commands2 import Subsystem, Command
 from FROGlib.utils import RobotRelativeTarget
+import constants
 
 
 class DriveTrain(SwerveChassis):
@@ -61,6 +62,23 @@ class DriveTrain(SwerveChassis):
         self.fieldLayout = loadAprilTagLayoutField(AprilTagField.k2024Crescendo)
 
         self.isBlueAlliance = not self.shouldFlipPath()
+
+        # Configure the AutoBuilder last
+        AutoBuilder.configureHolonomic(
+            self.getPose,  # Robot pose supplier
+            self.resetPose,  # Method to reset odometry (will be called if your auto has a starting pose)
+            self.getRobotRelativeSpeeds,  # ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+            self.setChassisSpeeds,  # Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+            HolonomicPathFollowerConfig(  # HolonomicPathFollowerConfig, this should likely live in your Constants class
+                configs.holonomicTranslationPID,  # Translation PID constants
+                configs.holonomicTranslationPID,  # Rotation PID constants
+                self.max_speed,  # Max module speed, in m/s
+                constants.kDriveBaseRadius,  # Drive base radius in meters. Distance from robot center to furthest module.
+                ReplanningConfig(),  # Default path replanning config. See the API for the options here
+            ),
+            self.shouldFlipPath,  # Supplier to control path flipping based on alliance color
+            self,  # Reference to this subsystem to set requirements
+        )
 
     def shouldFlipPath(self):
         # Boolean supplier that controls when the path will be mirrored for the red alliance

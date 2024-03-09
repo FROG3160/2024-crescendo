@@ -75,23 +75,6 @@ class RobotContainer:
 
         self.registerNamedCommands()
 
-        # Configure the AutoBuilder last
-        AutoBuilder.configureHolonomic(
-            self.driveSubsystem.getPose,  # Robot pose supplier
-            self.driveSubsystem.resetPose,  # Method to reset odometry (will be called if your auto has a starting pose)
-            self.driveSubsystem.getRobotRelativeSpeeds,  # ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-            self.driveSubsystem.setChassisSpeeds,  # Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
-            HolonomicPathFollowerConfig(  # HolonomicPathFollowerConfig, this should likely live in your Constants class
-                configs.holonomicTranslationPID,  # Translation PID constants
-                configs.holonomicTranslationPID,  # Rotation PID constants
-                self.driveSubsystem.max_speed,  # Max module speed, in m/s
-                constants.kDriveBaseRadius,  # Drive base radius in meters. Distance from robot center to furthest module.
-                ReplanningConfig(),  # Default path replanning config. See the API for the options here
-            ),
-            self.driveSubsystem.shouldFlipPath,  # Supplier to control path flipping based on alliance color
-            self,  # Reference to this subsystem to set requirements
-        )
-
         # Configure the button bindings
         self.configureButtonBindings()
 
