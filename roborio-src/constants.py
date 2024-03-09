@@ -108,7 +108,7 @@ kTrackWidthMeters = inchesToMeters(21.5)
 kCenterToFrontModulesMeters = inchesToMeters(8.75)
 kBackModulesToCenterMeters = inchesToMeters(12.75)
 kWheelBaseMeters = kCenterToFrontModulesMeters + kBackModulesToCenterMeters
-kWheelDiameter = 0.1000125  # 3 15/16 inches in meters
+kWheelDiameter = inchesToMeters(4)  # .1000125  # 3 15/16 inches in meters
 kSwerveDriveGearing = [(14 / 50), (25 / 19), (15 / 45)]
 # kDriveBaseRadius is the distance from the center of the robot
 # to the farthest module. This is needed for the construction

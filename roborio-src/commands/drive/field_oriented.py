@@ -1,5 +1,6 @@
 import math
 from commands2 import Command
+from wpilib import DriverStation
 from subsystems.drivetrain import DriveTrain
 from subsystems.vision import TargetingSubsystem
 from FROGlib.xbox import FROGXboxDriver
@@ -60,14 +61,14 @@ class ManualDrive(Command):
 
     def resetRotationController(self):
         self.profiledRotationController.reset(
-            math.radians(self.drive.gyro.getYawCCW()),
+            math.radians(self.drive.gyro.getAngleCCW()),
             self.drive.gyro.getRadiansPerSecCCW(),
         )
 
     def execute(self) -> None:
         # read right joystick Y to see if we are using it
         rightStickY = self.controller.getRightY()
-        gyroYawCCW = self.drive.gyro.getYawCCW()
+        gyroYawCCW = self.drive.gyro.getAngleCCW()
         if rightStickY > 0.5:
             # if self.resetController:
             #     # this is the first time we hit this conditional, so
@@ -102,8 +103,15 @@ class ManualDrive(Command):
         # if pov != -1:
         #     vX, vY = povSpeeds[pov]
         # else:
-        vX = self.controller.getSlewLimitedFieldForward()
-        vY = self.controller.getSlewLimitedFieldLeft()
+
+        # We are now using the blue alliance coordinate system all the time,
+        # so if we are on the red side invert x and y
+        if DriverStation.getAlliance() == DriverStation.Alliance.kRed:
+            vX = -self.controller.getSlewLimitedFieldForward()
+            vY = -self.controller.getSlewLimitedFieldLeft()
+        else:
+            vX = self.controller.getSlewLimitedFieldForward()
+            vY = self.controller.getSlewLimitedFieldLeft()
 
         self.drive.fieldOrientedDrive(
             # self._vX, self._vY, self._vT, self._throttle

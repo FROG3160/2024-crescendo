@@ -2,7 +2,6 @@ import math
 from commands2 import Command
 from subsystems.drivetrain import DriveTrain
 from subsystems.vision import TargetingSubsystem
-from FROGlib.xbox import FROGXboxDriver
 import constants
 from wpimath.controller import ProfiledPIDControllerRadians
 from wpimath.trajectory import TrapezoidProfileRadians
