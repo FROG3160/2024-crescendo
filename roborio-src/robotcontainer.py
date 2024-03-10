@@ -144,7 +144,7 @@ class RobotContainer:
         self.driverController.leftTrigger().onTrue(
             Fire(self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem)
         )
-        self.driverController.start().onTrue(self.driveSubsystem.resetGyroCommand())
+        # self.driverController.start().onTrue(self.driveSubsystem.resetGyroCommand())
 
         """OPERATOR CONTROLS"""
 
