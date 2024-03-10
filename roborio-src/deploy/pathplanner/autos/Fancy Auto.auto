@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.3111382320325617,
-      "y": 5.55790282312272
+      "x": 1.3464015540130732,
+      "y": 1.5191580561097076
     },
     "rotation": 0
   },
@@ -12,15 +12,21 @@
     "data": {
       "commands": [
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "Fire"
+            "pathName": "Source To Midline"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Middle Out"
+            "pathName": "Down the Midline"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "From Midline back around to Speaker"
           }
         }
       ]

@@ -215,8 +215,6 @@ class SwerveChassis(Subsystem):
             *[m.location for m in self.modules]
         )
 
-        self.gyro.resetGyro()
-
         self.chassisSpeeds = ChassisSpeeds(0, 0, 0)
 
         self.estimator = SwerveDrive4PoseEstimator(
@@ -306,18 +304,20 @@ class SwerveChassis(Subsystem):
 
     # Returns the current pose of the robot as a Pose2d.
     def getPose(self) -> Pose2d:
-        translation = self.estimator.getEstimatedPosition().translation()
-        rotation = self.gyro.getRotation2d()
-        return Pose2d(translation, rotation)
+        # translation = self.estimator.getEstimatedPosition().translation()
+        # rotation = self.gyro.getRotation2d()
+        # return Pose2d(translation, rotation)
+        return self.estimator.getEstimatedPosition()
 
     # returns a Pose with rotation flipped
-    def getAutoPose(self) -> Pose2d:
-        if DriverStation.getAlliance() == DriverStation.Alliance.kRed:
-            translation = self.estimator.getEstimatedPosition().translation()
-            rotation = self.gyro.getRotation2d().rotateBy(Rotation2d(math.pi))
-            return Pose2d(translation, rotation)
-        else:
-            return self.getPose()
+    # SHOULD NO LONGER BE USED when using blue alliance coordintate system all the time
+    # def getFlippedPose(self) -> Pose2d:
+    #     if DriverStation.getAlliance() == DriverStation.Alliance.kRed:
+    #         translation = self.estimator.getEstimatedPosition().translation()
+    #         rotation = self.gyro.getRotation2d().rotateBy(Rotation2d(math.pi))
+    #         return Pose2d(translation, rotation)
+    #     else:
+    #         return self.getPose()
 
     def lockChassis(self):
         # getting the "angle" of each module location on the robot.
@@ -342,6 +342,7 @@ class SwerveChassis(Subsystem):
             self.setStatesFromSpeeds()  # apply chassis Speeds
         for module, state in zip(self.modules, self.moduleStates):
             module.setState(state)
+
         # self.logTelemetry()
 
     # Resets the pose by running the resetPosition method of the estimator.
@@ -349,10 +350,11 @@ class SwerveChassis(Subsystem):
         self.estimator.resetPosition(
             self.gyro.getRotation2d(),
             tuple(
-                [
-                    SwerveModulePosition(0, x.getCurrentSteerAzimuth())
-                    for x in self.modules
-                ]
+                self.getModulePositions()
+                # [
+                #     SwerveModulePosition(0, x.getCurrentSteerAzimuth())
+                #     for x in self.modules
+                # ]
             ),
             pose,
         )

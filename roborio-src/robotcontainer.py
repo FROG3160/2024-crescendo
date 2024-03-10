@@ -23,7 +23,12 @@ from constants import (
 from commands2.cmd import runOnce
 from FROGlib.xbox import FROGXboxDriver, FROGXboxOperator
 from subsystems.drivetrain import DriveTrain
-from pathplannerlib.auto import PathPlannerAuto, NamedCommands
+from pathplannerlib.auto import PathPlannerAuto, NamedCommands, AutoBuilder
+from pathplannerlib.config import (
+    HolonomicPathFollowerConfig,
+    ReplanningConfig,
+    PIDConstants,
+)
 from subsystems.vision import PositioningSubsystem, TargetingSubsystem
 from subsystems.intake import IntakeSubsystem
 from subsystems.shooter import ShooterSubsystem

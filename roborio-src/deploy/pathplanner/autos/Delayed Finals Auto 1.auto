@@ -2,25 +2,25 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.6612630837363241,
-      "y": 4.404003794501376
+      "x": 1.3950925173499227,
+      "y": 1.499681670774967
     },
-    "rotation": -60.0
+    "rotation": 0
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
-          "type": "named",
+          "type": "wait",
           "data": {
-            "name": "Fire"
+            "waitTime": 10.0
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Source side out"
+            "pathName": "Source to Speaker"
           }
         }
       ]
