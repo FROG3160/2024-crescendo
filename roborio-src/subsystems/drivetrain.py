@@ -90,19 +90,12 @@ class DriveTrain(SwerveChassis):
         # should return 7 is false and 4 if True
         return [7, 4][self.shouldFlipPath()]
 
-    def setFieldPosition(self, pose: Pose2d):
-        self.estimator.resetPosition(
-            self.gyro.getRotation2d(),
-            tuple(self.getModulePositions()),
-            pose,
-        )
-
-    def resetGyroCommand(self) -> Command:
-        return self.runOnce(
-            self.gyro.resetGyro(
-                DriverStation.getAlliance() == DriverStation.Alliance.kRed
-            )
-        )
+    # def resetGyroCommand(self) -> Command:
+    #     return self.runOnce(
+    #         self.gyro.resetGyro(
+    #             DriverStation.getAlliance() == DriverStation.Alliance.kRed
+    #         )
+    #     )
 
     def getTargeting(self):
         tagPose = self.fieldLayout.getTagPose(self.getSpeakerTagNum())
@@ -131,8 +124,10 @@ class DriveTrain(SwerveChassis):
             self.estimator.addVisionMeasurement(
                 visionPose.toPose2d(), visionTimestamp, (0.3, 0.3, math.pi / 8)
             )
-        SmartDashboard.putData("Drive Pose", self.estimatorPose)
-        SmartDashboard.putData("Drive Estimator", self.estimator.getEstimatedPosition())
+        SmartDashboard.putString("Drive Pose", self.estimatorPose.__str__())
+        SmartDashboard.putString(
+            "Drive Pose w/Vision ", self.estimator.getEstimatedPosition().__str__()
+        )
         distance, azimuth, vt = self.getTargeting()
         # update elevation with the needed distance
         self.elevation.setTagDistance(distance)

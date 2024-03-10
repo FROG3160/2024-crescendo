@@ -48,27 +48,27 @@ class ManualDrive(Command):
             profiledRotationConstraints,
         )
         self.nt_table = f"{table}/{type(self).__name__}"
-        self._calculated_vT = (
+        self._calculated_vTPub = (
             NetworkTableInstance.getDefault()
             .getFloatTopic(f"{self.nt_table}/calculated_vT")
             .publish()
         )
-        self._gyro_yaw = (
+        self._rotation_degreesPub = (
             NetworkTableInstance.getDefault()
-            .getFloatTopic(f"{self.nt_table}/gyro_yaw")
+            .getFloatTopic(f"{self.nt_table}/rotation_degrees")
             .publish()
         )
 
     def resetRotationController(self):
         self.profiledRotationController.reset(
-            math.radians(self.drive.gyro.getAngleCCW()),
+            self.drive.getRotation2d().radians(),
             self.drive.gyro.getRadiansPerSecCCW(),
         )
 
     def execute(self) -> None:
         # read right joystick Y to see if we are using it
         rightStickY = self.controller.getRightY()
-        gyroYawCCW = self.drive.gyro.getAngleCCW()
+        driveRotation2d = self.drive.getRotation2d()
         if rightStickY > 0.5:
             # if self.resetController:
             #     # this is the first time we hit this conditional, so
@@ -80,7 +80,7 @@ class ManualDrive(Command):
             #     math.radians(gyroYawCCW), math.radians(0)
             # )
             vT = self.drive.getvTtoTag()
-            self._calculated_vT.set(vT)
+            self._calculated_vTPub.set(vT)
         elif rightStickY < -0.5:
             if self.resetController:
                 # this is the first time we hit this conditional, so
@@ -89,15 +89,15 @@ class ManualDrive(Command):
                 self.resetRotationController()
             # Rotate to 180 degrees
             vT = self.profiledRotationController.calculate(
-                math.radians(gyroYawCCW), math.radians(180)
+                driveRotation2d.radians(), math.radians(180)
             )
-            self._calculated_vT.set(vT)
+            self._calculated_vTPub.set(vT)
         else:
             # set to true so the first time the other if conditionals evaluate true
             # the controller will be reset
             self.resetController = True
             vT = self.controller.getSlewLimitedFieldRotation()
-        self._gyro_yaw.set(gyroYawCCW)
+        self._rotation_degreesPub.set(driveRotation2d.degrees())
 
         # pov = self.controller.getPOVDebounced()
         # if pov != -1:

@@ -279,7 +279,7 @@ class SwerveChassis(Subsystem):
         ySpeed = vY * self.max_speed * throttle
         rotSpeed = vT * self.max_rotation_speed * throttle
         self.chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-            xSpeed, ySpeed, rotSpeed, self.gyro.getRotation2d()
+            xSpeed, ySpeed, rotSpeed, self.getRotation2d()
         )
 
     def getActualChassisSpeeds(self):
@@ -309,6 +309,9 @@ class SwerveChassis(Subsystem):
         # return Pose2d(translation, rotation)
         return self.estimator.getEstimatedPosition()
 
+    def getRotation2d(self) -> Rotation2d:
+        return self.getPose().rotation()
+
     # returns a Pose with rotation flipped
     # SHOULD NO LONGER BE USED when using blue alliance coordintate system all the time
     # def getFlippedPose(self) -> Pose2d:
@@ -331,10 +334,10 @@ class SwerveChassis(Subsystem):
             module.setState(SwerveModuleState(0, moduleAngle))
 
     def logTelemetry(self):
-        self._actualChassisSpeeds = self.getActualChassisSpeeds()
-        self._chassisSpeedsActualPub.set(self._actualChassisSpeeds)
-        self._chassisSpeedsPub.set(self.chassisSpeeds)
-        self._chassisSpeedsErrorPub.set(self.chassisSpeeds - self._actualChassisSpeeds)
+        # self._actualChassisSpeeds = self.getActualChassisSpeeds()
+        # self._chassisSpeedsActualPub.set(self._actualChassisSpeeds)
+        # self._chassisSpeedsPub.set(self.chassisSpeeds)
+        # self._chassisSpeedsErrorPub.set(self.chassisSpeeds - self._actualChassisSpeeds)
         self._estimatedPositionPub.set(self.estimator.getEstimatedPosition())
 
     def periodic(self):
@@ -343,19 +346,13 @@ class SwerveChassis(Subsystem):
         for module, state in zip(self.modules, self.moduleStates):
             module.setState(state)
 
-        # self.logTelemetry()
+        self.logTelemetry()
 
     # Resets the pose by running the resetPosition method of the estimator.
     def resetPose(self, pose: Pose2d):
         self.estimator.resetPosition(
             self.gyro.getRotation2d(),
-            tuple(
-                self.getModulePositions()
-                # [
-                #     SwerveModulePosition(0, x.getCurrentSteerAzimuth())
-                #     for x in self.modules
-                # ]
-            ),
+            tuple(self.getModulePositions()),
             pose,
         )
 
