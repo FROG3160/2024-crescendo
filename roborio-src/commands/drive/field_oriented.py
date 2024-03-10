@@ -106,7 +106,7 @@ class ManualDrive(Command):
 
         # We are now using the blue alliance coordinate system all the time,
         # so if we are on the red side invert x and y
-        if DriverStation.getAlliance() == DriverStation.Alliance.kRed:
+        if self.drive.onRedAlliance():
             vX = -self.controller.getSlewLimitedFieldForward()
             vY = -self.controller.getSlewLimitedFieldLeft()
         else:

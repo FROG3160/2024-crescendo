@@ -61,7 +61,7 @@ class DriveTrain(SwerveChassis):
         self.elevation = elevation
         self.fieldLayout = loadAprilTagLayoutField(AprilTagField.k2024Crescendo)
 
-        self.isBlueAlliance = not self.shouldFlipPath()
+        self.isBlueAlliance = not self.onRedAlliance()
 
         # Configure the AutoBuilder last
         AutoBuilder.configureHolonomic(
@@ -80,15 +80,19 @@ class DriveTrain(SwerveChassis):
             self,  # Reference to this subsystem to set requirements
         )
 
+    def onRedAlliance(self):
+        # Returns boolean that equals true if we are on the Red Alliance
+        return DriverStation.getAlliance() == DriverStation.Alliance.kRed
+
     def shouldFlipPath(self):
         # Boolean supplier that controls when the path will be mirrored for the red alliance
         # This will flip the path being followed to the red side of the field.
         # THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-        return DriverStation.getAlliance() == DriverStation.Alliance.kRed
+        return self.onRedAlliance()
 
     def getSpeakerTagNum(self):
         # should return 7 is false and 4 if True
-        return [7, 4][self.shouldFlipPath()]
+        return [7, 4][self.onRedAlliance()]
 
     def setFieldPosition(self, pose: Pose2d):
         self.estimator.resetPosition(
@@ -107,7 +111,7 @@ class DriveTrain(SwerveChassis):
     def getTargeting(self):
         tagPose = self.fieldLayout.getTagPose(self.getSpeakerTagNum())
         robotToTarget = RobotRelativeTarget(
-            self.estimatorPose, tagPose, not self.shouldFlipPath()
+            self.estimatorPose, tagPose, not self.onRedAlliance()
         )
         return (
             robotToTarget.distance,
@@ -118,7 +122,7 @@ class DriveTrain(SwerveChassis):
     def getvTtoTag(self):
         tagPose = self.fieldLayout.getTagPose(self.getSpeakerTagNum())
         robotToTarget = RobotRelativeTarget(
-            self.estimatorPose, tagPose, not self.shouldFlipPath()
+            self.estimatorPose, tagPose, not self.onRedAlliance()
         )
         return robotToTarget.driveVT
 
