@@ -131,9 +131,8 @@ class DriveTrain(SwerveChassis):
             self.estimator.addVisionMeasurement(
                 visionPose.toPose2d(), visionTimestamp, (0.3, 0.3, math.pi / 8)
             )
-        SmartDashboard.putString(
-            "Drive Estimator", self.estimator.getEstimatedPosition().__str__()
-        )
+        SmartDashboard.putData("Drive Pose", self.estimatorPose)
+        SmartDashboard.putData("Drive Estimator", self.estimator.getEstimatedPosition())
         distance, azimuth, vt = self.getTargeting()
         # update elevation with the needed distance
         self.elevation.setTagDistance(distance)
