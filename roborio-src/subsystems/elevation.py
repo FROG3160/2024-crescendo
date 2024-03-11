@@ -18,6 +18,7 @@ from phoenix6.controls import (
 )
 import constants
 from configs import leadscrewConfig
+from enum import Enum, auto
 
 
 def clamp(v, minval, maxval):
@@ -25,6 +26,12 @@ def clamp(v, minval, maxval):
 
 
 class ElevationSubsystem(Subsystem):
+
+    class State(Enum):
+        Disabled = auto()
+        AtHome = auto()
+        AutoAdjusting = auto()
+        AtPosition = auto()
 
     def __init__(self, parent_nt: str = "Subsystems"):
         super().__init__()
@@ -58,6 +65,7 @@ class ElevationSubsystem(Subsystem):
             .publish()
         )
         self.tagDistance = None
+        self.state = self.State.Disabled
 
     def getCurrentLeadscrewPosition(self) -> float:
         return self.leadscrew.get_position().value
@@ -84,6 +92,7 @@ class ElevationSubsystem(Subsystem):
     def leadscrewAtPosition(self) -> bool:
         position_diff = self.leadscrewPosition - self.getCurrentLeadscrewPosition()
         if abs(position_diff) < constants.kLeadscrewPositionTolerance:
+            self.state = self.State.AtPosition
             return True
         else:
             return False
@@ -94,6 +103,7 @@ class ElevationSubsystem(Subsystem):
         )
 
     def autoMoveWithDistance(self):
+        self.state = self.State.AutoAdjusting
         self.setLeadscrewPosition(self.calcPositionForSpeaker())
         self.runMotorWithControl()
 
@@ -113,6 +123,9 @@ class ElevationSubsystem(Subsystem):
     def periodic(self):
         self.logTelemetry()
         # SmartDashboard.putBoolean("ShooterPositionAtHome", self.shooterAtHome())
+
+    def publishOnSmartDashboard(self):
+        SmartDashboard.putString("Shooter State", str(self.state.name))
 
     def runLeadscrewForward(self):
         self.leadscrew.set_control(VoltageOut(0.5))
@@ -145,10 +158,13 @@ class ElevationSubsystem(Subsystem):
         self.tagDistance = distance
 
     def shooterAtHome(self) -> bool:
-        return not self.shooterPositionSensor.get()
+        self.shooterPositionSensorNotTripped = self.shooterPositionSensor.get()
+        if not self.shooterPositionSensorNotTripped:
+            self.state = self.State.AtHome
+        return not self.shooterPositionSensorNotTripped
 
     def shooterNotAtHome(self) -> bool:
-        return self.shooterPositionSensor.get()
+        return self.shooterPositionSensorNotTripped
 
     def stopLeadscrew(self):
         self.leadscrew.set_control(VoltageOut(0))
