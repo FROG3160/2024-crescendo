@@ -84,9 +84,7 @@ class PhysicsEngine:
             self.robot.container.driveSubsystem.chassisSpeeds, tm_diff
         )
 
-        self.robot.container.driveSubsystem.gyro.setAngleAdjustment(
-            -pose.rotation().degrees()
-        )
-        self.robot.container.driveSubsystem.setFieldPosition(
-            self.physics_controller.field.getRobotPose()
-        )
+        # self.robot.container.driveSubsystem.gyro.setAngleAdjustment(
+        #     -pose.rotation().degrees()
+        # )
+        self.robot.container.driveSubsystem.resetPose(pose)
