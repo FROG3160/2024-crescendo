@@ -68,12 +68,21 @@ class MyRobot(commands2.TimedCommandRobot):
     def autonomousInit(self) -> None:
         """This autonomous runs the autonomous command selected by your RobotContainer class."""
         self.autonomousCommand = self.container.getAutonomousCommand()
+        # self.autonomousCommand = (
+        #     self.container.elevationSubsystem.homeShooterCommand().andThen(
+        #         self.container.getAutonomousCommand()
+        #     )
+        # )
 
         self.container.driveSubsystem.enable()
         if self.autonomousCommand:
-            self.autonomousCommand.schedule()
+            self.container.elevationSubsystem.homeShooterCommand().andThen(
+                self.autonomousCommand
+            ).withName(self.autonomousCommand.getName()).schedule()
 
-        self.container.elevationSubsystem.homeShooterCommand().schedule()
+            # self.autonomousCommand.schedule()
+
+        # self.container.elevationSubsystem.homeShooterCommand().schedule()
         self.container.climberSubsystem.get_homeLeftClimber().andThen(
             self.container.climberSubsystem.get_homeRightClimber()
         ).schedule()

@@ -101,8 +101,8 @@ class DriveTrain(SwerveChassis):
             pose,
         )
 
-    def resetGyroCommand(self) -> Command:
-        return self.runOnce(self.gyro.resetGyro(self.onRedAlliance()))
+    # def resetGyroCommand(self) -> Command:
+    #     return self.runOnce(self.gyro.resetGyro(self.onRedAlliance())
 
     def getTargeting(self):
         tagPose = self.fieldLayout.getTagPose(self.getSpeakerTagNum())
@@ -131,8 +131,9 @@ class DriveTrain(SwerveChassis):
             self.estimator.addVisionMeasurement(
                 visionPose.toPose2d(), visionTimestamp, (0.3, 0.3, math.pi / 8)
             )
+        SmartDashboard.putString("Drive Pose", self.estimatorPose.__str__())
         SmartDashboard.putString(
-            "Drive Estimator", self.estimator.getEstimatedPosition().__str__()
+            "Drive Pose w/Vision ", self.estimator.getEstimatedPosition().__str__()
         )
         distance, azimuth, vt = self.getTargeting()
         # update elevation with the needed distance

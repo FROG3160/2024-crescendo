@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.2977105906762236,
-      "y": 1.5775872121139263
+      "x": 0.6875963867401176,
+      "y": 6.670401393150747
     },
-    "rotation": 0
+    "rotation": 60.0
   },
   "command": {
     "type": "sequential",
@@ -14,13 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Straight Out"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Fire"
+            "pathName": "Speaker (Amp side) Out"
           }
         }
       ]
