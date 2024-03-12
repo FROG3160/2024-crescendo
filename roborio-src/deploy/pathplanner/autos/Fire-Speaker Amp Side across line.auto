@@ -14,12 +14,6 @@
         {
           "type": "named",
           "data": {
-            "name": "Home Shooter"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "Fire"
           }
         },
