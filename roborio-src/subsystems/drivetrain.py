@@ -102,11 +102,7 @@ class DriveTrain(SwerveChassis):
         )
 
     def resetGyroCommand(self) -> Command:
-        return self.runOnce(
-            self.gyro.resetGyro(
-                DriverStation.getAlliance() == DriverStation.Alliance.kRed
-            )
-        )
+        return self.runOnce(self.gyro.resetGyro(self.onRedAlliance()))
 
     def getTargeting(self):
         tagPose = self.fieldLayout.getTagPose(self.getSpeakerTagNum())
