@@ -40,7 +40,6 @@ from commands.shooter.load import IntakeAndLoad, loadShooterCommand
 from commands.shooter.fire import Fire
 from commands.drive.robot_oriented import DriveToTarget
 
-
 class RobotContainer:
     """
     This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -193,12 +192,12 @@ class RobotContainer:
         #         self.elevationSubsystem.setLeadscrewCommand()
         #     )
         # )
-
-        self.intakeSubsystem.getTargetInRangeTrigger().onTrue(
-            IntakeAndLoad(
-                self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
+        if not self.shooterSubsystem.noteInShooter():
+            self.intakeSubsystem.getTargetInRangeTrigger().onTrue(
+                IntakeAndLoad(
+                    self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
+                )
             )
-        )
 
         # # Grab the hatch when the Circle button is pressed.
         # self.driverController.circle().onTrue(self.hatchSubsystem.grabHatch())
