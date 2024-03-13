@@ -38,7 +38,7 @@ from commands.drive.field_oriented import ManualDrive
 from commands.drive.robot_oriented import DriveToTarget
 from commands.shooter.load import IntakeAndLoad, loadShooterCommand
 from commands.shooter.fire import Fire
-from commands.drive.robot_oriented import DriveToTarget
+from commands.drive.robot_oriented import DriveToTarget, ThrottledDriveToTarget
 
 
 class RobotContainer:
@@ -137,7 +137,9 @@ class RobotContainer:
             self.elevationSubsystem.autoMoveRunWithDistanceCommand()
         )
         self.driverController.b().whileTrue(
-            DriveToTarget(self.driveSubsystem, self.targetingSubsystem)
+            ThrottledDriveToTarget(
+                self.driveSubsystem, self.targetingSubsystem, self.driverController
+            )
         )
         self.driverController.x().onTrue(
             self.elevationSubsystem.moveToLoadPositionCommand()
