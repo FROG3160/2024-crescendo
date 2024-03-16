@@ -175,5 +175,8 @@ class AprilTagPlacement:
         STAGE_SOURCE = 16
 
 
+kFrameLength = inchesToMeters(32)
+kFrameWidth = inchesToMeters(28)
 kBumperDepth = inchesToMeters(3.25)
-kTotalLength = kWheelBaseMeters + kBumperDepth * 2
+kTotalLength = kFrameLength + kBumperDepth * 2
+kTotalWidth = kFrameWidth + kBumperDepth * 2
