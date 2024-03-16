@@ -216,6 +216,12 @@ class RobotContainer:
                 ).withName("Approach Amp Blue")
             )
 
+        self.driverController.povUp().onTrue(
+            AutoBuilder.followPath(
+                PathPlannerPath.fromPathFile("Amp Side Stage Approach")
+            ).withName("Approach Stage Amp Side")
+        )
+
         # # Grab the hatch when the Circle button is pressed.
         # self.driverController.circle().onTrue(self.hatchSubsystem.grabHatch())
 
