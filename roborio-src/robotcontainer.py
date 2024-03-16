@@ -85,7 +85,9 @@ class RobotContainer:
 
         # Keep elevation at home/load, when it's not doing anything else
         self.elevationSubsystem.setDefaultCommand(
-            self.elevationSubsystem.moveToLoadPositionCommand()
+            self.elevationSubsystem.moveToLoadPositionCommand().withName(
+                "Moving to load position."
+            )
         )
 
         # Chooser
