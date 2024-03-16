@@ -68,6 +68,7 @@ class ManualDrive(Command):
     def execute(self) -> None:
         # read right joystick Y to see if we are using it
         rightStickY = self.controller.getRightY()
+        RightstickPressed = self.controller._hid.getRightStickButton()
         driveRotation2d = self.drive.getRotation2d()
         if rightStickY > 0.5:
             # if self.resetController:
@@ -90,6 +91,17 @@ class ManualDrive(Command):
             # Rotate to 180 degrees
             vT = self.profiledRotationController.calculate(
                 driveRotation2d.radians(), math.radians(180)
+            )
+            self._calculated_vTPub.set(vT)
+        elif RightstickPressed == True:
+            if self.resetController:
+                # this is the first time we hit this conditional, so
+                # reset the controller
+                self.resetController = False
+                self.resetRotationController()
+            # Rotate to -90 degrees
+            vt = self.profiledRotationController.calculate(
+                driveRotation2d.radians(), math.radians(-90)
             )
             self._calculated_vTPub.set(vT)
         else:
