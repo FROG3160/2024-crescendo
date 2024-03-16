@@ -76,9 +76,12 @@ class MyRobot(commands2.TimedCommandRobot):
 
         self.container.driveSubsystem.enable()
         if self.autonomousCommand:
-            self.container.elevationSubsystem.homeShooterCommand().andThen(
-                self.autonomousCommand
-            ).withName(self.autonomousCommand.getName()).schedule()
+            if self.isReal():
+                self.container.elevationSubsystem.homeShooterCommand().andThen(
+                    self.autonomousCommand
+                ).withName(self.autonomousCommand.getName()).schedule()
+            else:
+                self.autonomousCommand.schedule()
 
             # self.autonomousCommand.schedule()
 
