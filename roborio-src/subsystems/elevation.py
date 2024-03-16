@@ -112,13 +112,13 @@ class ElevationSubsystem(Subsystem):
 
     def periodic(self):
         self.logTelemetry()
-        # SmartDashboard.putBoolean("ShooterPositionAtHome", self.shooterAtHome())
+        SmartDashboard.putBoolean("ShooterPositionAtHome", self.shooterAtHome())
 
     def runLeadscrewForward(self):
-        self.leadscrew.set_control(VoltageOut(0.5))
+        self.leadscrew.set_control(VoltageOut(1.0))
 
     def runLeadscrewBackward(self):
-        self.leadscrew.set_control(VoltageOut(-0.35))
+        self.leadscrew.set_control(VoltageOut(-0.7))
 
     def runLeadscrewForwardCommand(self) -> Command:
         return self.run(self.runLeadscrewForward)
