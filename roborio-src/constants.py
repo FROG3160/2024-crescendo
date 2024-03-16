@@ -9,6 +9,7 @@
 # This should only hold numerical, string, or boolean constants, using
 # the C++ naming convention.
 
+from enum import Enum, member
 import math
 import wpilib
 from wpimath.geometry import Pose3d, Rotation3d
@@ -156,4 +157,23 @@ kSequencerShootPercent = 1.0
 kSequencerHomeReversePercent = 0.2
 kSequencerHomeForwardPercent = 0.1
 
-kSpeakerPosition = Pose3d(0, 5.554, 2.07, Rotation3d(0, 0, 0))
+
+class AprilTagPlacement:
+
+    class Red:
+        SPEAKER = 4
+        AMP = 5
+        STAGE_CENTER = 13
+        STAGE_AMP = 12
+        STAGE_SOURCE = 11
+
+    class Blue:
+        SPEAKER = 7
+        AMP = 6
+        STAGE_CENTER = 14
+        STAGE_AMP = 15
+        STAGE_SOURCE = 16
+
+
+kBumperDepth = inchesToMeters(3.25)
+kTotalLength = kWheelBaseMeters + kBumperDepth * 2

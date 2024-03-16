@@ -5,6 +5,7 @@ from robotpy_apriltag import AprilTagField, loadAprilTagLayoutField
 from FROGlib.swerve import SwerveChassis, SwerveModule
 from FROGlib.sensors import FROGGyro
 from constants import (
+    AprilTagPlacement,
     kMaxChassisRadiansPerSec,
     kMaxMetersPerSecond,
     kDriveBaseRadius,
@@ -61,8 +62,6 @@ class DriveTrain(SwerveChassis):
         self.elevation = elevation
         self.fieldLayout = loadAprilTagLayoutField(AprilTagField.k2024Crescendo)
 
-        self.isBlueAlliance = not self.onRedAlliance()
-
         # Configure the AutoBuilder last
         AutoBuilder.configureHolonomic(
             self.getPose,  # Robot pose supplier
@@ -92,7 +91,35 @@ class DriveTrain(SwerveChassis):
 
     def getSpeakerTagNum(self):
         # should return 7 is false and 4 if True
-        return [7, 4][self.onRedAlliance()]
+        return [AprilTagPlacement.Blue.SPEAKER, AprilTagPlacement.Red.SPEAKER][
+            self.onRedAlliance()
+        ]
+
+    def getAmpTagNum(self):
+        return [AprilTagPlacement.Blue.AMP, AprilTagPlacement.Red.AMP][
+            self.onRedAlliance()
+        ]
+
+    def getStageTagNum(self):
+        # if our X value on the field falls between the blue and red
+        # wing lines
+        if 5.320792 < self.estimatorPose.x < 11.220196:
+            return [
+                AprilTagPlacement.Blue.STAGE_CENTER,
+                AprilTagPlacement.Red.STAGE_CENTER,
+            ][self.onRedAlliance()]
+        # if we are inside our wing, determine if we are on the amp or
+        # source side of the stage
+        elif self.estimatorPose.y > 4.105148:
+            return [
+                AprilTagPlacement.Blue.STAGE_AMP,
+                AprilTagPlacement.Red.STAGE_AMP,
+            ][self.onRedAlliance()]
+        else:
+            return [
+                AprilTagPlacement.Blue.STAGE_SOURCE,
+                AprilTagPlacement.Red.STAGE_SOURCE,
+            ][self.onRedAlliance()]
 
     def setFieldPosition(self, pose: Pose2d):
         self.estimator.resetPosition(
