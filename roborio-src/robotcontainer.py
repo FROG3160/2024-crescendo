@@ -24,6 +24,7 @@ from commands2.cmd import runOnce
 from FROGlib.xbox import FROGXboxDriver, FROGXboxOperator
 from subsystems.drivetrain import DriveTrain
 from pathplannerlib.auto import PathPlannerAuto, NamedCommands, AutoBuilder
+from pathplannerlib.path import PathPlannerPath
 from pathplannerlib.config import (
     HolonomicPathFollowerConfig,
     ReplanningConfig,
@@ -201,6 +202,19 @@ class RobotContainer:
                 self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
             )
         )
+
+        if self.driveSubsystem.onRedAlliance():
+            self.driverController.povRight().onTrue(
+                AutoBuilder.followPath(
+                    PathPlannerPath.fromPathFile("Amp Approach")
+                ).withName("Approach Amp Red")
+            )
+        else:
+            self.driverController.povLeft().onTrue(
+                AutoBuilder.followPath(
+                    PathPlannerPath.fromPathFile("Amp Approach")
+                ).withName("Approach Amp Blue")
+            )
 
         # # Grab the hatch when the Circle button is pressed.
         # self.driverController.circle().onTrue(self.hatchSubsystem.grabHatch())
