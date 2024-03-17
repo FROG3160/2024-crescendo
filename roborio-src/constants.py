@@ -64,12 +64,12 @@ kShooterPositionSensorChannel = 2
 # Shooter Motor Gains
 # TODO: Tune these gains
 kLeadscrewSlot0P = 0.5  # slot 0 for position
-kLeadscrewSlot1S = 0.3  # slot 1 for velocity
+kLeadscrewSlot1S = 0.5  # slot 1 for velocity
 kLeadscrewSlot1V = 0.5  # slot 1 for velocity
 kLeadscrewSlot1P = 32
 kLeadscrewSlot1A = 0.01
-kLeadscrewMMA = 40
-kLeadscrewMMV = 20
+kLeadscrewMMA = 100
+kLeadscrewMMV = 25
 
 kClimberSlot0S = 0.2
 kClimberSlot0V = 0.105
