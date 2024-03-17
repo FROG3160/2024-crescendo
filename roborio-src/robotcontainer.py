@@ -6,6 +6,7 @@
 import os
 import wpilib
 from wpilib.interfaces import GenericHID
+from wpimath.units import degreesToRadians
 
 import commands2
 import commands2.button
@@ -24,7 +25,7 @@ from commands2.cmd import runOnce
 from FROGlib.xbox import FROGXboxDriver, FROGXboxOperator
 from subsystems.drivetrain import DriveTrain
 from pathplannerlib.auto import PathPlannerAuto, NamedCommands, AutoBuilder
-from pathplannerlib.path import PathPlannerPath
+from pathplannerlib.path import PathPlannerPath, PathConstraints
 from pathplannerlib.config import (
     HolonomicPathFollowerConfig,
     ReplanningConfig,
@@ -77,6 +78,9 @@ class RobotContainer:
         self.registerNamedCommands()
 
         # Configure the button bindings
+        self.pathfindingConstraints = PathConstraints(
+            4.0, 8.0, degreesToRadians(540), degreesToRadians(720)
+        )
         self.configureButtonBindings()
 
         # Configure default commands
@@ -206,15 +210,16 @@ class RobotContainer:
         )
 
         if self.driveSubsystem.onRedAlliance():
-            self.driverController.povRight().onTrue(
+            self.driverController.povRight().whileTrue(
                 AutoBuilder.followPath(
                     PathPlannerPath.fromPathFile("Amp Approach")
                 ).withName("Approach Amp Red")
             )
         else:
-            self.driverController.povLeft().onTrue(
-                AutoBuilder.followPath(
-                    PathPlannerPath.fromPathFile("Amp Approach")
+            self.driverController.povLeft().whileTrue(
+                AutoBuilder.pathfindThenFollowPath(
+                    PathPlannerPath.fromPathFile("Amp Approach"),
+                    self.pathfindingConstraints,
                 ).withName("Approach Amp Blue")
             )
 
