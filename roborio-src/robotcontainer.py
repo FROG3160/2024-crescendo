@@ -41,7 +41,11 @@ from commands.drive.field_oriented import ManualDrive
 from commands.drive.robot_oriented import DriveToTarget
 from commands.shooter.load import IntakeAndLoad, loadShooterCommand
 from commands.shooter.fire import Fire
-from commands.drive.robot_oriented import DriveToTarget, ThrottledDriveToTarget
+from commands.drive.robot_oriented import (
+    DriveToTarget,
+    ThrottledDriveToTarget,
+    ManualRobotOrientedDrive,
+)
 
 
 class RobotContainer:
@@ -79,9 +83,6 @@ class RobotContainer:
         self.registerNamedCommands()
 
         # Configure the button bindings
-        self.pathfindingConstraints = PathConstraints(
-            4.0, 8.0, degreesToRadians(540), degreesToRadians(720)
-        )
         self.configureButtonBindings()
 
         # Configure default commands
@@ -248,6 +249,10 @@ class RobotContainer:
             AutoBuilder.followPath(
                 PathPlannerPath.fromPathFile("Straight Run")
             ).withName("Straight Run Test")
+        )
+
+        self.driverController.leftStick().whileTrue(
+            ManualRobotOrientedDrive(self.driverController, self.driveSubsystem)
         )
 
         # # Grab the hatch when the Circle button is pressed.

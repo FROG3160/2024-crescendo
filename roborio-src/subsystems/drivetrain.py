@@ -64,9 +64,6 @@ class DriveTrain(SwerveChassis):
         self.elevation = elevation
         self.fieldLayout = loadAprilTagLayoutField(AprilTagField.k2024Crescendo)
 
-        self.pathfindingConstraints = PathConstraints(
-            4.0, 8.0, degreesToRadians(540), degreesToRadians(720)
-        )
         self.estimatorPose = Pose2d(0, 0, Rotation2d(0))
 
         # Configure the AutoBuilder last

@@ -73,7 +73,7 @@ class ThrottledDriveToTarget(Command):
             .getFloatTopic(f"{self.nt_table}/calculated_vX")
             .publish()
         )
-        self._caluclated_vT = (
+        self._calculated_vT = (
             NetworkTableInstance.getDefault()
             .getFloatTopic(f"{self.nt_table}/calculated_vT")
             .publish()
@@ -83,6 +83,38 @@ class ThrottledDriveToTarget(Command):
         visionChassisSpeeds = self.targeting.getChassisSpeeds()
         controllerVx = self.controller.getFieldThrottle()
 
-        self.drive.robotOrientedDrive(controllerVx, 0, visionChassisSpeeds.omega)
+        self.drive.robotOrientedDrive(
+            controllerVx * self.drive.max_speed, 0, visionChassisSpeeds.omega
+        )
         self._throttle_vX = controllerVx
-        self._caluclated_vT = self.targeting.calculate_vt()
+        self._calculated_vT = self.targeting.calculate_vt()
+
+
+class ManualRobotOrientedDrive(Command):
+    def __init__(
+        self, controller: FROGXboxDriver, drive: DriveTrain, table: str = "Undefined"
+    ) -> None:
+        """Allows manual control of the drivetrain through use of the specified
+        controller.
+
+        Args:
+            controller (FROGXboxDriver): The controller used to control the drive.
+            drive (DriveTrain): The drive to be controlled.
+            table (str): The name of the network table telemetry data will go into
+        """
+        self.controller = controller
+        self.drive = drive
+        self.addRequirements(self.drive)
+
+    def execute(self) -> None:
+        throttle = self.controller.getFieldThrottle()
+        max_speed = self.drive.max_speed
+
+        self.drive.robotOrientedDrive(
+            # self._vX, self._vY, self._vT, self._throttle
+            self.controller.getSlewLimitedFieldForward() * max_speed * throttle,
+            self.controller.getSlewLimitedFieldLeft() * max_speed * throttle,
+            self.controller.getSlewLimitedFieldRotation()
+            * self.drive.max_rotation_speed
+            * throttle,
+        )
