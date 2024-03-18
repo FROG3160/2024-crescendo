@@ -107,7 +107,7 @@ class MyRobot(commands2.TimedCommandRobot):
         self.container.driveSubsystem.enable()
         self.container.elevationSubsystem.homeShooterCommand().schedule()
         # Run the elevation homing routine while we are running teleop at home
-        if not DriverStation.isFMSAttached():
+        if self.isReal():
             self.container.elevationSubsystem.homeShooterCommand().schedule()
             self.container.climberSubsystem.get_homeLeftClimber().andThen(
                 self.container.climberSubsystem.get_homeRightClimber()
