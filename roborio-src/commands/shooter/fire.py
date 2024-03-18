@@ -20,7 +20,6 @@ class Fire(SequentialCommandGroup):
         command_list = [
             self.shooter.runFlywheelsCommand(),
             waitUntil(self.readyToFire),
-            # waitUntil(self.elevation.leadscrewAtPosition),
             self.shooter.fireSequencerCommand(),
             waitUntil(self.shooter.shooterSensor.get),
             self.shooter.stopSequencerCommand(),
