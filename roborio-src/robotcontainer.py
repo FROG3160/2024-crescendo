@@ -22,6 +22,7 @@ from constants import (
     kRotSlew,
 )
 from commands2.cmd import runOnce
+from commands2 import DeferredCommand
 from FROGlib.xbox import FROGXboxDriver, FROGXboxOperator
 from subsystems.drivetrain import DriveTrain
 from pathplannerlib.auto import PathPlannerAuto, NamedCommands, AutoBuilder
@@ -130,6 +131,22 @@ class RobotContainer:
         NamedCommands.registerCommand(
             "Home Shooter", self.elevationSubsystem.homeShooterCommand()
         )
+        NamedCommands.registerCommand(
+            "Move to Amp Elevation", self.elevationSubsystem.moveToAmpPositionCommand()
+        )
+        NamedCommands.registerCommand(
+            "Drive to Target",
+            DriveToTarget(
+                self.driveSubsystem,
+                self.targetingSubsystem,
+            ),
+        )
+        NamedCommands.registerCommand(
+            "Extend Arms", self.climberSubsystem.get_ExtendCommand()
+        )
+        NamedCommands.registerCommand(
+            "Retract Arms", self.climberSubsystem.get_RetractCommand()
+        )
 
     def configureButtonBindings(self):
         """
@@ -209,24 +226,28 @@ class RobotContainer:
             )
         )
 
-        if self.driveSubsystem.onRedAlliance():
-            self.driverController.povRight().whileTrue(
-                AutoBuilder.followPath(
-                    PathPlannerPath.fromPathFile("Amp Approach")
-                ).withName("Approach Amp Red")
-            )
-        else:
-            self.driverController.povLeft().whileTrue(
-                AutoBuilder.pathfindThenFollowPath(
-                    PathPlannerPath.fromPathFile("Amp Approach"),
-                    self.pathfindingConstraints,
-                ).withName("Approach Amp Blue")
-            )
+        self.driverController.povRight().whileTrue(
+            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Amp Approach"))
+            .withName("Approach Amp Red")
+            .alongWith(self.elevationSubsystem.moveToAmpPositionCommand())
+        )
+        self.driverController.povLeft().whileTrue(
+            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Amp Approach"))
+            .withName("Approach Amp Blue")
+            .alongWith(self.elevationSubsystem.moveToAmpPositionCommand())
+        )
 
-        self.driverController.povUp().onTrue(
+        self.driverController.povUp().whileTrue(
+            DeferredCommand(lambda: self.driveSubsystem.driveToStageCommand())
+            # AutoBuilder.followPath(
+            #     PathPlannerPath.fromPathFile("Amp Side Stage Approach")
+            # ).withName("Approach Stage Amp Side")
+        )
+
+        self.driverController.povDown().whileTrue(
             AutoBuilder.followPath(
-                PathPlannerPath.fromPathFile("Amp Side Stage Approach")
-            ).withName("Approach Stage Amp Side")
+                PathPlannerPath.fromPathFile("Straight Run")
+            ).withName("Straight Run Test")
         )
 
         # # Grab the hatch when the Circle button is pressed.

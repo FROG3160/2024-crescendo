@@ -21,14 +21,16 @@ from pathplannerlib.config import (
     ReplanningConfig,
     PIDConstants,
 )
+from pathplannerlib.path import PathPlannerPath, PathConstraints
 from wpilib import DriverStation
-from wpimath.geometry import Pose2d
+from wpimath.geometry import Pose2d, Rotation2d, Transform2d
 from subsystems.vision import PositioningSubsystem
 from subsystems.elevation import ElevationSubsystem
 from wpilib import SmartDashboard
 from commands2 import Subsystem, Command
 from FROGlib.utils import RobotRelativeTarget
 import constants
+from wpimath.units import degreesToRadians
 
 
 class DriveTrain(SwerveChassis):
@@ -61,6 +63,11 @@ class DriveTrain(SwerveChassis):
         # We need to send data to the elevation system
         self.elevation = elevation
         self.fieldLayout = loadAprilTagLayoutField(AprilTagField.k2024Crescendo)
+
+        self.pathfindingConstraints = PathConstraints(
+            4.0, 8.0, degreesToRadians(540), degreesToRadians(720)
+        )
+        self.estimatorPose = Pose2d(0, 0, Rotation2d(0))
 
         # Configure the AutoBuilder last
         AutoBuilder.configureHolonomic(
@@ -120,6 +127,38 @@ class DriveTrain(SwerveChassis):
                 AprilTagPlacement.Blue.STAGE_SOURCE,
                 AprilTagPlacement.Red.STAGE_SOURCE,
             ][self.onRedAlliance()]
+
+    def getStagePose(self):
+        # get the tag's pose and transform it for the robot position
+        # in this case we need the robot facing the opposite direction
+        # of the tag and about 0.5 meters in front of it.
+        return (
+            self.fieldLayout.getTagPose(self.getStageTagNum())
+            .toPose2d()
+            .transformBy(
+                Pose2d(0.5, 0, Rotation2d(math.pi)) - Pose2d(0, 0, Rotation2d(0))
+            )
+        )
+
+    def getPathToStage(self) -> str:
+
+        if (self.estimatorPose.x > 6 and not self.onRedAlliance()) or (
+            self.estimatorPose.x < 11 and self.onRedAlliance()
+        ):
+            return "Center Stage Approach"
+        elif self.estimatorPose.y > 4.105148:
+            return "Amp Side Stage Approach"
+        else:
+            return "Source Side Stage Approach"
+
+    def driveToStageCommand(self) -> Command:
+        # return AutoBuilder.pathfindToPose(
+        #     self.getStagePose(), self.pathfindingConstraints, 0.0
+        # )
+        pathname = self.getPathToStage()
+        return AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathname)).withName(
+            pathname
+        )
 
     def setFieldPosition(self, pose: Pose2d):
         self.estimator.resetPosition(

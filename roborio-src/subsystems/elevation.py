@@ -100,6 +100,13 @@ class ElevationSubsystem(Subsystem):
     def autoMoveRunWithDistanceCommand(self) -> Command:
         return self.run(self.autoMoveWithDistance)
 
+    def moveToAmpPosition(self):
+        self.setLeadscrewPosition(56)
+        self.runMotorWithControl()
+
+    def moveToAmpPositionCommand(self):
+        return self.runOnce(self.moveToAmpPosition)
+
     def moveToLoadPosition(self):
         self.setLeadscrewPosition(0)
         self.runMotorWithControl()
