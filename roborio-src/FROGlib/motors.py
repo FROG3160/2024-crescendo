@@ -92,8 +92,7 @@ class FROGTalonFX(TalonFX):
 
     def logData(self):
         """Logs data to network tables for this motor"""
-        pass
-        # self._motorVelocityPub.set(self.get_velocity().value)
+        self._motorVelocityPub.set(self.get_velocity().value)
         # self._motorPositionPub.set(self.get_position().value)
         # self._motorVoltagePub.set(self.get_motor_voltage().value)
 

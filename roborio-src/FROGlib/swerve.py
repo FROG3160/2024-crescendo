@@ -24,6 +24,7 @@ from wpimath.units import radiansToRotations, rotationsToRadians
 from .motors import FROGTalonFX, FROGTalonFXConfig, DriveUnit
 from .sensors import FROGCANCoderConfig, FROGCanCoder, FROGGyro
 from phoenix6.configs.config_groups import ClosedLoopGeneralConfigs
+from wpilib import Timer
 
 
 class SwerveModule:
@@ -174,7 +175,7 @@ class SwerveModule:
             # stop the drive motor, steer motor can stay where it is
             self.drive.set_control(VelocityVoltage(velocity=0, slot=1))
         self.drive.logData()
-        self.steer.logData()
+        # self.steer.logData()
 
 
 class SwerveChassis(Subsystem):
@@ -231,6 +232,10 @@ class SwerveChassis(Subsystem):
             # last year, setFieldPosition was called and passed the vision pose during
             # robotInit()
         )
+        self.timer = Timer()
+        self.timer.start()
+        self.lastTime = 0
+        self.loopTime = 0
 
         self._chassisSpeedsPub = (
             NetworkTableInstance.getDefault()
@@ -279,8 +284,11 @@ class SwerveChassis(Subsystem):
         xSpeed = vX * self.max_speed * throttle
         ySpeed = vY * self.max_speed * throttle
         rotSpeed = vT * self.max_rotation_speed * throttle
-        self.chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-            xSpeed, ySpeed, rotSpeed, self.getRotation2d()
+        self.chassisSpeeds = ChassisSpeeds.discretize(
+            ChassisSpeeds.fromFieldRelativeSpeeds(
+                xSpeed, ySpeed, rotSpeed, self.getRotation2d()
+            ),
+            self.loopTime,
         )
 
     def getActualChassisSpeeds(self):
@@ -342,6 +350,10 @@ class SwerveChassis(Subsystem):
         self._estimatedPositionPub.set(self.estimator.getEstimatedPosition())
 
     def periodic(self):
+        self.newTime = self.timer.get()
+        self.loopTime = self.newTime - self.lastTime
+        self.lastTime = self.newTime
+
         if self.enabled:
             self.setStatesFromSpeeds()  # apply chassis Speeds
         for module, state in zip(self.modules, self.moduleStates):
@@ -358,10 +370,12 @@ class SwerveChassis(Subsystem):
         )
 
     def robotOrientedDrive(self, vX, vY, vT):
-        self.chassisSpeeds = ChassisSpeeds(vX, vY, vT)
+        self.chassisSpeeds = ChassisSpeeds.discretize(
+            ChassisSpeeds(vX, vY, vT), self.loopTime
+        )
 
     def setChassisSpeeds(self, chassis_speeds):
-        self.chassisSpeeds = chassis_speeds
+        self.chassisSpeeds = ChassisSpeeds.discretize(chassis_speeds, self.loopTime)
 
     def setModuleStates(self, states):
         self.moduleStates = states
