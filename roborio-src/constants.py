@@ -31,6 +31,7 @@ kDutyCycleDriveV = 0.00916
 kDutyCycleDriveS = 0.01125
 kVoltageDriveV = 0.11
 kVoltageDriveS = 0.135
+kVoltageDriveP = 0.25
 
 # Swerve Drive Motor/Encoder IDs
 kFrontLeftDriveID = 11
@@ -119,7 +120,7 @@ kDriveBaseRadius = math.sqrt(
 )
 
 # Swerve Drive Performance
-kMaxMetersPerSecond = feetToMeters(13)  # max fps for L1=13.5, L2=16.3, L3=18
+kMaxMetersPerSecond = feetToMeters(13.5)  # max fps for L1=13.5, L2=16.3, L3=18
 kMaxChassisRadiansPerSec = 2 * math.tau  # revolutions per sec * tau
 
 # Swerve Drive Trajectory Constraints

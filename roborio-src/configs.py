@@ -23,7 +23,10 @@ driveDutyCycleGains = (
     .with_k_v(constants.kDutyCycleDriveV)
 )
 driveVoltageGains = (
-    Slot1Configs().with_k_s(constants.kVoltageDriveS).with_k_v(constants.kVoltageDriveV)
+    Slot1Configs()
+    .with_k_s(constants.kVoltageDriveS)
+    .with_k_v(constants.kVoltageDriveV)
+    .with_k_p(constants.kVoltageDriveP)
 )
 
 
