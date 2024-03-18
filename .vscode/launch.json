@@ -5,6 +5,7 @@
     "version": "0.2.0",
 
     "configurations": [
+
         
 
         {
@@ -30,7 +31,7 @@
             "request": "launch",
             "module": "robotpy",
             "cwd": "${workspaceFolder}/roborio-src",
-            "args": ["deploy", "--skip-tests"],
+            "args": ["deploy", "--skip-tests", "--no-install"],
             "console": "integratedTerminal"
         },
         {
