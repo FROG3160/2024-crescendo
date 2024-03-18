@@ -73,6 +73,7 @@ class SwerveModule:
         self.encoder = FROGCanCoder(cancoder_id, cancoder_config)
 
         self.drive.get_velocity().set_update_frequency(50)
+        self.drive.get_motor_voltage().set_update_frequency(50)
         self.steer.get_position().set_update_frequency(50)
         self.encoder.get_absolute_position().set_update_frequency(50)
         self.drive.optimize_bus_utilization()
