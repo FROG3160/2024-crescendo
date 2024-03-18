@@ -24,7 +24,7 @@ def loadShooterCommand(
         .withName("RunSequencer")
         .deadlineWith(intake.transferCommand())
         .andThen(shooter.homeNoteCommand())
-    ).beforeStarting(elevation.homeShooterCommand)
+    ).beforeStarting(elevation.moveToLoadPosition)
 
 
 class IntakeAndLoad(SequentialCommandGroup):
