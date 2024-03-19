@@ -71,8 +71,11 @@ class ElevationSubsystem(Subsystem):
         return self.leadscrew.get_position().value
 
     def calcPositionForSpeaker(self):
-        calculatedPosition = self.tagDistance * 3.9877 - 6.3804
-        return clamp(calculatedPosition, 0, 8)
+        # calculatedPosition = self.tagDistance * 3.9877 - 6.3804
+        calculatedPosition = (
+            (self.tagDistance**2 * -1.4822) + (self.tagDistance * 13.764) - 15.187
+        )
+        return clamp(calculatedPosition, 1, 17)
 
     def homeShooterCommand(self) -> Command:
         return (
