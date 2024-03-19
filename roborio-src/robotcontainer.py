@@ -216,7 +216,7 @@ class RobotContainer:
             ).withName("Straight Run Test")
         )
 
-        self.driverController.leftStick().whileTrue(
+        self.driverController.leftBumper().whileTrue(
             ManualRobotOrientedDrive(self.driverController, self.driveSubsystem)
         )
 
