@@ -16,7 +16,7 @@ from subsystems.elevation import ElevationSubsystem
 
 
 def loadShooterCommand(
-    shooter: ShooterSubsystem, intake: IntakeSubsystem
+    shooter: ShooterSubsystem, intake: IntakeSubsystem, elevation: ElevationSubsystem
 ) -> StartEndCommand:
     return (
         StartEndCommand(shooter.loadWithSequencer, shooter.stopSequencer, shooter)
@@ -24,7 +24,7 @@ def loadShooterCommand(
         .withName("RunSequencer")
         .deadlineWith(intake.transferCommand())
         .andThen(shooter.homeNoteCommand())
-    )
+    ).beforeStarting(elevation.moveToLoadPositionCommand())
 
 
 class IntakeAndLoad(SequentialCommandGroup):

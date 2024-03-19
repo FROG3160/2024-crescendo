@@ -47,7 +47,6 @@ from commands.drive.robot_oriented import (
     ManualRobotOrientedDrive,
 )
 
-
 class RobotContainer:
     """
     This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -219,7 +218,6 @@ class RobotContainer:
         #         self.elevationSubsystem.setLeadscrewCommand()
         #     )
         # )
-
         self.intakeSubsystem.getTargetInRangeTrigger().onTrue(
             IntakeAndLoad(
                 self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
