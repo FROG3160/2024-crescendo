@@ -127,6 +127,12 @@ class ShooterSubsystem(Subsystem):
         else:
             return False
 
+    def leftFlywheelActualSpeed(self):
+        return self.leftFlyWheel.get_velocity().value
+
+    def rightFlywheelActualSpeed(self):
+        return self.rightFlyWheel.get_velocity().value
+
     def controlSequencer(self, percent):
         self.sequencerCommandedPercent = percent
         self.sequencer.set(
@@ -196,6 +202,10 @@ class ShooterSubsystem(Subsystem):
     def publishOnSmartDashboard(self):
         SmartDashboard.putBoolean("Note in Shooter", self.noteInShooter())
         SmartDashboard.putBoolean("Flywheel At Speed", self.flywheelAtSpeed())
+        SmartDashboard.putNumber("Left Flywheel Speed", self.leftFlywheelActualSpeed())
+        SmartDashboard.putNumber(
+            "Right Flywheel Speed", self.rightFlywheelActualSpeed()
+        )
 
     def logTelemetry(self):
         self.leftFlyWheel.logData()
