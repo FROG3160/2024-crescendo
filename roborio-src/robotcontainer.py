@@ -37,7 +37,7 @@ from subsystems.intake import IntakeSubsystem
 from subsystems.shooter import ShooterSubsystem
 from subsystems.climber import ClimberSubsystem
 from subsystems.elevation import ElevationSubsystem
-from commands.drive.field_oriented import ManualDrive
+from commands.drive.field_oriented import ManualDrive, AutoRotateDrive
 from commands.drive.robot_oriented import DriveToTarget
 from commands.shooter.load import IntakeAndLoad, loadShooterCommand
 from commands.shooter.fire import Fire
@@ -46,6 +46,7 @@ from commands.drive.robot_oriented import (
     ThrottledDriveToTarget,
     ManualRobotOrientedDrive,
 )
+
 
 class RobotContainer:
     """
@@ -156,8 +157,12 @@ class RobotContainer:
 
         """DRIVER CONTROLS"""
 
-        self.driverController.a().onTrue(
-            self.elevationSubsystem.autoMoveRunWithDistanceCommand()
+        self.driverController.a().whileTrue(
+            self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand().andThen(
+                AutoRotateDrive(self.driverController, self.driveSubsystem).alongWith(
+                    self.elevationSubsystem.autoMoveRunWithDistanceCommand()
+                )
+            )
         )
         self.driverController.b().whileTrue(
             ThrottledDriveToTarget(
@@ -172,7 +177,48 @@ class RobotContainer:
         self.driverController.leftTrigger().onTrue(
             Fire(self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem)
         )
+
         # self.driverController.start().onTrue(self.driveSubsystem.resetGyroCommand())
+
+        self.driverController.povRight().whileTrue(
+            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Amp Approach"))
+            .withName("Approach Amp Red")
+            .alongWith(self.elevationSubsystem.moveToAmpPositionCommand())
+            .andThen(self.shooterSubsystem.setFlywheelSpeedForAmpCommand())
+            .andThen(
+                Fire(
+                    self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
+                )
+            )
+        )
+        self.driverController.povLeft().whileTrue(
+            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Amp Approach"))
+            .withName("Approach Amp Blue")
+            .alongWith(self.elevationSubsystem.moveToAmpPositionCommand())
+            .andThen(self.shooterSubsystem.setFlywheelSpeedForAmpCommand())
+            .andThen(
+                Fire(
+                    self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
+                )
+            )
+        )
+
+        self.driverController.povUp().whileTrue(
+            DeferredCommand(lambda: self.driveSubsystem.driveToStageCommand())
+            # AutoBuilder.followPath(
+            #     PathPlannerPath.fromPathFile("Amp Side Stage Approach")
+            # ).withName("Approach Stage Amp Side")
+        )
+
+        self.driverController.povDown().whileTrue(
+            AutoBuilder.followPath(
+                PathPlannerPath.fromPathFile("Straight Run")
+            ).withName("Straight Run Test")
+        )
+
+        self.driverController.leftStick().whileTrue(
+            ManualRobotOrientedDrive(self.driverController, self.driveSubsystem)
+        )
 
         """OPERATOR CONTROLS"""
 
@@ -193,7 +239,9 @@ class RobotContainer:
 
         self.operatorController.a().onTrue(self.intakeSubsystem.intakeCommand())
         self.operatorController.b().onTrue(
-            loadShooterCommand(self.shooterSubsystem, self.intakeSubsystem)
+            loadShooterCommand(
+                self.shooterSubsystem, self.intakeSubsystem, self.elevationSubsystem
+            )
         )
         self.operatorController.x().onTrue(self.intakeSubsystem.stopIntakeCommand())
         self.operatorController.y().onTrue(
@@ -222,34 +270,6 @@ class RobotContainer:
             IntakeAndLoad(
                 self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
             )
-        )
-
-        self.driverController.povRight().whileTrue(
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Amp Approach"))
-            .withName("Approach Amp Red")
-            .alongWith(self.elevationSubsystem.moveToAmpPositionCommand())
-        )
-        self.driverController.povLeft().whileTrue(
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Amp Approach"))
-            .withName("Approach Amp Blue")
-            .alongWith(self.elevationSubsystem.moveToAmpPositionCommand())
-        )
-
-        self.driverController.povUp().whileTrue(
-            DeferredCommand(lambda: self.driveSubsystem.driveToStageCommand())
-            # AutoBuilder.followPath(
-            #     PathPlannerPath.fromPathFile("Amp Side Stage Approach")
-            # ).withName("Approach Stage Amp Side")
-        )
-
-        self.driverController.povDown().whileTrue(
-            AutoBuilder.followPath(
-                PathPlannerPath.fromPathFile("Straight Run")
-            ).withName("Straight Run Test")
-        )
-
-        self.driverController.leftStick().whileTrue(
-            ManualRobotOrientedDrive(self.driverController, self.driveSubsystem)
         )
 
         # # Grab the hatch when the Circle button is pressed.

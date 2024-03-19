@@ -54,7 +54,9 @@ class ThrottledDriveToTarget(Command):
         drive_controller: FROGXboxDriver,
         table: str = "Undefined",
     ) -> None:
-        """Allows robot to drive in a robot oriented towards the target
+        """Moves the robot using robot-oriented speeds.  The speed forward is controlled
+        by the left Y axis and trigger, rotation to the target is calculated from the vision
+        system.
 
         Args:
             drive (DriveTrain): The drive to control.
@@ -81,7 +83,10 @@ class ThrottledDriveToTarget(Command):
 
     def execute(self):
         visionChassisSpeeds = self.targeting.getChassisSpeeds()
-        controllerVx = self.controller.getFieldThrottle()
+        controllerVx = (
+            self.controller.getSlewLimitedFieldForward()
+            * self.controller.getFieldThrottle()
+        )
 
         self.drive.robotOrientedDrive(
             controllerVx * self.drive.max_speed, 0, visionChassisSpeeds.omega
@@ -107,6 +112,43 @@ class ManualRobotOrientedDrive(Command):
         self.addRequirements(self.drive)
 
     def execute(self) -> None:
+        throttle = self.controller.getFieldThrottle()
+        max_speed = self.drive.max_speed
+
+        self.drive.robotOrientedDrive(
+            # self._vX, self._vY, self._vT, self._throttle
+            self.controller.getSlewLimitedFieldForward() * max_speed * throttle,
+            self.controller.getSlewLimitedFieldLeft() * max_speed * throttle,
+            self.controller.getSlewLimitedFieldRotation()
+            * self.drive.max_rotation_speed
+            * throttle,
+        )
+
+
+class FindTargetAndDrive(Command):
+    def __init__(
+        self, controller: FROGXboxDriver, drive: DriveTrain, table: str = "Undefined"
+    ) -> None:
+        """Rotates to find a target and drives to it.
+
+        Args:
+            controller (FROGXboxDriver): The controller used to control the drive.
+            drive (DriveTrain): The drive to be controlled.
+            table (str): The name of the network table telemetry data will go into
+        """
+        self.controller = controller
+        self.drive = drive
+        self.addRequirements(self.drive)
+
+    def execute(self) -> None:
+        # set rotation to what is seen with the targeting system,
+        # or if no target is found rotate toward the amp side.
+        # might also want to make this rotate the other direction if
+        # on the source side.
+        if self.drive.onRedAlliance():
+            vT = -0.25
+        else:
+            vT = 0.25
         throttle = self.controller.getFieldThrottle()
         max_speed = self.drive.max_speed
 
