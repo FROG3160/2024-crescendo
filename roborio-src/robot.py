@@ -75,6 +75,8 @@ class MyRobot(commands2.TimedCommandRobot):
         # )
 
         self.container.driveSubsystem.enable()
+        if self.container.shooterSubsystem.noteInShooter():
+            self.container.intakeSubsystem.disallowIntake()
         if self.autonomousCommand:
             self.container.elevationSubsystem.homeShooterCommand().andThen(
                 self.autonomousCommand
@@ -99,6 +101,8 @@ class MyRobot(commands2.TimedCommandRobot):
         # start logging DS and joystick data
         DriverStation.startDataLog(DataLogManager.getLog())
 
+        if self.container.shooterSubsystem.notInShooter():
+            self.container.intakeSubsystem.disallowIntake()
         if self.autonomousCommand:
             self.autonomousCommand.cancel()
         self.container.driveSubsystem.enable()

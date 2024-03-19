@@ -192,12 +192,11 @@ class RobotContainer:
         #         self.elevationSubsystem.setLeadscrewCommand()
         #     )
         # )
-        if not self.shooterSubsystem.noteInShooter():
-            self.intakeSubsystem.getTargetInRangeTrigger().onTrue(
-                IntakeAndLoad(
-                    self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
-                )
+        self.intakeSubsystem.getTargetInRangeTrigger().onTrue(
+            IntakeAndLoad(
+                self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
             )
+        )
 
         # # Grab the hatch when the Circle button is pressed.
         # self.driverController.circle().onTrue(self.hatchSubsystem.grabHatch())
