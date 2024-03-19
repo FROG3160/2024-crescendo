@@ -159,11 +159,14 @@ class RobotContainer:
 
         self.driverController.a().whileTrue(
             self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand().andThen(
-                AutoRotateDrive(self.driverController, self.driveSubsystem).alongWith(
-                    self.elevationSubsystem.autoMoveRunWithDistanceCommand()
+                self.elevationSubsystem.autoMoveRunWithDistanceCommand()
+                .onlyWhile(self.shooterSubsystem.noteInShooter)
+                .deadlineWith(
+                    AutoRotateDrive(self.driverController, self.driveSubsystem)
                 )
             )
         )
+
         self.driverController.b().whileTrue(
             ThrottledDriveToTarget(
                 self.driveSubsystem, self.targetingSubsystem, self.driverController
