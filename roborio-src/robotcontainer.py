@@ -91,11 +91,11 @@ class RobotContainer:
         )
 
         # Keep elevation at home/load, when it's not doing anything else
-        self.elevationSubsystem.setDefaultCommand(
-            self.elevationSubsystem.moveToLoadPositionCommand().withName(
-                "Moving to load position."
-            )
-        )
+        # self.elevationSubsystem.setDefaultCommand(
+        #     self.elevationSubsystem.moveToLoadPositionCommand().withName(
+        #         "Moving to load position."
+        #     )
+        # )
 
         # Chooser
         self.chooser = wpilib.SendableChooser()
@@ -104,7 +104,6 @@ class RobotContainer:
         for autoFile in os.listdir(autosPath):
             autoName = autoFile.split(".")[0]
             ppAuto = PathPlannerAuto(autoName)
-            wpilib.SmartDashboard.putData(f"autos/{autoName}", ppAuto)
             self.chooser.addOption(autoName, ppAuto)
 
         # Add commands to the autonomous command chooser
