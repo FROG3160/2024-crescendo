@@ -86,8 +86,18 @@ class ShooterSubsystem(Subsystem):
     def setFlywheelSpeed(self, flywheelSpeed: float):
         self.flyWheelSpeed = flywheelSpeed
 
+    def setFlywheelSpeedForAmpCommand(self) -> Command:
+        return self.runOnce(lambda: self.setFlywheelSpeed(20)).withName(
+            "Set Flywheel Speed for Amp"
+        )
+
+    def setFlywheelSpeedForSpeakerCommand(self) -> Command:
+        return self.runOnce(lambda: self.setFlywheelSpeed(100)).withName(
+            "Set Flywheel Speed for Speaker"
+        )
+
     def runFlywheels(self):
-        self.flyWheelSpeed = SmartDashboard.getNumber("Flywheel Speed", 0)
+        # self.flyWheelSpeed = SmartDashboard.getNumber("Flywheel Speed", 0)
         self.leftFlyWheel.set_control(
             VelocityVoltage(
                 velocity=self.flyWheelSpeed * self.leftFlyWheelSpeedFactor, slot=0
@@ -196,7 +206,7 @@ class ShooterSubsystem(Subsystem):
         return not self.shooterSensor.get()
 
     def periodic(self) -> None:
-        # self.logTelemetry()
+        self.logTelemetry()
         self.publishOnSmartDashboard()
 
     def publishOnSmartDashboard(self):
@@ -208,9 +218,9 @@ class ShooterSubsystem(Subsystem):
         )
 
     def logTelemetry(self):
-        self.leftFlyWheel.logData()
-        self.rightFlyWheel.logData()
-        self.sequencer.logData()
+        # self.leftFlyWheel.logData()
+        # self.rightFlyWheel.logData()
+        # self.sequencer.logData()
         self._flywheelCommandedVelocity.set(self.flyWheelSpeed)
         self._sequencerCommandedPercent.set(self.sequencerCommandedPercent)
         self._shooterSensorCurrentState.set(self.noteInShooter())
