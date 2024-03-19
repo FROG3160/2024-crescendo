@@ -104,7 +104,7 @@ class MyRobot(commands2.TimedCommandRobot):
         # start logging DS and joystick data
         DriverStation.startDataLog(DataLogManager.getLog())
 
-        if self.container.shooterSubsystem.notInShooter():
+        if self.container.shooterSubsystem.noteInShooter():
             self.container.intakeSubsystem.disallowIntake()
         if self.autonomousCommand:
             self.autonomousCommand.cancel()
