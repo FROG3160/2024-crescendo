@@ -24,6 +24,7 @@ from phoenix6.signals.spn_enums import NeutralModeValue, InvertedValue
 from ntcore import NetworkTableInstance
 from wpilib import DigitalInput, SmartDashboard
 from commands2.cmd import waitSeconds, waitUntil
+from commands2.button import Trigger
 
 
 class ShooterSubsystem(Subsystem):
@@ -204,6 +205,9 @@ class ShooterSubsystem(Subsystem):
 
     def noteInShooter(self) -> bool:
         return not self.shooterSensor.get()
+
+    def hasNote(self):
+        return Trigger(lambda: self.noteInShooter())
 
     def periodic(self) -> None:
         self.logTelemetry()

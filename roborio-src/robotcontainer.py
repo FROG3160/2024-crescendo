@@ -157,11 +157,9 @@ class RobotContainer:
 
         """DRIVER CONTROLS"""
 
-        self.driverController.a().whileTrue(
+        self.driverController.a().and_(self.shooterSubsystem.hasNote()).whileTrue(
             self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand().andThen(
-                self.elevationSubsystem.autoMoveRunWithDistanceCommand()
-                .onlyWhile(self.shooterSubsystem.noteInShooter)
-                .deadlineWith(
+                self.elevationSubsystem.autoMoveRunWithDistanceCommand().alongWith(
                     AutoRotateDrive(self.driverController, self.driveSubsystem)
                 )
             )
@@ -269,7 +267,7 @@ class RobotContainer:
         #         self.elevationSubsystem.setLeadscrewCommand()
         #     )
         # )
-        self.intakeSubsystem.getTargetInRangeTrigger().onTrue(
+        self.intakeSubsystem.getTargetInRangeTrigger().not_().onTrue(
             IntakeAndLoad(
                 self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
             )
