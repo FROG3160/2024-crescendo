@@ -185,7 +185,7 @@ class SwerveChassis(Subsystem):
         gyro: FROGGyro,
         max_speed: float,
         max_rotation_speed: float,
-        parent_nt: str = "Subsystem",
+        parent_nt: str = "Subsystems",
     ):
         super().__init__()
         self.setName("SwerveChassis")
