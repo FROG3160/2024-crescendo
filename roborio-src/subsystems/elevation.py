@@ -35,7 +35,7 @@ class ElevationSubsystem(Subsystem):
 
     def __init__(self, parent_nt: str = "Subsystems"):
         super().__init__()
-        self.setName("Climber")
+        self.setName("Elevation")
         nt_table = f"{parent_nt}/{self.getName()}"
 
         self.leadscrew = FROGTalonFX(
@@ -64,8 +64,9 @@ class ElevationSubsystem(Subsystem):
             .getBooleanTopic(f"{nt_table}/AtPosition")
             .publish()
         )
-        self.tagDistance = None
+        self.speakerDistance = None
         self.state = self.State.Disabled
+        SmartDashboard.putNumber("Elevation Position Override", 0)
 
     def getCurrentLeadscrewPosition(self) -> float:
         return self.leadscrew.get_position().value
@@ -73,7 +74,9 @@ class ElevationSubsystem(Subsystem):
     def calcPositionForSpeaker(self):
         # calculatedPosition = self.tagDistance * 3.9877 - 6.3804
         calculatedPosition = (
-            (self.tagDistance**2 * -1.4822) + (self.tagDistance * 13.764) - 15.187
+            (self.speakerDistance**2 * -1.4822)
+            + (self.speakerDistance * 13.764)
+            - 15.187
         )
         return clamp(calculatedPosition, 1, 17)
 
@@ -101,6 +104,9 @@ class ElevationSubsystem(Subsystem):
             return False
 
     def runMotorWithControl(self):
+        positionOverride = SmartDashboard.getNumber("Elevation Position Override", 0)
+        if positionOverride > 0:
+            self.leadscrewPosition = positionOverride
         self.leadscrew.set_control(
             MotionMagicVoltage(position=self.leadscrewPosition, slot=1)
         )
@@ -164,8 +170,8 @@ class ElevationSubsystem(Subsystem):
     def setLeadscrewPosition(self, leadscrewPosition: float):
         self.leadscrewPosition = leadscrewPosition
 
-    def setTagDistance(self, distance):
-        self.tagDistance = distance
+    def setSpeakerDistance(self, distance):
+        self.speakerDistance = distance
 
     def shooterAtHome(self) -> bool:
         self.shooterPositionSensorNotTripped = self.shooterPositionSensor.get()
