@@ -109,13 +109,18 @@ class IntakeSubsystem(Subsystem):
     def stopIntakeCommand(self) -> Command:
         # used to kill the intake outside normal operations
         return self.runOnce(self.stopIntake).withName("StopIntake")
+    
+    def reverseIntake(self, interrupted) -> None:
+        # used to reverse intake if note undetected after a set amount of seconds
+        if interrupted:
+            self.controlIntake(-kRollerVoltage)
 
     def transferCommand(self) -> Command:
         # return a command that starts the transferMotor
         # and then waits for noteDetected() goes True
         return self.startEnd(self.runTransfer, self.stopTransfer).withName(
             "RunTransfer"
-        )
+        ).withTimeout(4).finallyDo(lambda interrupted: self.reverseIntake(interrupted))
 
     def stopTransferCommand(self) -> Command:
         # used to kill the transfer motor outside normal operations
