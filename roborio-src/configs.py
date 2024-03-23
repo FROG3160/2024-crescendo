@@ -27,6 +27,7 @@ driveVoltageGains = (
     .with_k_s(constants.kVoltageDriveS)
     .with_k_v(constants.kVoltageDriveV)
     .with_k_p(constants.kVoltageDriveP)
+    .with_k_a(constants.kVoltageDriveA)
 )
 
 

@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.6875963867401176,
-      "y": 6.670401393150747
+      "x": 0.7131128260016878,
+      "y": 6.757983594354648
     },
     "rotation": 60.0
   },
@@ -20,7 +20,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Speaker (Amp side) Out"
+            "pathName": "Speaker (Amp side) Out to Amp Note"
           }
         }
       ]
