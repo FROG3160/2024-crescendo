@@ -46,6 +46,7 @@ from commands.drive.robot_oriented import (
     DriveToTarget,
     ThrottledDriveToTarget,
     ManualRobotOrientedDrive,
+    FindTargetAndDrive,
 )
 
 
@@ -263,8 +264,28 @@ class RobotContainer:
                 commands2.InterruptionBehavior.kCancelIncoming
             )
         )
-
-        """OTHER TRIGGERS"""
+        self.operatorController.povDown().whileTrue(
+            FindTargetAndDrive(
+                self.operatorController, self.targetingSubsystem, self.driveSubsystem
+            )
+        )
+        # self.operatorController.a().onTrue(
+        #     runOnce(
+        #         lambda: self.elevationSubsystem.setLeadscrewPosition(
+        #             wpilib.SmartDashboard.getNumber("Shooter Pos", 0)
+        #         )
+        #     ).andThen(self.elevationSubsystem.setLeadscrewCommand())
+        # )
+        # self.operatorController.b().onTrue(
+        #     runOnce(lambda: self.elevationSubsystem.setLeadscrewPosition(8.5)).andThen(
+        #         self.elevationSubsystem.setLeadscrewCommand()
+        #     )
+        # )
+        # self.operatorController.x().onTrue(
+        #     runOnce(lambda: self.elevationSubsystem.setLeadscrewPosition(0)).andThen(
+        #         self.elevationSubsystem.setLeadscrewCommand()
+        #     )
+        # )
         self.intakeSubsystem.getTargetInRangeTrigger().not_().onTrue(
             IntakeAndLoad(
                 self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem

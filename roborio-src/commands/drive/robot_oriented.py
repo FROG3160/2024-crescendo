@@ -127,7 +127,11 @@ class ManualRobotOrientedDrive(Command):
 
 class FindTargetAndDrive(Command):
     def __init__(
-        self, controller: FROGXboxDriver, drive: DriveTrain, table: str = "Undefined"
+        self,
+        controller: FROGXboxDriver,
+        targeting: TargetingSubsystem,
+        drive: DriveTrain,
+        table: str = "Undefined",
     ) -> None:
         """Rotates to find a target and drives to it.
 
@@ -138,7 +142,24 @@ class FindTargetAndDrive(Command):
         """
         self.controller = controller
         self.drive = drive
+        self.targeting = targeting
         self.addRequirements(self.drive)
+        self.nt_table = f"{table}/{type(self).__name__}"
+        self._calculated_vX = (
+            NetworkTableInstance.getDefault()
+            .getFloatTopic(f"{self.nt_table}/calculated_vX")
+            .publish()
+        )
+        self._caluclated_vT = (
+            NetworkTableInstance.getDefault()
+            .getFloatTopic(f"{self.nt_table}/calculated_vT")
+            .publish()
+        )
+        self._hasSeenTarget = (
+            NetworkTableInstance.getDefault()
+            .getBooleanTopic(f"{self.nt_table}/hasSeenTarget")
+            .publish()
+        )
 
     def execute(self) -> None:
         # set rotation to what is seen with the targeting system,
@@ -149,14 +170,10 @@ class FindTargetAndDrive(Command):
             vT = -0.25
         else:
             vT = 0.25
-        throttle = self.controller.getFieldThrottle()
-        max_speed = self.drive.max_speed
-
-        self.drive.robotOrientedDrive(
-            # self._vX, self._vY, self._vT, self._throttle
-            self.controller.getSlewLimitedFieldForward() * max_speed * throttle,
-            self.controller.getSlewLimitedFieldLeft() * max_speed * throttle,
-            self.controller.getSlewLimitedFieldRotation()
-            * self.drive.max_rotation_speed
-            * throttle,
-        )
+        if self.targeting.hasSeenTarget():
+            self.drive.robotOrientedDrive(*self.targeting.getChassisSpeeds())
+        else:
+            self.drive.robotOrientedDrive(0, 0, vT)
+        self._calculated_vX = self.targeting.calculate_vx()
+        self._caluclated_vT = self.targeting.calculate_vt()
+        self._hasSeenTarget = self.targeting.hasSeenTarget()
