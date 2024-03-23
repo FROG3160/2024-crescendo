@@ -29,9 +29,10 @@ kSteerI = 0.200195
 kDriveFeedForward = 0.53
 kDutyCycleDriveV = 0.00916
 kDutyCycleDriveS = 0.01125
-kVoltageDriveV = 0.113
+kVoltageDriveV = 0.25
 kVoltageDriveS = 0.14
 kVoltageDriveP = 0.0
+kVoltageDriveA = 0.022
 
 # Swerve Drive Motor/Encoder IDs
 kFrontLeftDriveID = 11
