@@ -83,6 +83,9 @@ class ShooterSubsystem(Subsystem):
         self.sequencerCommandedPercent = 0.0
         self.leftFlyWheelSpeedFactor = 0.8
         self.rightFlyWheelSpeedFactor = 1.0
+        SmartDashboard.putNumber("Flywheel Speed Override", 0)
+        SmartDashboard.putNumber("Left Flywheel Speed Factor Override", 0)
+        SmartDashboard.putNumber("Right Flywheel Speed Factor Override", 0)
 
     def setFlywheelSpeed(self, flywheelSpeed: float):
         self.flyWheelSpeed = flywheelSpeed
@@ -99,6 +102,17 @@ class ShooterSubsystem(Subsystem):
 
     def runFlywheels(self):
         # self.flyWheelSpeed = SmartDashboard.getNumber("Flywheel Speed", 0)
+        speedOverride = SmartDashboard.getNumber("Flywheen Speed Override", 0)
+        leftFactor = SmartDashboard.getNumber("Left Flywheel Speed Factor Override", 0)
+        rightFactor = SmartDashboard.getNumber(
+            "Right Flywheel Speed Factor Override", 0
+        )
+        if speedOverride > 0:
+            self.flyWheelSpeed = speedOverride
+        if leftFactor != 0:
+            self.leftFlyWheelSpeedFactor = leftFactor
+        if rightFactor != 0:
+            self.rightFlyWheelSpeedFactor = rightFactor
         self.leftFlyWheel.set_control(
             VelocityVoltage(
                 velocity=self.flyWheelSpeed * self.leftFlyWheelSpeedFactor, slot=0
