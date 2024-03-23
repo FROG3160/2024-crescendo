@@ -52,6 +52,10 @@ class TargetingSubsystem(Subsystem):
         """Returns true if ta is more than 18"""
         return float(self.camera.ta or 0) > 18.0
 
+    def hasSeenTarget(self):
+        """Returns true if tv is 1 (there is a valid target)"""
+        return self.camera.hasObjectTarget()
+
     def calculate_vx(self):
         """Calculate X robot-oriented speed from the Y value of the target in the camera frame.
 

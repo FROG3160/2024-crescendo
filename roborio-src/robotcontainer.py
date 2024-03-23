@@ -45,6 +45,7 @@ from commands.drive.robot_oriented import (
     DriveToTarget,
     ThrottledDriveToTarget,
     ManualRobotOrientedDrive,
+    FindTargetAndDrive,
 )
 
 
@@ -248,6 +249,11 @@ class RobotContainer:
         self.operatorController.y().onTrue(
             self.elevationSubsystem.homeShooterCommand().withInterruptBehavior(
                 commands2.InterruptionBehavior.kCancelIncoming
+            )
+        )
+        self.operatorController.povDown().whileTrue(
+            FindTargetAndDrive(
+                self.operatorController, self.targetingSubsystem, self.driveSubsystem
             )
         )
         # self.operatorController.a().onTrue(
