@@ -7,6 +7,7 @@ import os
 import wpilib
 from wpilib.interfaces import GenericHID
 from wpimath.units import degreesToRadians
+from wpimath.geometry import Pose2d, Rotation2d
 
 import commands2
 import commands2.button
@@ -78,7 +79,7 @@ class RobotContainer:
         self.driveSubsystem = DriveTrain(
             self.positioningSubsystem, self.elevationSubsystem
         )
-        self.shooterSubsystem = ShooterSubsystem(self.intakeSubsystem)
+        self.shooterSubsystem = ShooterSubsystem()
 
         self.registerNamedCommands()
 
@@ -105,10 +106,6 @@ class RobotContainer:
             autoName = autoFile.split(".")[0]
             ppAuto = PathPlannerAuto(autoName)
             self.chooser.addOption(autoName, ppAuto)
-
-        # Add commands to the autonomous command chooser
-        # self.chooser.setDefaultOption("Simple Auto", self.simpleAuto)
-        # self.chooser.addOption("Complex Auto", self.complexAuto)
 
         # Put the chooser on the dashboard
         wpilib.SmartDashboard.putData("PathPlanner Autos", self.chooser)
@@ -147,6 +144,7 @@ class RobotContainer:
         NamedCommands.registerCommand(
             "Retract Arms", self.climberSubsystem.get_RetractCommand()
         )
+        NamedCommands.registerCommand("Auto Aim", self.autoAimCommand())
 
     def configureButtonBindings(self):
         """
@@ -158,11 +156,7 @@ class RobotContainer:
         """DRIVER CONTROLS"""
 
         self.driverController.a().and_(self.shooterSubsystem.hasNote()).whileTrue(
-            self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand().andThen(
-                self.elevationSubsystem.autoMoveRunWithDistanceCommand().alongWith(
-                    AutoRotateDrive(self.driverController, self.driveSubsystem)
-                )
-            )
+            self.autoAimCommand()
         )
 
         self.driverController.b().whileTrue(
@@ -179,8 +173,6 @@ class RobotContainer:
             Fire(self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem)
         )
 
-        # self.driverController.start().onTrue(self.driveSubsystem.resetGyroCommand())
-
         self.driverController.povRight().whileTrue(
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Amp Approach"))
             .withName("Approach Amp Red")
@@ -191,31 +183,52 @@ class RobotContainer:
                     self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
                 )
             )
+            .withName("FollowPath")
         )
         self.driverController.povLeft().whileTrue(
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Amp Approach"))
-            .withName("Approach Amp Blue")
-            .alongWith(self.elevationSubsystem.moveToAmpPositionCommand())
-            .andThen(self.shooterSubsystem.setFlywheelSpeedForAmpCommand())
-            .andThen(
-                Fire(
-                    self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
-                )
-            )
+            AutoBuilder.pathfindToPoseFlipped(
+                Pose2d(1.84, 7.72, Rotation2d().fromDegrees(-90)),
+                PathConstraints(
+                    2.0,
+                    2.0,
+                    constants.kMaxChassisRadiansPerSec,
+                    constants.kMaxChassisRadiansPerSec * 2,
+                ),
+                #     PathPlannerPath.fromPathFile("Amp Approach"))
+                # .withName("Approach Amp Blue")
+                # .alongWith(self.elevationSubsystem.moveToAmpPositionCommand())
+                # .andThen(self.shooterSubsystem.setFlywheelSpeedForAmpCommand())
+                # .andThen(
+                #     Fire(
+                #         self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
+                #     )
+                # )
+            ).withName("PathFindToPoseFlipped")
         )
 
         self.driverController.povUp().whileTrue(
+            # we use a "deffered command" so that driveToStageCommand can assess the robot's location
+            # at the time the command is run instead of when the key binding occurs.
             DeferredCommand(lambda: self.driveSubsystem.driveToStageCommand())
-            # AutoBuilder.followPath(
-            #     PathPlannerPath.fromPathFile("Amp Side Stage Approach")
-            # ).withName("Approach Stage Amp Side")
         )
 
         self.driverController.povDown().whileTrue(
-            AutoBuilder.followPath(
-                PathPlannerPath.fromPathFile("Straight Run")
-            ).withName("Straight Run Test")
+            # AutoBuilder.pathfindToPoseFlipped(
+            #     Pose2d(1.83, 7.60, Rotation2d().fromDegrees(-90)),
+            AutoBuilder.pathfindThenFollowPath(
+                PathPlannerPath.fromPathFile("Amp Approach"),
+                PathConstraints(
+                    2.0,
+                    3.0,
+                    constants.kMaxChassisRadiansPerSec,
+                    constants.kMaxChassisRadiansPerSec * 2,
+                ),
+            ).withName("PahtFindThenFollowPath")
         )
+
+        # followPath(
+        #     PathPlannerPath.fromPathFile("Straight Run")
+        # ).withName("Straight Run Test")
 
         self.driverController.leftBumper().whileTrue(
             ManualRobotOrientedDrive(self.driverController, self.driveSubsystem)
@@ -250,39 +263,20 @@ class RobotContainer:
                 commands2.InterruptionBehavior.kCancelIncoming
             )
         )
-        # self.operatorController.a().onTrue(
-        #     runOnce(
-        #         lambda: self.elevationSubsystem.setLeadscrewPosition(
-        #             wpilib.SmartDashboard.getNumber("Shooter Pos", 0)
-        #         )
-        #     ).andThen(self.elevationSubsystem.setLeadscrewCommand())
-        # )
-        # self.operatorController.b().onTrue(
-        #     runOnce(lambda: self.elevationSubsystem.setLeadscrewPosition(8.5)).andThen(
-        #         self.elevationSubsystem.setLeadscrewCommand()
-        #     )
-        # )
-        # self.operatorController.x().onTrue(
-        #     runOnce(lambda: self.elevationSubsystem.setLeadscrewPosition(0)).andThen(
-        #         self.elevationSubsystem.setLeadscrewCommand()
-        #     )
-        # )
+
+        """OTHER TRIGGERS"""
         self.intakeSubsystem.getTargetInRangeTrigger().not_().onTrue(
             IntakeAndLoad(
                 self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
             )
         )
 
-        # # Grab the hatch when the Circle button is pressed.
-        # self.driverController.circle().onTrue(self.hatchSubsystem.grabHatch())
-
-        # # Release the hatch when the Square button is pressed.
-        # self.driverController.square().onTrue(self.hatchSubsystem.releaseHatch())
-
-        # # While holding R1, drive at half speed
-        # self.driverController.R1().onTrue(
-        #     commands2.cmd.runOnce(lambda: self.driveSubsystem.setMaxOutput(0.5))
-        # ).onFalse(commands2.cmd.runOnce(lambda: self.driveSubsystem.setMaxOutput(1)))
-
     def getAutonomousCommand(self) -> commands2.Command:
         return self.chooser.getSelected()
+
+    def autoAimCommand(self):
+        return self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand().andThen(
+            self.elevationSubsystem.autoMoveRunWithDistanceCommand().alongWith(
+                AutoRotateDrive(self.driverController, self.driveSubsystem)
+            )
+        )
