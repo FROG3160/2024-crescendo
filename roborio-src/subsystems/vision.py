@@ -46,7 +46,10 @@ class TargetingSubsystem(Subsystem):
     def __init__(self):
         super().__init__()
         self.camera = FROGTargeting(kLimelightTargeting)
-        self.filter = MedianFilter(5)
+        self.filterVX = MedianFilter(9)  # MedianFilter(5)
+        self.filterVT = MedianFilter(
+            9
+        )  # Apparently have to create new filter objects for every input stream.
 
     def getTargetInRange(self):
         """Returns true if ta is more than 18"""
@@ -66,8 +69,16 @@ class TargetingSubsystem(Subsystem):
             Float: Velocity in the X direction (robot oriented)
         """
         if targetVertical := self.camera.ty:
-            return self.filter.calculate(
-                min(2.0, (0.020833 * (14.7 * math.exp(0.0753 * targetVertical))) * 2)
+            return min(
+                2.0,
+                (
+                    0.020833
+                    * (
+                        14.7
+                        * math.exp(0.0753 * self.filterVX.calculate(targetVertical))
+                    )
+                    * 2
+                ),
             )
         else:
             return 0
@@ -85,7 +96,7 @@ class TargetingSubsystem(Subsystem):
             Float: Rotational velocity with CCW (left, robot oriented) positive.
         """
         if targetX := self.camera.tx:
-            return -(targetX / 25)
+            return -(self.filterVT.calculate(targetX) / 25)
         else:
             return 0
 
