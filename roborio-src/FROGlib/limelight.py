@@ -82,7 +82,7 @@ class FROGPositioning:
         )
         self.nt_botpose_blue = self.network_table.getFloatArrayTopic(
             "botpose_wpiblue"
-        ).subscribe([-99, -99, -99, 0, 0, 0, -1])
+        ).subscribe([-99, -99, -99, 0, 0, 0, -1, 0, 0, 0, 0])
         self.nt_botpose_red = self.network_table.getFloatArrayTopic(
             "botpose_wpired"
         ).subscribe([-99, -99, -99, 0, 0, 0, -1])
@@ -148,7 +148,19 @@ class FROGPositioning:
         Returns:
             Tuple[Pose3d, Any]: Returns vision Pose3d and timestamp.
         """
-        pX, pY, pZ, pRoll, pPitch, pYaw, msLatency = poseArray
+        (
+            pX,
+            pY,
+            pZ,
+            pRoll,
+            pPitch,
+            pYaw,
+            msLatency,
+            tagCount,
+            tagSpan,
+            avgTagDistance,
+            averageTagArea,
+        ) = poseArray
         return Pose3d(
             Translation3d(pX, pY, pZ), Rotation3d.fromDegrees(pRoll, pPitch, pYaw)
         ), self.timer.getFPGATimestamp() - (msLatency / 1000)
