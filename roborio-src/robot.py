@@ -13,6 +13,7 @@ import commands2
 import constants
 import configs
 from commands2.cmd import runOnce
+from FROGlib.led import FROGLED
 from wpimath.geometry import Pose2d
 from wpilib import DataLogManager, DriverStation
 from wpilib import RobotController
@@ -58,6 +59,10 @@ class MyRobot(commands2.TimedCommandRobot):
         wpilib.SmartDashboard.putData("DriveTrain", self.container.driveSubsystem)
         wpilib.SmartDashboard.putData("Intake", self.container.intakeSubsystem)
         wpilib.SmartDashboard.putData("Elevation", self.container.elevationSubsystem)
+
+        self.led = FROGLED()
+        # ADD CAN ID
+        self.led.default()
 
     def disabledInit(self) -> None:
         """This function is called once each time the robot enters Disabled mode."""
