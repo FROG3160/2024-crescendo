@@ -115,7 +115,7 @@ class FROGPositioning:
 
     def getBotPoseEstimateBlue(self) -> Tuple[Pose3d, Any]:
         if self.nt_tv.get() > 0.0:
-            return (*self.arrayToBotPoseEstimate(self.nt_botpose_blue.get()),)
+            return (*self.arrayToBotPoseEstimate(self.nt_botpose_blue.get()[:7]),)
         else:
             return (None, -1)
 
@@ -156,10 +156,6 @@ class FROGPositioning:
             pPitch,
             pYaw,
             msLatency,
-            tagCount,
-            tagSpan,
-            avgTagDistance,
-            averageTagArea,
         ) = poseArray
         return Pose3d(
             Translation3d(pX, pY, pZ), Rotation3d.fromDegrees(pRoll, pPitch, pYaw)
