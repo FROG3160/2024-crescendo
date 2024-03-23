@@ -39,6 +39,10 @@ class FROGLED:
                 r, g, b, 0, speed, NUM_STRIP_LEDS, LarsonAnimation.BounceMode.Front, 7, NUM_CANDLE_LEDS
             )   
         )
+
+    def default(self):
+        self.larsonAnimation(0, 255, 0, 0.4)
+
     def yellow(self):
         self.candle.setLEDs(250, 129, 7)
 
