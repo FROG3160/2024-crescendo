@@ -91,12 +91,22 @@ class SwerveModule:
         nt_table = f"{parent_nt}/{self.name}"
         self._moduleSpeedPub = (
             NetworkTableInstance.getDefault()
-            .getFloatTopic(f"{nt_table}/speed")
+            .getFloatTopic(f"{nt_table}/commanded_speed")
             .publish()
         )
         self._moduleRotationPub = (
             NetworkTableInstance.getDefault()
-            .getFloatTopic(f"{nt_table}/angle")
+            .getFloatTopic(f"{nt_table}/commanded_angle")
+            .publish()
+        )
+        self._moduleVelocityPub = (
+            NetworkTableInstance.getDefault()
+            .getFloatTopic(f"{nt_table}/actual_velocity")
+            .publish()
+        )
+        self._modulePositionPub = (
+            NetworkTableInstance.getDefault()
+            .getFloatTopic(f"{nt_table}/actual_position")
             .publish()
         )
 
@@ -171,6 +181,9 @@ class SwerveModule:
                 )
             )
             self._moduleSpeedPub.set(self.commandedSpeed)
+
+            self._moduleVelocityPub.set(self.drive.get_velocity().value)
+            self._modulePositionPub.set(self.steer.get_position().value)
         else:
             # stop the drive motor, steer motor can stay where it is
             self.drive.set_control(VelocityVoltage(velocity=0, slot=1))
