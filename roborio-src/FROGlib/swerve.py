@@ -158,6 +158,10 @@ class SwerveModule:
 
     def setState(self, requested_state: SwerveModuleState):
         if self.enabled:
+            # log the current state of the motors before commanding them to a new value
+            self._moduleVelocityPub.set(self.drive.get_velocity().value)
+            self._modulePositionPub.set(self.steer.get_position().value)
+
             self.requestedState = SwerveModuleState.optimize(
                 requested_state, self.getCurrentSteerAzimuth()
             )
@@ -182,8 +186,6 @@ class SwerveModule:
             )
             self._moduleSpeedPub.set(self.commandedSpeed)
 
-            self._moduleVelocityPub.set(self.drive.get_velocity().value)
-            self._modulePositionPub.set(self.steer.get_position().value)
         else:
             # stop the drive motor, steer motor can stay where it is
             self.drive.set_control(VelocityVoltage(velocity=0, slot=1))
