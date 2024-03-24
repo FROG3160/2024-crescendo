@@ -158,7 +158,7 @@ class RobotContainer:
 
         self.driverController.a().and_(self.shooterSubsystem.hasNote()).whileTrue(
             self.autoAimCommand()
-        )
+        ).whileFalse(self.elevationSubsystem.moveToLoadPositionCommand())
 
         self.driverController.b().whileTrue(
             ThrottledDriveToTarget(
