@@ -127,6 +127,17 @@ class ShooterSubsystem(Subsystem):
     def runFlywheelsCommand(self) -> Command:
         return self.runOnce(self.runFlywheels).withName("RunFlywheels")
 
+    def ejectNote(self):
+        self.leftFlyWheel.set_control(
+            VelocityVoltage(velocity=self.flyWheelSpeed * 0.15, slot=0)
+        )
+        self.rightFlyWheel.set_control(
+            VelocityVoltage(velocity=self.flyWheelSpeed * 0.15, slot=0)
+        )
+
+    def ejectNoteCommand(self) -> Command:
+        return self.runOnce(self.ejectNote).withName("Eject Note")
+
     def stopFlywheels(self):
         self.leftFlyWheel.set_control(VelocityVoltage(velocity=0, slot=0))
         self.rightFlyWheel.set_control(VelocityVoltage(velocity=0, slot=0))
