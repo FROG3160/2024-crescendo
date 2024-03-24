@@ -60,7 +60,7 @@ class MyRobot(commands2.TimedCommandRobot):
         wpilib.SmartDashboard.putData("Intake", self.container.intakeSubsystem)
         wpilib.SmartDashboard.putData("Elevation", self.container.elevationSubsystem)
 
-        self.led = FROGLED()
+        self.led = FROGLED(9)
         # ADD CAN ID
         self.led.default()
 
