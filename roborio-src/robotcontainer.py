@@ -281,6 +281,9 @@ class RobotContainer:
                 self.operatorController, self.targetingSubsystem, self.driveSubsystem
             )
         )
+        self.operatorController.start().whileTrue(
+            self.intakeSubsystem.reverseIntakeCommand()
+        )# temporary mapping to test how well the command works
         # self.operatorController.a().onTrue(
         #     runOnce(
         #         lambda: self.elevationSubsystem.setLeadscrewPosition(

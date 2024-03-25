@@ -110,10 +110,13 @@ class IntakeSubsystem(Subsystem):
         # used to kill the intake outside normal operations
         return self.runOnce(self.stopIntake).withName("StopIntake")
 
-    def reverseIntake(self, interrupted) -> None:
-        # used to reverse intake if note undetected after a set amount of seconds
-        if interrupted:
-            self.controlIntake(-kRollerVoltage)
+    def reverseIntake(self) -> None:
+        # used to reverse intake
+        self.controlIntake(-kRollerVoltage)
+
+    def reverseIntakeCommand(self) -> Command:
+        # used to reverse intake motor outside normal operations
+        return self.runOnce(self.reverseIntake).withName("ReverseIntake")
 
     def transferCommand(self) -> Command:
         # return a command that starts the transferMotor
