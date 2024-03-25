@@ -1,8 +1,40 @@
+from functools import reduce
+from itertools import chain
 from typing import Tuple, Any
 
 import wpilib
 from ntcore import NetworkTableInstance
 from wpimath.geometry import Pose3d, Translation3d, Rotation3d, Transform3d
+from utils import partitionArray, arrayToPose3d
+
+
+class TagMetrics:
+    def __init__(self, tagData):
+        (
+            self.id,
+            self.txnc,
+            self.tync,
+            self.ta,
+            self.distanceToCamera,
+            self.distanceToRobot,
+            self.ambiguity,
+        ) = tagData
+
+
+class Result:
+    def __init__(self, array):
+        splitArray = partitionArray(array, [6, 1, 4, 7, 7, 7])
+        self.botPose = arrayToPose3d(splitArray[0])
+        self.latency = splitArray[1][0]
+        self.tagCount = splitArray[2][0]
+        self.tagSpan = splitArray[2][1]
+        self.avgTagDistance = splitArray[2][2]
+        self.avgTagArea = splitArray[2][3]
+        self.tagData = [
+            TagMetrics(splitArray[3]),
+            TagMetrics(splitArray[4]),
+            TagMetrics(splitArray[5]),
+        ]
 
 
 class FROGTargeting:
@@ -72,6 +104,9 @@ class FROGTargeting:
 
 class FROGPositioning:
     """FROG Custom class handling network tables data from limelight configured to use AprilTags"""
+
+    # For every tag used by megatag localization, the above arrays now include
+    # (tagID, txnc, tync, ta, distanceToCamera, distanceToRobot, ambiguity)
 
     def __init__(self, limelight_name: str = "limelight"):
         self.network_table = NetworkTableInstance.getDefault().getTable(
@@ -160,3 +195,13 @@ class FROGPositioning:
         return Pose3d(
             Translation3d(pX, pY, pZ), Rotation3d.fromDegrees(pRoll, pPitch, pYaw)
         ), self.timer.getFPGATimestamp() - (msLatency / 1000)
+
+
+testarray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+indices = [6, 7, 10, 14]
+relative_indexes = [6, 1, 4, 6, 6, 6]
+print(relative_indexes)
+
+from utils import partitionArray
+
+print(partitionArray(testarray, relative_indexes))

@@ -1,8 +1,10 @@
+from itertools import chain, islice
 import math
 from wpimath.geometry import (
     Transform3d,
     Translation3d,
     Rotation2d,
+    Rotation3d,
     Pose3d,
     Pose2d,
     Transform2d,
@@ -68,6 +70,27 @@ class RobotRelativeTarget:
         self.range = math.sqrt(self.fieldX**2 + self.fieldY**2 + self.fieldZ**2)
         self.elevation = Rotation2d(math.acos(self.distance / self.range))
         self.driveVT = self.firingHeading.degrees() / 90
+
+
+def partitionArray(array, indices):
+    """_summary_
+
+    Args:
+        array (list): the array of vaules
+        indices (list): a list of relative indexes.  e.g. [3, 2, 5] would return
+            a list with the array broken up into the first 3 elements, then the
+            next 2 elements, then 5 elements.
+    Returns:
+        list : a list of lists broken up by the given indices
+    """
+    i = iter(array)
+    return [list(islice(i, n)) for n in chain(indices, [None])]
+
+
+def arrayToPose3d(array):
+    return Pose3d(
+        array[0], array[1], array[2], Rotation3d(array[4], array[5], array[6])
+    )
 
 
 # from robotpy_apriltag import loadAprilTagLayoutField, AprilTagField
