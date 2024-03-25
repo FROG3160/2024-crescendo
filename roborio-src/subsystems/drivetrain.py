@@ -161,12 +161,13 @@ class DriveTrain(SwerveChassis):
             pathname
         )
 
-    def setFieldPosition(self, pose: Pose2d):
-        self.estimator.resetPosition(
-            self.gyro.getRotation2d(),
-            tuple(self.getModulePositions()),
-            pose,
-        )
+    def setFieldPositionFromVision(self):
+        self.resetPose(self.vision.getLatestPoseEstimate()[0].toPose2d())
+        # self.estimator.resetPosition(
+        #     self.gyro.getRotation2d(),
+        #     tuple(self.getModulePositions()),
+        #     pose,
+        # )
 
     # def resetGyroCommand(self) -> Command:
     #     return self.runOnce(self.gyro.resetGyro(self.onRedAlliance())
@@ -194,9 +195,13 @@ class DriveTrain(SwerveChassis):
         )
         visionPose, visionTimestamp = self.vision.getLatestPoseEstimate()
         if visionPose:
-            self.estimator.addVisionMeasurement(
-                visionPose.toPose2d(), visionTimestamp, (0.2, 0.2, math.pi / 8)
-            )
+            if (
+                abs(visionPose.x - self.estimatorPose.x) < 0.5
+                and abs(visionPose.y - self.estimatorPose.y) < 0.5
+            ):
+                self.estimator.addVisionMeasurement(
+                    visionPose.toPose2d(), visionTimestamp, (0.5, 0.5, math.pi / 8)
+                )
         self.field.setRobotPose(self.estimator.getEstimatedPosition())
         # SmartDashboard.putValue("Drive Pose", self.estimatorPose)
         # SmartDashboard.putData(

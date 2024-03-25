@@ -243,6 +243,10 @@ class RobotContainer:
             ManualRobotOrientedDrive(self.driverController, self.driveSubsystem)
         )
 
+        self.driverController.start().onTrue(
+            runOnce(lambda: self.driveSubsystem.setFieldPositionFromVision())
+        )
+
         """OPERATOR CONTROLS"""
 
         # Operator Controller Bindings
