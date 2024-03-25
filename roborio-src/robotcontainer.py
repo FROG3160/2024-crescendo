@@ -45,7 +45,7 @@ from commands.drive.field_oriented import (
 )
 from commands.drive.robot_oriented import DriveToTarget
 from commands.shooter.load import IntakeAndLoad, loadShooterCommand
-from commands.shooter.fire import Fire
+from commands.shooter.fire import Fire, Eject
 from commands.drive.robot_oriented import (
     DriveToTarget,
     ThrottledDriveToTarget,
@@ -280,6 +280,9 @@ class RobotContainer:
             FindTargetAndDrive(
                 self.operatorController, self.targetingSubsystem, self.driveSubsystem
             )
+        )
+        self.operatorController.leftTrigger().onTrue(
+            Eject(self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem)
         )
         # self.operatorController.a().onTrue(
         #     runOnce(

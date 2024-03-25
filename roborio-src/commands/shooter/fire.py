@@ -1,4 +1,9 @@
-from commands2 import SequentialCommandGroup, ParallelCommandGroup, StartEndCommand
+from commands2 import (
+    Command,
+    SequentialCommandGroup,
+    ParallelCommandGroup,
+    StartEndCommand,
+)
 from commands2.cmd import runOnce, startEnd, waitUntil, waitSeconds
 from subsystems.intake import IntakeSubsystem
 from subsystems.shooter import ShooterSubsystem
@@ -32,6 +37,32 @@ class Fire(SequentialCommandGroup):
 
     def readyToFire(self):
         return self.elevation.leadscrewAtPosition() and self.shooter.flywheelAtSpeed()
+
+
+class Eject(SequentialCommandGroup):
+
+    def __init__(
+        self,
+        intake: IntakeSubsystem,
+        shooter: ShooterSubsystem,
+        elevation: ElevationSubsystem,
+    ):
+        self.intake = intake
+        self.shooter = shooter
+        self.elevation = elevation
+
+        command_list = [
+            self.shooter.ejectNoteCommand(),
+            waitSeconds(0.5),
+            self.shooter.fireSequencerCommand(),
+            waitUntil(self.shooter.shooterSensor.get),
+            self.shooter.stopSequencerCommand(),
+            waitSeconds(0.5),
+            runOnce(self.intake.allowIntake, self.intake),
+            self.shooter.stopFlywheelsCommand(),
+            self.elevation.moveToLoadPositionCommand(),
+        ]
+        super().__init__(command_list)
 
 
 # self.runFlywheelsCommand()  # run the flywheel at the commanded speed
