@@ -202,20 +202,22 @@ class AutoRotateDriveTowardsAmpCorner(Command):
             .getFloatTopic(f"{self.nt_table}/calculated_vT")
             .publish()
         )
-
-    def execute(self) -> None:
         profiledRotationConstraints = TrapezoidProfileRadians.Constraints(
             constants.kProfiledMaxVelocity, constants.kProfiledMaxAccel
         )
-        driveRotation2d = self.drive.getRotation2d()
         self.profiledRotationController = ProfiledPIDControllerRadians(
             constants.kProfiledP,
             constants.kProfiledI,
             constants.kProfiledD,
             profiledRotationConstraints,
         )
-        self.current_x_pos = self.drive.getPose().x()
-        self.current_y_pos = self.drive.getPose().y()
+
+    def execute(self) -> None:
+
+        driveRotation2d = self.drive.getRotation2d()
+
+        self.current_x_pos = self.drive.getPose().x
+        self.current_y_pos = self.drive.getPose().y
         if self.drive.onRedAlliance():
             vT = self.profiledRotationController.calculate(
                 driveRotation2d.radians(),
