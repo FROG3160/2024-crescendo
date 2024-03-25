@@ -46,7 +46,10 @@ class TargetingSubsystem(Subsystem):
     def __init__(self):
         super().__init__()
         self.camera = FROGTargeting(kLimelightTargeting)
-        self.filter = MedianFilter(5)
+        self.filterVX = MedianFilter(9)  # MedianFilter(5)
+        self.filterVT = MedianFilter(
+            9
+        )  # Apparently have to create new filter objects for every input stream.
 
     def getTargetInRange(self):
         """Returns true if ta is more than 18"""
@@ -65,12 +68,14 @@ class TargetingSubsystem(Subsystem):
         Returns:
             Float: Velocity in the X direction (robot oriented)
         """
-        if targetVertical := self.camera.ty:
-            return self.filter.calculate(
-                min(2.0, (0.020833 * (14.7 * math.exp(0.0753 * targetVertical))) * 2)
-            )
+        if self.camera.tv == 0:
+            self.vx = 0
         else:
-            return 0
+            self.vx = min(
+                2.0,
+                (0.020833 * (14.7 * math.exp(0.0753 * self.camera.ty)) * 2),
+            )
+        return self.filterVX.calculate(self.vx)
 
     def calculate_vt(self):
         """Calculate the rotational speed from the X value of the target in the camera frame.
@@ -84,10 +89,11 @@ class TargetingSubsystem(Subsystem):
         Returns:
             Float: Rotational velocity with CCW (left, robot oriented) positive.
         """
-        if targetX := self.camera.tx:
-            return -(targetX / 25)
+        if self.camera.tv == 0:
+            self.vt = 0
         else:
-            return 0
+            self.vt = -(self.camera.tx / 25)
+        return self.filterVT.calculate(self.vt)
 
     def getChassisSpeeds(self):
         """Get calculated velocities from vision target data"""
