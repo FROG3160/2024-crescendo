@@ -1,0 +1,56 @@
+{
+  "version": 1.0,
+  "startingPose": null,
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Fire"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Simple Auto Pt.1"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 1.25
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake And Load"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Auto Aim"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Fire"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}
