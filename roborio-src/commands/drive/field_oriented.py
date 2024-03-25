@@ -177,3 +177,69 @@ class AutoRotateDrive(Command):
             vT,
             self.controller.getFieldThrottle(),
         )
+
+
+class AutoRotateDriveTowardsAmpCorner(Command):
+
+    def __init__(
+        self, controller: FROGXboxDriver, drive: DriveTrain, table: str = "Undefined"
+    ) -> None:
+        """Allows manual control of the lateral movement of the drivetrain through use of the specified
+        controller.  Rotation is calculated to rotate towards the amp corner of our alliance.
+
+        Args:
+            controller (FROGXboxDriver): The controller used to control the drive.
+            drive (DriveTrain): The drive to be controlled.
+            table (str): The name of the network table telemetry data will go into
+        """
+        self.controller = controller
+        self.drive = drive
+        self.addRequirements(self.drive)
+
+        self.nt_table = f"{table}/{type(self).__name__}"
+        self._calculated_vTPub = (
+            NetworkTableInstance.getDefault()
+            .getFloatTopic(f"{self.nt_table}/calculated_vT")
+            .publish()
+        )
+
+    def execute(self) -> None:
+        profiledRotationConstraints = TrapezoidProfileRadians.Constraints(
+            constants.kProfiledMaxVelocity, constants.kProfiledMaxAccel
+        )
+        driveRotation2d = self.drive.getRotation2d()
+        self.profiledRotationController = ProfiledPIDControllerRadians(
+            constants.kProfiledP,
+            constants.kProfiledI,
+            constants.kProfiledD,
+            profiledRotationConstraints,
+        )
+        self.current_x_pos = self.drive.getPose().x()
+        self.current_y_pos = self.drive.getPose().y()
+        if self.drive.onRedAlliance():
+            vT = self.profiledRotationController.calculate(
+                driveRotation2d.radians(),
+                math.atan2(8.21 - self.current_y_pos, 16.54 - self.current_x_pos)
+                - math.pi,
+            )
+        else:
+            vT = self.profiledRotationController.calculate(
+                driveRotation2d.radians(),
+                -math.atan2(8.21 - self.current_y_pos, self.current_x_pos),
+            )
+        self._calculated_vTPub.set(vT)
+
+        if self.drive.onRedAlliance():
+            vX = -self.controller.getSlewLimitedFieldForward()
+            vY = -self.controller.getSlewLimitedFieldLeft()
+        else:
+            vX = self.controller.getSlewLimitedFieldForward()
+            vY = self.controller.getSlewLimitedFieldLeft()
+
+        self.drive.fieldOrientedDrive(
+            # self._vX, self._vY, self._vT, self._throttle
+            vX,
+            vY,
+            vT,
+            self.controller.getFieldThrottle(),
+        )
