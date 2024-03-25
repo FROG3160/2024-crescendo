@@ -38,7 +38,11 @@ from subsystems.intake import IntakeSubsystem
 from subsystems.shooter import ShooterSubsystem
 from subsystems.climber import ClimberSubsystem
 from subsystems.elevation import ElevationSubsystem
-from commands.drive.field_oriented import ManualDrive, AutoRotateDrive
+from commands.drive.field_oriented import (
+    ManualDrive,
+    AutoRotateDrive,
+    AutoRotateDriveTowardsAmpCorner,
+)
 from commands.drive.robot_oriented import DriveToTarget
 from commands.shooter.load import IntakeAndLoad, loadShooterCommand
 from commands.shooter.fire import Fire
@@ -158,6 +162,10 @@ class RobotContainer:
 
         self.driverController.a().and_(self.shooterSubsystem.hasNote()).whileTrue(
             self.autoAimCommand()
+        ).whileFalse(self.elevationSubsystem.moveToLoadPositionCommand())
+
+        self.driverController.start().and_(self.shooterSubsystem.hasNote()).whileTrue(
+            self.autoAimTowardsAmpCommand()
         ).whileFalse(self.elevationSubsystem.moveToLoadPositionCommand())
 
         self.driverController.b().whileTrue(
@@ -299,5 +307,14 @@ class RobotContainer:
         return self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand().andThen(
             self.elevationSubsystem.autoMoveRunWithDistanceCommand().alongWith(
                 AutoRotateDrive(self.driverController, self.driveSubsystem)
+            )
+        )
+
+    def autoAimTowardsAmpCommand(self):
+        return self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand().andThen(
+            self.elevationSubsystem.moveToLoadPositionCommand().alongWith(
+                AutoRotateDriveTowardsAmpCorner(
+                    self.driverController, self.driveSubsystem
+                )
             )
         )
