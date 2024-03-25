@@ -167,9 +167,9 @@ class FindTargetAndDrive(Command):
         # might also want to make this rotate the other direction if
         # on the source side.
         if self.drive.onRedAlliance():
-            vT = -0.25
+            vT = -0.1 * constants.kMaxChassisRadiansPerSec
         else:
-            vT = 0.25
+            vT = 0.1 * constants.kMaxChassisRadiansPerSec
         if self.targeting.hasSeenTarget():
             self.drive.robotOrientedDrive(*self.targeting.getChassisSpeeds())
         else:
