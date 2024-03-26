@@ -28,9 +28,11 @@ from subsystems.vision import PositioningSubsystem
 from subsystems.elevation import ElevationSubsystem
 from wpilib import SmartDashboard
 from commands2 import Subsystem, Command
-from FROGlib.utils import RobotRelativeTarget
+from FROGlib.utils import RobotRelativeTarget, remap
 import constants
 from wpimath.units import degreesToRadians
+from wpimath.controller import ProfiledPIDControllerRadians
+from wpimath.trajectory import TrapezoidProfileRadians
 
 
 class DriveTrain(SwerveChassis):
@@ -58,6 +60,7 @@ class DriveTrain(SwerveChassis):
             max_rotation_speed=kMaxChassisRadiansPerSec,
             parent_nt=parent_nt,
         )
+        self.resetController = True
         # We need data from the vision system
         self.vision = vision
         # We need to send data to the elevation system
@@ -65,6 +68,16 @@ class DriveTrain(SwerveChassis):
         self.fieldLayout = loadAprilTagLayoutField(AprilTagField.k2024Crescendo)
 
         self.estimatorPose = Pose2d(0, 0, Rotation2d(0))
+
+        self.profiledRotationConstraints = TrapezoidProfileRadians.Constraints(
+            constants.kProfiledMaxVelocity, constants.kProfiledMaxAccel
+        )
+        self.profiledRotationController = ProfiledPIDControllerRadians(
+            constants.kProfiledP,
+            constants.kProfiledI,
+            constants.kProfiledD,
+            self.profiledRotationConstraints,
+        )
 
         # Configure the AutoBuilder last
         AutoBuilder.configureHolonomic(
@@ -161,8 +174,20 @@ class DriveTrain(SwerveChassis):
             pathname
         )
 
+    def resetRotationController(self):
+        self.profiledRotationController.reset(
+            self.getRotation2d().radians(),
+            self.gyro.getRadiansPerSecCCW(),
+        )
+
+    def enableResetController(self):
+        self.resetController = True
+
+    def resetRotationControllerCommand(self):
+        return self.runOnce(self.enableResetController)
+
     def setFieldPositionFromVision(self):
-        self.resetPose(self.vision.getLatestPoseEstimate()[0].toPose2d())
+        self.resetPose(self.vision.getLatestData().botPose.toPose2d())
         # self.estimator.resetPosition(
         #     self.gyro.getRotation2d(),
         #     tuple(self.getModulePositions()),
@@ -174,34 +199,55 @@ class DriveTrain(SwerveChassis):
 
     def calculateRobotRelativeTargets(self):
         speakerPose = self.fieldLayout.getTagPose(self.getSpeakerTagNum())
-        self.robotToSpeaker = RobotRelativeTarget(
-            self.estimatorPose, speakerPose, not self.onRedAlliance()
-        )
+        self.robotToSpeaker = RobotRelativeTarget(self.estimatorPose, speakerPose)
         ampPose = self.fieldLayout.getTagPose(self.getAmpTagNum())
-        self.robotToAmp = RobotRelativeTarget(
-            self.estimatorPose, ampPose, not self.onRedAlliance()
-        )
+        self.robotToAmp = RobotRelativeTarget(self.estimatorPose, ampPose)
 
     def getvTtoTag(self):
         tagPose = self.fieldLayout.getTagPose(self.getSpeakerTagNum())
-        robotToTarget = RobotRelativeTarget(
-            self.estimatorPose, tagPose, not self.onRedAlliance()
-        )
+        robotToTarget = RobotRelativeTarget(self.estimatorPose, tagPose)
         return robotToTarget.driveVT
+
+    def getFiringHeadingForSpeaker(self) -> Rotation2d:
+        """Get's the robot-relative change in heading the robot needs to make
+            to aim the shooter at the speaker
+
+        Returns:
+            Rotation2d : the change in heading
+        """
+        return self.robotToSpeaker.firingHeading
 
     def periodic(self):
         self.estimatorPose = self.estimator.update(
             self.gyro.getRotation2d(), tuple(self.getModulePositions())
         )
-        visionPose, visionTimestamp = self.vision.getLatestPoseEstimate()
-        if visionPose:
+        latestVisionResult = self.vision.getLatestData()
+        if latestVisionResult.tagCount > 0:
             if (
-                abs(visionPose.x - self.estimatorPose.x) < 0.5
-                and abs(visionPose.y - self.estimatorPose.y) < 0.5
+                abs(latestVisionResult.botPose.x - self.estimatorPose.x) < 0.5
+                and abs(latestVisionResult.botPose.y - self.estimatorPose.y) < 0.5
             ):
-                self.estimator.addVisionMeasurement(
-                    visionPose.toPose2d(), visionTimestamp, (0.5, 0.5, math.pi / 8)
+                # TODO:  We may want to validate the first instance of tagData
+                # is a valid tag by checking tagData[0].id > 0
+                stddev = remap(
+                    latestVisionResult.tagData[0].distanceToRobot, 0, 3, 0.3, 0.9
                 )
+                SmartDashboard.putNumber("stddev", stddev)
+                SmartDashboard.putNumber(
+                    "distanceToTag", latestVisionResult.tagData[0].distanceToRobot
+                )
+                SmartDashboard.putNumber("tagID", latestVisionResult.tagData[0].id)
+                SmartDashboard.putNumber(
+                    "tagAmbiguity", latestVisionResult.tagData[0].ambiguity
+                )
+                self.estimator.addVisionMeasurement(
+                    latestVisionResult.botPose.toPose2d(),
+                    latestVisionResult.timestamp,
+                    (stddev, stddev, math.pi / 4),
+                )
+            # self.estimator.addVisionMeasurement(
+            #     visionPose.toPose2d(), visionTimestamp, (0.2, 0.2, math.pi / 8)
+            # )
         self.field.setRobotPose(self.estimator.getEstimatedPosition())
         # SmartDashboard.putValue("Drive Pose", self.estimatorPose)
         # SmartDashboard.putData(
@@ -211,7 +257,7 @@ class DriveTrain(SwerveChassis):
         speakerDistance = self.robotToSpeaker.distance
         # update elevation with the needed distance
         self.elevation.setSpeakerDistance(speakerDistance)
-        # SmartDashboard.putNumber("Calculated Distance", distance)
+        SmartDashboard.putNumber("DistanceToSpeaker", speakerDistance)
         # SmartDashboard.putNumber("Calculated Firing Heading", azimuth.degrees())
         # SmartDashboard.putNumber("Calculated VT", vt)
 
