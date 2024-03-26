@@ -150,6 +150,7 @@ class AutoRotateDrive(Command):
         self.controller = controller
         self.drive = drive
         self.addRequirements(self.drive)
+ 
 
         self.nt_table = f"{table}/{type(self).__name__}"
         self._calculated_vTPub = (
@@ -159,7 +160,11 @@ class AutoRotateDrive(Command):
         )
 
     def execute(self) -> None:
-
+        if self.drive.resetController:
+                # this is the first time we hit this conditional, so
+                # reset the controller
+                self.drive.resetController = False
+                self.drive.resetRotationController()
         vT = self.drive.getvTtoTag()
         self._calculated_vTPub.set(vT)
 
@@ -196,21 +201,14 @@ class AutoRotateDriveTowardsAmpCorner(Command):
         self.drive = drive
         self.addRequirements(self.drive)
 
+
         self.nt_table = f"{table}/{type(self).__name__}"
         self._calculated_vTPub = (
             NetworkTableInstance.getDefault()
             .getFloatTopic(f"{self.nt_table}/calculated_vT")
             .publish()
         )
-        profiledRotationConstraints = TrapezoidProfileRadians.Constraints(
-            constants.kProfiledMaxVelocity, constants.kProfiledMaxAccel
-        )
-        self.profiledRotationController = ProfiledPIDControllerRadians(
-            constants.kProfiledP,
-            constants.kProfiledI,
-            constants.kProfiledD,
-            profiledRotationConstraints,
-        )
+        
 
     def execute(self) -> None:
 
@@ -219,13 +217,23 @@ class AutoRotateDriveTowardsAmpCorner(Command):
         self.current_x_pos = self.drive.getPose().x
         self.current_y_pos = self.drive.getPose().y
         if self.drive.onRedAlliance():
-            vT = self.profiledRotationController.calculate(
+            if self.drive.resetController:
+                # this is the first time we hit this conditional, so
+                # reset the controller
+                self.drive.resetController = False
+                self.drive.resetRotationController()
+            vT = self.drive.profiledRotationController.calculate(
                 driveRotation2d.radians(),
                 math.atan2(8.21 - self.current_y_pos, 16.54 - self.current_x_pos)
                 - math.pi,
             )
         else:
-            vT = self.profiledRotationController.calculate(
+            if self.resetController:
+                # this is the first time we hit this conditional, so
+                # reset the controller
+                self.resetController = False
+                self.drive.resetRotationController()
+            vT = self.drive.profiledRotationController.calculate(
                 driveRotation2d.radians(),
                 -math.atan2(8.21 - self.current_y_pos, self.current_x_pos),
             )

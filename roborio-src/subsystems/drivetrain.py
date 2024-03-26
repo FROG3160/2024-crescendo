@@ -31,6 +31,8 @@ from commands2 import Subsystem, Command
 from FROGlib.utils import RobotRelativeTarget
 import constants
 from wpimath.units import degreesToRadians
+from wpimath.controller import ProfiledPIDControllerRadians
+from wpimath.trajectory import TrapezoidProfileRadians
 
 
 class DriveTrain(SwerveChassis):
@@ -58,6 +60,7 @@ class DriveTrain(SwerveChassis):
             max_rotation_speed=kMaxChassisRadiansPerSec,
             parent_nt=parent_nt,
         )
+        self.resetController = True
         # We need data from the vision system
         self.vision = vision
         # We need to send data to the elevation system
@@ -65,6 +68,16 @@ class DriveTrain(SwerveChassis):
         self.fieldLayout = loadAprilTagLayoutField(AprilTagField.k2024Crescendo)
 
         self.estimatorPose = Pose2d(0, 0, Rotation2d(0))
+
+        self.profiledRotationConstraints = TrapezoidProfileRadians.Constraints(
+            constants.kProfiledMaxVelocity, constants.kProfiledMaxAccel
+        )
+        self.profiledRotationController = ProfiledPIDControllerRadians(
+            constants.kProfiledP,
+            constants.kProfiledI,
+            constants.kProfiledD,
+            self.profiledRotationConstraints,
+        )
 
         # Configure the AutoBuilder last
         AutoBuilder.configureHolonomic(
@@ -160,6 +173,18 @@ class DriveTrain(SwerveChassis):
         return AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathname)).withName(
             pathname
         )
+
+    def resetRotationController(self):
+        self.profiledRotationController.reset(
+            self.getRotation2d().radians(),
+            self.gyro.getRadiansPerSecCCW(),
+        )
+
+    def enableResetController(self):
+        self.resetController = True
+
+    def resetRotationControllerCommand(self):
+        return self.runOnce(self.enableResetController)
 
     def setFieldPositionFromVision(self):
         self.resetPose(self.vision.getLatestPoseEstimate()[0].toPose2d())

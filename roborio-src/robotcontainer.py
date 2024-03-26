@@ -308,17 +308,25 @@ class RobotContainer:
         return self.chooser.getSelected()
 
     def autoAimCommand(self):
-        return self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand().andThen(
-            self.elevationSubsystem.autoMoveRunWithDistanceCommand().alongWith(
-                AutoRotateDrive(self.driverController, self.driveSubsystem)
+        return (
+            self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand()
+            .andThen(self.driveSubsystem.resetRotationControllerCommand())
+            .andThen(
+                self.elevationSubsystem.autoMoveRunWithDistanceCommand().alongWith(
+                    AutoRotateDrive(self.driverController, self.driveSubsystem)
+                )
             )
         )
 
     def autoAimTowardsAmpCommand(self):
-        return self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand().andThen(
-            self.elevationSubsystem.moveToLoadPositionCommand().alongWith(
-                AutoRotateDriveTowardsAmpCorner(
-                    self.driverController, self.driveSubsystem
+        return (
+            self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand()
+            .andThen(self.driveSubsystem.resetRotationControllerCommand())
+            .andThen(
+                self.elevationSubsystem.moveToLoadPositionCommand().alongWith(
+                    AutoRotateDriveTowardsAmpCorner(
+                        self.driverController, self.driveSubsystem
+                    )
                 )
             )
         )
