@@ -112,13 +112,13 @@ class FROGLED(Subsystem):
         self.candle.setLEDs(255, 153, 255)
 
     def ledIntakeCommand(self) -> Command:
-        return self.runOnce(self.orange())
+        return self.runOnce(lambda: self.orange())
     
     def ledShooterCommand(self) -> Command:
-        return self.runOnce(self.larsonAnimation(252, 157, 3, 1))
+        return self.runOnce(lambda: self.larsonAnimation(252, 157, 3, 1))
     
     def ledShooterDefaultCommand(self) -> Command:
-        return self.runOnce(self.default())
+        return self.runOnce(lambda: self.default())
 
 
 if __name__ == "__main__":
