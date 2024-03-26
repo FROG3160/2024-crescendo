@@ -24,7 +24,7 @@ from constants import (
 )
 from commands2.cmd import runOnce
 from commands2 import DeferredCommand
-from FROGlib.xbox import FROGXboxDriver, FROGXboxOperator
+from FROGlib.xbox import FROGXboxDriver, FROGXboxOperator, RIGHT_RUMBLE
 from subsystems.drivetrain import DriveTrain
 from pathplannerlib.auto import PathPlannerAuto, NamedCommands, AutoBuilder
 from pathplannerlib.path import PathPlannerPath, PathConstraints
@@ -303,6 +303,10 @@ class RobotContainer:
                 self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
             )
         )
+
+        self.intakeSubsystem.getNoteInIntakeTrigger().onTrue(
+            runOnce(lambda: self.driverController.rumble())
+        ).onFalse(runOnce(lambda: self.driverController.stopRumble()))
 
     def getAutonomousCommand(self) -> commands2.Command:
         return self.chooser.getSelected()
