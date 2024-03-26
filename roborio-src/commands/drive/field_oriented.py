@@ -134,13 +134,13 @@ class ManualDrive(Command):
         )
 
 
-class AutoRotateDrive(Command):
+class AutoRotateShooterToSpeaker(Command):
 
     def __init__(
         self, controller: FROGXboxDriver, drive: DriveTrain, table: str = "Undefined"
     ) -> None:
         """Allows manual control of the lateral movement of the drivetrain through use of the specified
-        controller.  Rotation is calculated.
+        controller.  Rotation is calculated to aim the shooter at the speaker.
 
         Args:
             controller (FROGXboxDriver): The controller used to control the drive.
@@ -150,7 +150,6 @@ class AutoRotateDrive(Command):
         self.controller = controller
         self.drive = drive
         self.addRequirements(self.drive)
- 
 
         self.nt_table = f"{table}/{type(self).__name__}"
         self._calculated_vTPub = (
@@ -161,21 +160,29 @@ class AutoRotateDrive(Command):
 
     def execute(self) -> None:
         if self.drive.resetController:
-                # this is the first time we hit this conditional, so
-                # reset the controller
-                self.drive.resetController = False
-                self.drive.resetRotationController()
-        vT = self.drive.getvTtoTag()
-        self._calculated_vTPub.set(vT)
+            # this is the first time we hit this conditional, so
+            # reset the controller
+            self.drive.resetController = False
+            self.drive.resetRotationController()
 
+        # we need the change in rotation to point at the speaker
+        changeInRotation = self.drive.getFiringHeadingForSpeaker()
+        currentRotation = self.drive.getRotation2d()
+
+        vT = self.drive.profiledRotationController.calculate(
+            currentRotation.radians(), (currentRotation + changeInRotation).radians()
+        )
+        self._calculated_vTPub.set(vT)
+        # Only rotation is calculated/automated.  The driver still needs
+        # to use the controller to move the joystick across the field
         if self.drive.onRedAlliance():
             vX = -self.controller.getSlewLimitedFieldForward()
             vY = -self.controller.getSlewLimitedFieldLeft()
         else:
             vX = self.controller.getSlewLimitedFieldForward()
             vY = self.controller.getSlewLimitedFieldLeft()
-
-        self.drive.fieldOrientedDrive(
+        # vT is calculated by the controller and should not be throttled
+        self.drive.fieldOrientedAutoRotateDrive(
             # self._vX, self._vY, self._vT, self._throttle
             vX,
             vY,
@@ -184,7 +191,7 @@ class AutoRotateDrive(Command):
         )
 
 
-class AutoRotateDriveTowardsAmpCorner(Command):
+class AutoRotateShooterTowardsAmpCorner(Command):
 
     def __init__(
         self, controller: FROGXboxDriver, drive: DriveTrain, table: str = "Undefined"
@@ -201,14 +208,12 @@ class AutoRotateDriveTowardsAmpCorner(Command):
         self.drive = drive
         self.addRequirements(self.drive)
 
-
         self.nt_table = f"{table}/{type(self).__name__}"
         self._calculated_vTPub = (
             NetworkTableInstance.getDefault()
             .getFloatTopic(f"{self.nt_table}/calculated_vT")
             .publish()
         )
-        
 
     def execute(self) -> None:
 
@@ -246,7 +251,7 @@ class AutoRotateDriveTowardsAmpCorner(Command):
             vX = self.controller.getSlewLimitedFieldForward()
             vY = self.controller.getSlewLimitedFieldLeft()
 
-        self.drive.fieldOrientedDrive(
+        self.drive.fieldOrientedAutoRotateDrive(
             # self._vX, self._vY, self._vT, self._throttle
             vX,
             vY,

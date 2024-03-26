@@ -199,20 +199,23 @@ class DriveTrain(SwerveChassis):
 
     def calculateRobotRelativeTargets(self):
         speakerPose = self.fieldLayout.getTagPose(self.getSpeakerTagNum())
-        self.robotToSpeaker = RobotRelativeTarget(
-            self.estimatorPose, speakerPose, not self.onRedAlliance()
-        )
+        self.robotToSpeaker = RobotRelativeTarget(self.estimatorPose, speakerPose)
         ampPose = self.fieldLayout.getTagPose(self.getAmpTagNum())
-        self.robotToAmp = RobotRelativeTarget(
-            self.estimatorPose, ampPose, not self.onRedAlliance()
-        )
+        self.robotToAmp = RobotRelativeTarget(self.estimatorPose, ampPose)
 
     def getvTtoTag(self):
         tagPose = self.fieldLayout.getTagPose(self.getSpeakerTagNum())
-        robotToTarget = RobotRelativeTarget(
-            self.estimatorPose, tagPose, not self.onRedAlliance()
-        )
+        robotToTarget = RobotRelativeTarget(self.estimatorPose, tagPose)
         return robotToTarget.driveVT
+
+    def getFiringHeadingForSpeaker(self) -> Rotation2d:
+        """Get's the robot-relative change in heading the robot needs to make
+            to aim the shooter at the speaker
+
+        Returns:
+            Rotation2d : the change in heading
+        """
+        return self.robotToSpeaker.firingHeading
 
     def periodic(self):
         self.estimatorPose = self.estimator.update(

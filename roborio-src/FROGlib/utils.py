@@ -32,9 +32,7 @@ def getAngleFromTransform(transform: Transform3d) -> float:
 
 
 class RobotRelativeTarget:
-    def __init__(
-        self, robotPose: Pose2d, targetPose: Pose3d, isBlueAlliance: bool = False
-    ):
+    def __init__(self, robotPose: Pose2d, targetPose: Pose3d):
         # the docstring isn't really correct, but I don't have the time to wordsmith it
         # it gets x and y distances and uses those to calculate a robot-relative angle
         """Takes BlueAlliance-oriented robot and target poses and calculates field-oriented values for each alliance.
@@ -42,7 +40,7 @@ class RobotRelativeTarget:
         Args:
             robotPose (Pose3d): The Blue Alliance robot pose
             targetPose (Pose3d): _description_
-            isBlueAlliance (bool, optional): _description_. Defaults to False.
+
         """
         self.toTagFromRobot = targetPose.toPose2d() - robotPose
         self._x = self.toTagFromRobot.x
@@ -50,19 +48,13 @@ class RobotRelativeTarget:
         self._z = targetPose.z
         self._heading = Rotation2d(self._x, self._y)
         self._flippedHeading = self._heading.rotateBy(Rotation2d(math.pi))
-        # if isBlueAlliance:
+
         self.driveHeading = self._heading
         self.firingHeading = self._flippedHeading
         self.fieldX = self._x
         self.fieldY = self._y
         self.fieldZ = self._z
-        # else:
-        #     self.driveHeading = self._flippedHeading
-        #     self.firingHeading = self._heading
-        #     self.fieldX = -self._x
-        #     self.fieldY = -self._y
-        #     self.fieldZ = self._z
-        # the length across the floor...  2 dimensions
+
         self.distance = math.sqrt(self.fieldX**2 + self.fieldY**2)
         # the length to the target including height... 3 dimensions
         self.range = math.sqrt(self.fieldX**2 + self.fieldY**2 + self.fieldZ**2)
