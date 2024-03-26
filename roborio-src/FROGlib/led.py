@@ -1,4 +1,4 @@
-from commands2 import Subsystem
+from commands2 import Subsystem, Command
 from phoenix5.led import CANdle
 from phoenix5.led import LEDStripType
 from phoenix5.led import (
@@ -11,6 +11,8 @@ from phoenix5.led import (
     BaseTwoSizeAnimation,
     LarsonAnimation,
 )
+from subsystems.intake import IntakeSubsystem
+from subsystems.shooter import ShooterSubsystem
 
 BRIGHTNESS = 0.4
 FORWARD = ColorFlowAnimation.Direction.Forward
@@ -33,11 +35,13 @@ BLUEALLIANCE = ColorFlowAnimation(
 FIRE = FireAnimation(1, 0.5, NUM_TOTAL_LEDS + 15, 0.7, 0.3, False, NUM_CANDLE_LEDS)
 
 
-class FROGLED(Subsystem):
+class LedSubsystem(Subsystem):
     def __init__(self, canID):
         self.candle = CANdle(canID)
         self.candle.configLEDType(LEDStripType.GRB)
         self.candle.configBrightnessScalar(BRIGHTNESS)
+        self.intakeSubsystem = IntakeSubsystem
+        self.shooterSubystem = ShooterSubsystem
         # self.default()
 
     def larsonAnimation(self, r, g, b, speed):
@@ -57,6 +61,9 @@ class FROGLED(Subsystem):
 
     def default(self):
         self.larsonAnimation(0, 255, 0, 0.4)
+
+    def orange(self):
+        self.candle.setLEDs(1252, 157, 3)
 
     def yellow(self):
         self.candle.setLEDs(250, 129, 7)
@@ -105,6 +112,12 @@ class FROGLED(Subsystem):
 
     def lightPink(self):
         self.candle.setLEDs(255, 153, 255)
+
+    def ledCommand(self) -> Command:
+        if self.intakeSubsystem.noteInIntake():
+            return self.run(self.orange())
+        if self.shooterSubystem.noteInShooter():
+            return self.run(self.larsonAnimation(252, 157, 3, 2))
 
 
 if __name__ == "__main__":
