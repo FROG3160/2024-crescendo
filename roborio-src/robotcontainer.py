@@ -40,8 +40,8 @@ from subsystems.climber import ClimberSubsystem
 from subsystems.elevation import ElevationSubsystem
 from commands.drive.field_oriented import (
     ManualDrive,
-    AutoRotateDrive,
-    AutoRotateDriveTowardsAmpCorner,
+    AutoRotateShooterToSpeaker,
+    AutoRotateShooterTowardsAmpCorner,
 )
 from commands.drive.robot_oriented import DriveToTarget
 from commands.shooter.load import IntakeAndLoad, loadShooterCommand
@@ -149,7 +149,7 @@ class RobotContainer:
         NamedCommands.registerCommand(
             "Retract Arms", self.climberSubsystem.get_RetractCommand()
         )
-        NamedCommands.registerCommand("Auto Aim", self.autoAimCommand())
+        NamedCommands.registerCommand("Auto Aim", self.autoAimAtSpeakerCommand())
 
     def configureButtonBindings(self):
         """
@@ -161,12 +161,12 @@ class RobotContainer:
         """DRIVER CONTROLS"""
 
         self.driverController.a().and_(self.shooterSubsystem.hasNote()).whileTrue(
-            self.autoAimCommand()
+            self.autoAimAtSpeakerCommand()
         )  # .whileFalse(self.elevationSubsystem.moveToLoadPositionCommand())
 
-        self.driverController.start().and_(self.shooterSubsystem.hasNote()).whileTrue(
+        self.driverController.back().and_(self.shooterSubsystem.hasNote()).whileTrue(
             self.autoAimTowardsAmpCommand()
-        ).whileFalse(self.elevationSubsystem.moveToLoadPositionCommand())
+        )  # .whileFalse(self.elevationSubsystem.moveToLoadPositionCommand())
 
         self.driverController.b().whileTrue(
             ThrottledDriveToTarget(
@@ -307,18 +307,28 @@ class RobotContainer:
     def getAutonomousCommand(self) -> commands2.Command:
         return self.chooser.getSelected()
 
-    def autoAimCommand(self):
-        return self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand().andThen(
-            self.elevationSubsystem.autoMoveRunWithDistanceCommand().alongWith(
-                AutoRotateDrive(self.driverController, self.driveSubsystem)
+    def autoAimAtSpeakerCommand(self):
+        return (
+            self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand()
+            .andThen(self.driveSubsystem.resetRotationControllerCommand())
+            .andThen(
+                self.elevationSubsystem.autoMoveRunWithDistanceCommand().alongWith(
+                    AutoRotateShooterToSpeaker(
+                        self.driverController, self.driveSubsystem
+                    )
+                )
             )
         )
 
     def autoAimTowardsAmpCommand(self):
-        return self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand().andThen(
-            self.elevationSubsystem.moveToLoadPositionCommand().alongWith(
-                AutoRotateDriveTowardsAmpCorner(
-                    self.driverController, self.driveSubsystem
+        return (
+            self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand()
+            .andThen(self.driveSubsystem.resetRotationControllerCommand())
+            .andThen(
+                self.elevationSubsystem.moveToLoadPositionCommand().alongWith(
+                    AutoRotateShooterTowardsAmpCorner(
+                        self.driverController, self.driveSubsystem
+                    )
                 )
             )
         )
