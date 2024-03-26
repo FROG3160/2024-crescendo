@@ -87,6 +87,16 @@ class IntakeSubsystem(Subsystem):
             lambda: self.camera.getTargetInRange() and self.intakeAllowed()
         )
 
+    # Intake Bools
+    def noteInIntake(self) -> bool:
+        # intakeEmptySensor returns True when it's not detecting
+        # anything, so we negate the boolean to determine when a
+        # note is detected.
+        return not self.intakeEmptySensor.get()
+
+    def isIntakeRunning(self):
+        return abs(self.intakeMotor.getMotorVoltage()) > 0.0
+
     def intakeAllowed(self) -> bool:
         return self._intakeAllowed
 
@@ -96,6 +106,7 @@ class IntakeSubsystem(Subsystem):
     def allowIntake(self):
         self._intakeAllowed = True
 
+    # Intake Comands
     def intakeCommand(self) -> Command:
         # return a command that starts the intakeMotor
         # and then waits for noteDetected() goes True
@@ -110,11 +121,33 @@ class IntakeSubsystem(Subsystem):
         # used to kill the intake outside normal operations
         return self.runOnce(self.stopIntake).withName("StopIntake")
 
+    # Intake Methods
+    def runIntake(self) -> None:
+        self.state = self.State.Intaking
+        self.controlIntake(kRollerVoltage)
+
+    def stopIntake(self):
+        if self.noteInIntake():
+            self.state = self.State.Holding
+        else:
+            self.state = self.State.Waiting
+        self.controlIntake(0)
+
     def reverseIntake(self, interrupted) -> None:
         # used to reverse intake if note undetected after a set amount of seconds
         if interrupted:
             self.controlIntake(-kRollerVoltage)
 
+    def controlIntake(self, voltage):
+        # setting it to an attribute so we can log the value if needed
+        self.intakeMotorCommandedVoltage = voltage
+        self.intakeMotor.set_control(VoltageOut(self.intakeMotorCommandedVoltage))
+
+    # Transfer Bools
+    def isTransferRunning(self):
+        return abs(self.transferMotor.getMotorVoltage()) > 0.0
+
+    # Transfer Comands
     def transferCommand(self) -> Command:
         # return a command that starts the transferMotor
         # and then waits for noteDetected() goes True
@@ -126,15 +159,7 @@ class IntakeSubsystem(Subsystem):
         # used to kill the transfer motor outside normal operations
         return self.runOnce(self.stopIntake).withName("StopTransfer")
 
-    def runIntake(self) -> None:
-        self.state = self.State.Intaking
-        self.controlIntake(kRollerVoltage)
-
-    def controlIntake(self, voltage):
-        # setting it to an attribute so we can log the value if needed
-        self.intakeMotorCommandedVoltage = voltage
-        self.intakeMotor.set_control(VoltageOut(self.intakeMotorCommandedVoltage))
-
+    # Transfer Methods
     def controlTransfer(self, percent):
         self.transferMotorCommandedPercent = percent
         self.transferMotor.set(
@@ -146,13 +171,6 @@ class IntakeSubsystem(Subsystem):
         self.controlTransfer(kLoadWheelsPercent)
         self.controlIntake(kRollerTransferVoltage)
 
-    def stopIntake(self):
-        if self.noteInIntake():
-            self.state = self.State.Holding
-        else:
-            self.state = self.State.Waiting
-        self.controlIntake(0)
-
     def stopTransfer(self):
         if self.noteInIntake():
             self.state = self.State.Holding
@@ -161,17 +179,8 @@ class IntakeSubsystem(Subsystem):
         self.controlTransfer(0)
         self.stopIntake()
 
-    def isIntakeRunning(self):
-        return abs(self.intakeMotor.getMotorVoltage()) > 0.0
-
     def isTransferRunning(self):
         return abs(self.transferMotor.getMotorVoltage()) > 0.0
-
-    def noteInIntake(self) -> bool:
-        # intakeEmptySensor returns True when it's not detecting
-        # anything, so we negate the boolean to determine when a
-        # note is detected.
-        return not self.intakeEmptySensor.get()
 
     def periodic(self) -> None:
         #  as a method of subystem, this is run every loop
