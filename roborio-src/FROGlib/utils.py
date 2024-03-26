@@ -89,7 +89,10 @@ def partitionArray(array, indices):
 
 def arrayToPose3d(array):
     return Pose3d(
-        array[0], array[1], array[2], Rotation3d(array[4], array[5], array[6])
+        array[0],
+        array[1],
+        array[2],
+        Rotation3d.fromDegrees(array[3], array[4], array[5]),
     )
 
 
