@@ -164,9 +164,9 @@ class RobotContainer:
             self.autoAimAtSpeakerCommand()
         )  # .whileFalse(self.elevationSubsystem.moveToLoadPositionCommand())
 
-        self.driverController.start().and_(self.shooterSubsystem.hasNote()).whileTrue(
+        self.driverController.back().and_(self.shooterSubsystem.hasNote()).whileTrue(
             self.autoAimTowardsAmpCommand()
-        ).whileFalse(self.elevationSubsystem.moveToLoadPositionCommand())
+        )  # .whileFalse(self.elevationSubsystem.moveToLoadPositionCommand())
 
         self.driverController.b().whileTrue(
             ThrottledDriveToTarget(
