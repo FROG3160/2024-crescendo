@@ -11,8 +11,6 @@ from phoenix5.led import (
     BaseTwoSizeAnimation,
     LarsonAnimation,
 )
-from subsystems.intake import IntakeSubsystem
-from subsystems.shooter import ShooterSubsystem
 
 BRIGHTNESS = 0.4
 FORWARD = ColorFlowAnimation.Direction.Forward
