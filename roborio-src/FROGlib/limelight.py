@@ -5,7 +5,7 @@ from typing import Tuple, Any
 import wpilib
 from ntcore import NetworkTableInstance
 from wpimath.geometry import Pose3d, Translation3d, Rotation3d, Transform3d
-from utils import partitionArray, arrayToPose3d
+from FROGlib.utils import partitionArray, arrayToPose3d
 
 
 class TagMetrics:
