@@ -10,22 +10,35 @@ from utils import partitionArray, arrayToPose3d
 
 class TagMetrics:
     def __init__(self, tagData):
-        (
-            self.id,
-            self.txnc,
-            self.tync,
-            self.ta,
-            self.distanceToCamera,
-            self.distanceToRobot,
-            self.ambiguity,
-        ) = tagData
+        if len(tagData) != 7:
+            self.id = 0
+            self.txnc = 0
+            self.tync = 0
+            self.ta = 0
+            self.distanceToCamera = 0
+            self.distanceToRobot = 0
+            self.ambiguity = 0
+        else:
+            (
+                self.id,
+                self.txnc,
+                self.tync,
+                self.ta,
+                self.distanceToCamera,
+                self.distanceToRobot,
+                self.ambiguity,
+            ) = tagData
 
 
-class Result:
-    def __init__(self, array):
+class BotPoseResult:
+    def __init__(self, array: list[float], system_timestamp: float):
+        # split the array up into list with the specified lengths
+        # This assumes that there is a maximum of 3 sets of tag
+        # details at the end all of length 7.
         splitArray = partitionArray(array, [6, 1, 4, 7, 7, 7])
         self.botPose = arrayToPose3d(splitArray[0])
-        self.latency = splitArray[1][0]
+        self.latency = splitArray[1][0] / 1000
+        self.timestamp = system_timestamp - self.latency
         self.tagCount = splitArray[2][0]
         self.tagSpan = splitArray[2][1]
         self.avgTagDistance = splitArray[2][2]
@@ -112,18 +125,17 @@ class FROGPositioning:
         self.network_table = NetworkTableInstance.getDefault().getTable(
             key=limelight_name
         )
-        self.nt_botpose = self.network_table.getFloatArrayTopic("botpose").subscribe(
-            [-99, -99, -99, 0, 0, 0, -1]
-        )
+        # self.nt_botpose = self.network_table.getFloatArrayTopic("botpose").subscribe(
+        #     [-99, -99, -99, 0, 0, 0, -1]
+        # )
+        # returns a list of 25 zeros to zero everything out if we aren't getting anything from NT
         self.nt_botpose_blue = self.network_table.getFloatArrayTopic(
             "botpose_wpiblue"
-        ).subscribe([-99, -99, -99, 0, 0, 0, -1, 0, 0, 0, 0])
-        self.nt_botpose_red = self.network_table.getFloatArrayTopic(
-            "botpose_wpired"
-        ).subscribe([-99, -99, -99, 0, 0, 0, -1])
-        self.nt_targetpose_robotspace = self.network_table.getFloatArrayTopic(
-            "targetpose_robotspace"
-        ).subscribe([-99, -99, -99, 0, 0, 0, -1])
+        ).subscribe([0] * 25)
+        # self.nt_botpose_red = self.network_table.getFloatArrayTopic(
+        #     "botpose_wpired"
+        # ).subscribe([-99, -99, -99, 0, 0, 0, -1])
+
         self.nt_pipeline = self.network_table.getIntegerTopic("getpipe").subscribe(-1)
         # create the timer that we can use to the the FPGA timestamp
         self.nt_tv = self.network_table.getFloatTopic("tv").subscribe(-1)
@@ -142,17 +154,17 @@ class FROGPositioning:
     #     elif self.fieldLayout.alliance == BLUE_ALLIANCE:
     #         return *self.getBotPoseEstimateBlue(),
 
-    def getBotPoseEstimate(self) -> Tuple[Pose3d, Any]:
-        if self.nt_tv.get() > 0.0:
-            return (*self.arrayToBotPoseEstimate(self.nt_botpose.get()),)
-        else:
-            return (None, -1)
+    # def getBotPoseEstimate(self) -> Tuple[Pose3d, Any]:
+    #     if self.nt_tv.get() > 0.0:
+    #         return (*self.arrayToBotPoseEstimate(self.nt_botpose.get()),)
+    #     else:
+    #         return (None, -1)
 
-    def getBotPoseEstimateBlue(self) -> Tuple[Pose3d, Any]:
-        if self.nt_tv.get() > 0.0:
-            return (*self.arrayToBotPoseEstimate(self.nt_botpose_blue.get()[:7]),)
-        else:
-            return (None, -1)
+    def getBotPoseEstimateBlue(self) -> BotPoseResult:
+        # The subscriber returns all zeros if no data is on NT
+        # we can just send that right into BotPoseResult. All
+        # systems using the result should check for tagCount or tagData[0].tagID > 0
+        return BotPoseResult(self.nt_botpose_blue.get(), self.timer.getFPGATimestamp())
 
     def getBotPoseEstimateRed(self) -> Tuple[Pose3d, Any]:
         if self.nt_tv.get() > 0.0:
@@ -197,11 +209,29 @@ class FROGPositioning:
         ), self.timer.getFPGATimestamp() - (msLatency / 1000)
 
 
-testarray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
-indices = [6, 7, 10, 14]
-relative_indexes = [6, 1, 4, 6, 6, 6]
-print(relative_indexes)
+# testarray = [
+#     1,
+#     2,
+#     3,
+#     4,
+#     5,
+#     6,
+#     7,
+#     8,
+#     9,
+#     10,
+#     11,
+#     12,
+#     13,
+#     14,
+#     15,
+#     16,
+#     17,
+#     18,
+# ]  # , 19, 20, 21, 22, 23, 24, 25, 26]
+# relative_indexes = [6, 1, 4, 7, 7, 7]
+# print(relative_indexes)
 
-from utils import partitionArray
+# from utils import partitionArray
 
-print(partitionArray(testarray, relative_indexes))
+# print(partitionArray(testarray, relative_indexes))

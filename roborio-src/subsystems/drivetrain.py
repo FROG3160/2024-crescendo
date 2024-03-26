@@ -28,7 +28,7 @@ from subsystems.vision import PositioningSubsystem
 from subsystems.elevation import ElevationSubsystem
 from wpilib import SmartDashboard
 from commands2 import Subsystem, Command
-from FROGlib.utils import RobotRelativeTarget
+from FROGlib.utils import RobotRelativeTarget, remap
 import constants
 from wpimath.units import degreesToRadians
 
@@ -193,15 +193,25 @@ class DriveTrain(SwerveChassis):
         self.estimatorPose = self.estimator.update(
             self.gyro.getRotation2d(), tuple(self.getModulePositions())
         )
-        visionPose, visionTimestamp = self.vision.getLatestPoseEstimate()
-        if visionPose:
+        latestVisionResult = self.vision.getLatestData()
+        if latestVisionResult.tagCount > 0:
             if (
-                abs(visionPose.x - self.estimatorPose.x) < 0.5
-                and abs(visionPose.y - self.estimatorPose.y) < 0.5
+                abs(latestVisionResult.botPose.x - self.estimatorPose.x) < 0.5
+                and abs(latestVisionResult.botPose.y - self.estimatorPose.y) < 0.5
             ):
-                self.estimator.addVisionMeasurement(
-                    visionPose.toPose2d(), visionTimestamp, (0.5, 0.5, math.pi / 8)
+                # TODO:  We may want to validate the first instance of tagData
+                # is a valid tag by checking tagData[0].id > 0
+                stddev = remap(
+                    latestVisionResult.tagData[0].distanceToRobot, 1, 3, 0.2, 0.9
                 )
+                self.estimator.addVisionMeasurement(
+                    latestVisionResult.botPose.toPose2d(),
+                    latestVisionResult.timestamp,
+                    (stddev, stddev, math.pi / 8),
+                )
+            # self.estimator.addVisionMeasurement(
+            #     visionPose.toPose2d(), visionTimestamp, (0.2, 0.2, math.pi / 8)
+            # )
         self.field.setRobotPose(self.estimator.getEstimatedPosition())
         # SmartDashboard.putValue("Drive Pose", self.estimatorPose)
         # SmartDashboard.putData(
