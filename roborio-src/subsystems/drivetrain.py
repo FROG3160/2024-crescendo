@@ -162,7 +162,7 @@ class DriveTrain(SwerveChassis):
         )
 
     def setFieldPositionFromVision(self):
-        self.resetPose(self.vision.getLatestPoseEstimate()[0].toPose2d())
+        self.resetPose(self.vision.getLatestData().botPose.toPose2d())
         # self.estimator.resetPosition(
         #     self.gyro.getRotation2d(),
         #     tuple(self.getModulePositions()),
@@ -202,12 +202,20 @@ class DriveTrain(SwerveChassis):
                 # TODO:  We may want to validate the first instance of tagData
                 # is a valid tag by checking tagData[0].id > 0
                 stddev = remap(
-                    latestVisionResult.tagData[0].distanceToRobot, 1, 3, 0.2, 0.9
+                    latestVisionResult.tagData[0].distanceToRobot, 0, 3, 0.3, 0.9
+                )
+                SmartDashboard.putNumber("stddev", stddev)
+                SmartDashboard.putNumber(
+                    "distanceToTag", latestVisionResult.tagData[0].distanceToRobot
+                )
+                SmartDashboard.putNumber("tagID", latestVisionResult.tagData[0].id)
+                SmartDashboard.putNumber(
+                    "tagAmbiguity", latestVisionResult.tagData[0].ambiguity
                 )
                 self.estimator.addVisionMeasurement(
                     latestVisionResult.botPose.toPose2d(),
                     latestVisionResult.timestamp,
-                    (stddev, stddev, math.pi / 8),
+                    (stddev, stddev, math.pi / 4),
                 )
             # self.estimator.addVisionMeasurement(
             #     visionPose.toPose2d(), visionTimestamp, (0.2, 0.2, math.pi / 8)
