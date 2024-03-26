@@ -1,4 +1,4 @@
-from commands2 import Subsystem
+from commands2 import Subsystem, Command
 from phoenix5.led import CANdle
 from phoenix5.led import LEDStripType
 from phoenix5.led import (
@@ -16,7 +16,7 @@ BRIGHTNESS = 0.4
 FORWARD = ColorFlowAnimation.Direction.Forward
 BACKWARD = ColorFlowAnimation.Direction.Backward
 NUM_CANDLE_LEDS = 8
-NUM_STRIP_LEDS = 29
+NUM_STRIP_LEDS = 16
 NUM_TOTAL_LEDS = (
     NUM_CANDLE_LEDS + NUM_STRIP_LEDS
 )  # the 8 LEDs of the CANdle + the strip
@@ -38,7 +38,7 @@ class FROGLED(Subsystem):
         self.candle = CANdle(canID)
         self.candle.configLEDType(LEDStripType.GRB)
         self.candle.configBrightnessScalar(BRIGHTNESS)
-        # self.default()
+        self.default()
 
     def larsonAnimation(self, r, g, b, speed):
         self.candle.animate(
@@ -56,7 +56,10 @@ class FROGLED(Subsystem):
         )
 
     def default(self):
-        self.larsonAnimation(0, 255, 0, 0.4)
+        self.larsonAnimation(0, 255, 0, 0.25)
+
+    def orange(self):
+        self.candle.setLEDs(252, 157, 3)
 
     def yellow(self):
         self.candle.setLEDs(250, 129, 7)
@@ -105,6 +108,15 @@ class FROGLED(Subsystem):
 
     def lightPink(self):
         self.candle.setLEDs(255, 153, 255)
+
+    def ledIntakeCommand(self) -> Command:
+        return self.runOnce(lambda: self.orange())
+    
+    def ledShooterCommand(self) -> Command:
+        return self.runOnce(lambda: self.larsonAnimation(252, 157, 3, 1))
+    
+    def ledShooterDefaultCommand(self) -> Command:
+        return self.runOnce(lambda: self.default())
 
 
 if __name__ == "__main__":
