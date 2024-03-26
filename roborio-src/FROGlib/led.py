@@ -118,6 +118,8 @@ class LedSubsystem(Subsystem):
             return self.run(self.orange())
         if self.shooterSubystem.noteInShooter():
             return self.run(self.larsonAnimation(252, 157, 3, 2))
+        else:
+            return self.run(self.default())
 
 
 if __name__ == "__main__":
