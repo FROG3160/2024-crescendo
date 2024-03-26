@@ -18,7 +18,7 @@ BRIGHTNESS = 0.4
 FORWARD = ColorFlowAnimation.Direction.Forward
 BACKWARD = ColorFlowAnimation.Direction.Backward
 NUM_CANDLE_LEDS = 8
-NUM_STRIP_LEDS = 29
+NUM_STRIP_LEDS = 16
 NUM_TOTAL_LEDS = (
     NUM_CANDLE_LEDS + NUM_STRIP_LEDS
 )  # the 8 LEDs of the CANdle + the strip
@@ -35,13 +35,11 @@ BLUEALLIANCE = ColorFlowAnimation(
 FIRE = FireAnimation(1, 0.5, NUM_TOTAL_LEDS + 15, 0.7, 0.3, False, NUM_CANDLE_LEDS)
 
 
-class LedSubsystem(Subsystem):
+class FROGLED(Subsystem):
     def __init__(self, canID):
         self.candle = CANdle(canID)
         self.candle.configLEDType(LEDStripType.GRB)
         self.candle.configBrightnessScalar(BRIGHTNESS)
-        self.intakeSubsystem = IntakeSubsystem
-        self.shooterSubystem = ShooterSubsystem
         self.default()
 
     def larsonAnimation(self, r, g, b, speed):
@@ -60,10 +58,10 @@ class LedSubsystem(Subsystem):
         )
 
     def default(self):
-        self.larsonAnimation(0, 255, 0, 0.4)
+        self.larsonAnimation(0, 255, 0, 0.25)
 
     def orange(self):
-        self.candle.setLEDs(1252, 157, 3)
+        self.candle.setLEDs(252, 157, 3)
 
     def yellow(self):
         self.candle.setLEDs(250, 129, 7)
@@ -113,13 +111,14 @@ class LedSubsystem(Subsystem):
     def lightPink(self):
         self.candle.setLEDs(255, 153, 255)
 
-    def ledCommand(self) -> Command:
-        if self.intakeSubsystem.noteInIntake():
-            return self.run(self.orange())
-        if self.shooterSubystem.noteInShooter():
-            return self.run(self.larsonAnimation(252, 157, 3, 2))
-        else:
-            return self.run(self.default())
+    def ledIntakeCommand(self) -> Command:
+        return self.runOnce(self.orange())
+    
+    def ledShooterCommand(self) -> Command:
+        return self.runOnce(self.larsonAnimation(252, 157, 3, 1))
+    
+    def ledShooterDefaultCommand(self) -> Command:
+        return self.runOnce(self.default())
 
 
 if __name__ == "__main__":

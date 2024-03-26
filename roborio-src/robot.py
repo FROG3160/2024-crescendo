@@ -13,7 +13,6 @@ import commands2
 import constants
 import configs
 from commands2.cmd import runOnce
-from FROGlib.led import LedSubsystem
 from wpimath.geometry import Pose2d
 from wpilib import DataLogManager, DriverStation
 from wpilib import RobotController
@@ -60,9 +59,6 @@ class MyRobot(commands2.TimedCommandRobot):
         wpilib.SmartDashboard.putData("Intake", self.container.intakeSubsystem)
         wpilib.SmartDashboard.putData("Elevation", self.container.elevationSubsystem)
 
-        self.led = LedSubsystem(9) # name change
-        # ADD CAN ID
-        self.led.default()
 
     def disabledInit(self) -> None:
         """This function is called once each time the robot enters Disabled mode."""
@@ -109,7 +105,6 @@ class MyRobot(commands2.TimedCommandRobot):
         # start logging DS and joystick data
         DriverStation.startDataLog(DataLogManager.getLog())
 
-        self.container.ledSubsystem.ledCommand().schedule()
 
         if self.container.shooterSubsystem.noteInShooter():
             self.container.intakeSubsystem.disallowIntake()

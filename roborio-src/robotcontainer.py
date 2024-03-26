@@ -25,7 +25,7 @@ from constants import (
 from commands2.cmd import runOnce
 from commands2 import DeferredCommand
 from FROGlib.xbox import FROGXboxDriver, FROGXboxOperator
-from FROGlib.led import LedSubsystem
+from FROGlib.led import FROGLED
 from subsystems.drivetrain import DriveTrain
 from pathplannerlib.auto import PathPlannerAuto, NamedCommands, AutoBuilder
 from pathplannerlib.path import PathPlannerPath, PathConstraints
@@ -86,7 +86,7 @@ class RobotContainer:
             self.positioningSubsystem, self.elevationSubsystem
         )
         self.shooterSubsystem = ShooterSubsystem()
-        self.ledSubsystem = LedSubsystem()
+        self.ledSubsystem = FROGLED(9)
 
         self.registerNamedCommands()
 
