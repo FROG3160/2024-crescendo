@@ -229,7 +229,7 @@ class DriveTrain(SwerveChassis):
         speakerDistance = self.robotToSpeaker.distance
         # update elevation with the needed distance
         self.elevation.setSpeakerDistance(speakerDistance)
-        # SmartDashboard.putNumber("Calculated Distance", distance)
+        SmartDashboard.putNumber("DistanceToSpeaker", speakerDistance)
         # SmartDashboard.putNumber("Calculated Firing Heading", azimuth.degrees())
         # SmartDashboard.putNumber("Calculated VT", vt)
 
