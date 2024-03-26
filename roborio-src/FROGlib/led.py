@@ -42,7 +42,7 @@ class LedSubsystem(Subsystem):
         self.candle.configBrightnessScalar(BRIGHTNESS)
         self.intakeSubsystem = IntakeSubsystem
         self.shooterSubystem = ShooterSubsystem
-        # self.default()
+        self.default()
 
     def larsonAnimation(self, r, g, b, speed):
         self.candle.animate(
