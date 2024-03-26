@@ -233,10 +233,10 @@ class AutoRotateShooterTowardsAmpCorner(Command):
                 - math.pi,
             )
         else:
-            if self.resetController:
+            if self.drive.resetController:
                 # this is the first time we hit this conditional, so
                 # reset the controller
-                self.resetController = False
+                self.drive.resetController = False
                 self.drive.resetRotationController()
             vT = self.drive.profiledRotationController.calculate(
                 driveRotation2d.radians(),
