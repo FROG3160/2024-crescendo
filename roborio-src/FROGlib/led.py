@@ -111,11 +111,11 @@ class FROGLED(Subsystem):
 
     def ledIntakeCommand(self) -> Command:
         return self.runOnce(lambda: self.orange())
-    
+
     def ledShooterCommand(self) -> Command:
         return self.runOnce(lambda: self.larsonAnimation(252, 157, 3, 1))
-    
-    def ledShooterDefaultCommand(self) -> Command:
+
+    def ledDefaultCommand(self) -> Command:
         return self.runOnce(lambda: self.default())
 
 

@@ -309,8 +309,14 @@ class RobotContainer:
         )
 
         self.intakeSubsystem.getNoteInIntakeTrigger().onTrue(
-            runOnce(lambda: self.driverController.rumble())
-        ).onFalse(runOnce(lambda: self.driverController.stopRumble()))
+            runOnce(lambda: self.driverController.rumble()).alongWith(
+                self.ledSubsystem.ledIntakeCommand()
+            )
+        ).onFalse(
+            runOnce(lambda: self.driverController.stopRumble()).alongWith(
+                self.ledSubsystem.ledDefaultCommand()
+            )
+        )
 
     def getAutonomousCommand(self) -> commands2.Command:
         return self.chooser.getSelected()
