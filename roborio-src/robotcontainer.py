@@ -23,7 +23,7 @@ from constants import (
     kRotSlew,
 )
 from commands2.cmd import runOnce
-from commands2 import DeferredCommand
+from commands2 import DeferredCommand, PrintCommand
 
 from FROGlib.xbox import FROGXboxDriver, FROGXboxOperator
 from FROGlib.led import FROGLED
@@ -108,16 +108,30 @@ class RobotContainer:
         # )
 
         # Chooser
-        self.chooser = wpilib.SendableChooser()
+        # self.chooser = wpilib.SendableChooser()
+        self.autochooser = AutoBuilder.buildAutoChooser()
 
-        autosPath = os.path.join(wpilib.getDeployDirectory(), "pathplanner", "autos")
-        for autoFile in os.listdir(autosPath):
-            autoName = autoFile.split(".")[0]
-            ppAuto = PathPlannerAuto(autoName)
-            self.chooser.addOption(autoName, ppAuto)
+        # autosPath = os.path.join(wpilib.getDeployDirectory(), "pathplanner", "autos")
+        # for autoFile in os.listdir(autosPath):
+        #     autoName = autoFile.split(".")[0]
+        #     ppAuto = PathPlannerAuto(autoName)
+        #     self.chooser.addOption(autoName, ppAuto)
 
-        # Put the chooser on the dashboard
-        wpilib.SmartDashboard.putData("PathPlanner Autos", self.chooser)
+        # alternateAuto = (
+        #     Fire(self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem)
+        #     .andThen(
+        #         AutoBuilder.followPath(PathPlannerPath.fromPathFile("Simple Auto Pt.1"))
+        #     )
+        #     .andThen(
+        #         Fire(
+        #             self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
+        #         )
+        #     )
+        #     .deadlineWith(self.autoAimAtSpeakerCommand())
+        # )
+
+        # Put the chooser on the dashboard0.5
+        wpilib.SmartDashboard.putData("PathPlanner Autos", self.autochooser)
 
     def registerNamedCommands(self):
 
@@ -154,6 +168,16 @@ class RobotContainer:
             "Retract Arms", self.climberSubsystem.get_RetractCommand()
         )
         NamedCommands.registerCommand("Auto Aim", self.autoAimAtSpeakerCommand())
+
+        NamedCommands.registerCommand("TestFire", PrintCommand("Testing Fire"))
+
+        NamedCommands.registerCommand(
+            "Set Flywheel for Speaker",
+            self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand(),
+        )
+
+    def testFireCommand(self):
+        return self.shooterSubsystem.runFlywheelsCommand()
 
     def configureButtonBindings(self):
         """
@@ -251,40 +275,40 @@ class RobotContainer:
             runOnce(lambda: self.driveSubsystem.setFieldPositionFromVision())
         )
 
-        """OPERATOR CONTROLS"""
+        # """OPERATOR CONTROLS"""
+        # # Operator Controller Bindings
+        # self.operatorController.axisLessThan(
+        #     wpilib.XboxController.Axis.kLeftY, -0.5
+        # ).whileTrue(self.climberSubsystem.get_ExtendCommand())
+        # self.operatorController.axisGreaterThan(
+        #     wpilib.XboxController.Axis.kLeftY, 0.5
+        # ).whileTrue(self.climberSubsystem.get_RetractCommand())
 
-        # Operator Controller Bindings
-        self.operatorController.axisLessThan(
-            wpilib.XboxController.Axis.kLeftY, -0.5
-        ).whileTrue(self.climberSubsystem.get_ExtendCommand())
-        self.operatorController.axisGreaterThan(
-            wpilib.XboxController.Axis.kLeftY, 0.5
-        ).whileTrue(self.climberSubsystem.get_RetractCommand())
+        # self.operatorController.leftBumper().onTrue(
+        #     self.climberSubsystem.get_homeLeftClimber()
+        # )
+        # self.operatorController.rightBumper().onTrue(
+        #     self.climberSubsystem.get_homeRightClimber()
+        # )
 
-        self.operatorController.leftBumper().onTrue(
-            self.climberSubsystem.get_homeLeftClimber()
-        )
-        self.operatorController.rightBumper().onTrue(
-            self.climberSubsystem.get_homeRightClimber()
-        )
+        # self.operatorController.a().onTrue(self.intakeSubsystem.intakeCommand())
+        # self.operatorController.b().onTrue(
+        #     loadShooterCommand(
+        #         self.shooterSubsystem, self.intakeSubsystem, self.elevationSubsystem
+        #     )
+        # )
+        # self.operatorController.x().onTrue(self.intakeSubsystem.stopIntakeCommand())
+        # self.operatorController.y().onTrue(
+        #     self.elevationSubsystem.homeShooterCommand().withInterruptBehavior(
+        #         commands2.InterruptionBehavior.kCancelIncoming
+        #     )
+        # )
+        # self.operatorController.povDown().whileTrue(
+        #     FindTargetAndDrive(
+        #         self.operatorController, self.targetingSubsystem, self.driveSubsystem
+        #     )
+        # )
 
-        self.operatorController.a().onTrue(self.intakeSubsystem.intakeCommand())
-        self.operatorController.b().onTrue(
-            loadShooterCommand(
-                self.shooterSubsystem, self.intakeSubsystem, self.elevationSubsystem
-            )
-        )
-        self.operatorController.x().onTrue(self.intakeSubsystem.stopIntakeCommand())
-        self.operatorController.y().onTrue(
-            self.elevationSubsystem.homeShooterCommand().withInterruptBehavior(
-                commands2.InterruptionBehavior.kCancelIncoming
-            )
-        )
-        self.operatorController.povDown().whileTrue(
-            FindTargetAndDrive(
-                self.operatorController, self.targetingSubsystem, self.driveSubsystem
-            )
-        )
         # self.operatorController.a().onTrue(
         #     runOnce(
         #         lambda: self.elevationSubsystem.setLeadscrewPosition(
@@ -318,8 +342,8 @@ class RobotContainer:
             )
         )
 
-    def getAutonomousCommand(self) -> commands2.Command:
-        return self.chooser.getSelected()
+    def getAutonomousCommand(self):
+        return self.autochooser.getSelected()
 
     def autoAimAtSpeakerCommand(self):
         return (
