@@ -59,7 +59,6 @@ class MyRobot(commands2.TimedCommandRobot):
         wpilib.SmartDashboard.putData("Intake", self.container.intakeSubsystem)
         wpilib.SmartDashboard.putData("Elevation", self.container.elevationSubsystem)
 
-
     def disabledInit(self) -> None:
         """This function is called once each time the robot enters Disabled mode."""
 
@@ -79,14 +78,14 @@ class MyRobot(commands2.TimedCommandRobot):
         if self.container.shooterSubsystem.noteInShooter():
             self.container.intakeSubsystem.disallowIntake()
         if self.autonomousCommand:
-            if self.isReal():
-                self.container.elevationSubsystem.homeShooterCommand().andThen(
-                    self.autonomousCommand
-                ).withName(self.autonomousCommand.getName()).schedule()
-            else:
-                self.autonomousCommand.schedule()
+            # if self.isReal():
+            #     self.container.elevationSubsystem.homeShooterCommand().andThen(
+            #         self.autonomousCommand
+            #     ).withName(self.autonomousCommand.getName()).schedule()
+            # else:
+            #     self.autonomousCommand.schedule()
 
-            # self.autonomousCommand.schedule()
+            self.autonomousCommand.schedule()
 
         # self.container.elevationSubsystem.homeShooterCommand().schedule()
         self.container.climberSubsystem.get_homeLeftClimber().andThen(
@@ -104,7 +103,6 @@ class MyRobot(commands2.TimedCommandRobot):
 
         # start logging DS and joystick data
         DriverStation.startDataLog(DataLogManager.getLog())
-
 
         if self.container.shooterSubsystem.noteInShooter():
             self.container.intakeSubsystem.disallowIntake()
