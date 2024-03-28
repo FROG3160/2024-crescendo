@@ -111,25 +111,6 @@ class RobotContainer:
         # self.chooser = wpilib.SendableChooser()
         self.autochooser = AutoBuilder.buildAutoChooser()
 
-        # autosPath = os.path.join(wpilib.getDeployDirectory(), "pathplanner", "autos")
-        # for autoFile in os.listdir(autosPath):
-        #     autoName = autoFile.split(".")[0]
-        #     ppAuto = PathPlannerAuto(autoName)
-        #     self.chooser.addOption(autoName, ppAuto)
-
-        # alternateAuto = (
-        #     Fire(self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem)
-        #     .andThen(
-        #         AutoBuilder.followPath(PathPlannerPath.fromPathFile("Simple Auto Pt.1"))
-        #     )
-        #     .andThen(
-        #         Fire(
-        #             self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
-        #         )
-        #     )
-        #     .deadlineWith(self.autoAimAtSpeakerCommand())
-        # )
-
         # Put the chooser on the dashboard0.5
         wpilib.SmartDashboard.putData("PathPlanner Autos", self.autochooser)
 
@@ -169,15 +150,10 @@ class RobotContainer:
         )
         NamedCommands.registerCommand("Auto Aim", self.autoAimAtSpeakerCommand())
 
-        NamedCommands.registerCommand("TestFire", PrintCommand("Testing Fire"))
-
         NamedCommands.registerCommand(
             "Set Flywheel for Speaker",
             self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand(),
         )
-
-    def testFireCommand(self):
-        return self.shooterSubsystem.runFlywheelsCommand()
 
     def configureButtonBindings(self):
         """
@@ -275,40 +251,40 @@ class RobotContainer:
             runOnce(lambda: self.driveSubsystem.setFieldPositionFromVision())
         )
 
-        # """OPERATOR CONTROLS"""
-        # # Operator Controller Bindings
-        # self.operatorController.axisLessThan(
-        #     wpilib.XboxController.Axis.kLeftY, -0.5
-        # ).whileTrue(self.climberSubsystem.get_ExtendCommand())
-        # self.operatorController.axisGreaterThan(
-        #     wpilib.XboxController.Axis.kLeftY, 0.5
-        # ).whileTrue(self.climberSubsystem.get_RetractCommand())
+        """OPERATOR CONTROLS"""
 
-        # self.operatorController.leftBumper().onTrue(
-        #     self.climberSubsystem.get_homeLeftClimber()
-        # )
-        # self.operatorController.rightBumper().onTrue(
-        #     self.climberSubsystem.get_homeRightClimber()
-        # )
+        # Operator Controller Bindings
+        self.operatorController.axisLessThan(
+            wpilib.XboxController.Axis.kLeftY, -0.5
+        ).whileTrue(self.climberSubsystem.get_ExtendCommand())
+        self.operatorController.axisGreaterThan(
+            wpilib.XboxController.Axis.kLeftY, 0.5
+        ).whileTrue(self.climberSubsystem.get_RetractCommand())
 
-        # self.operatorController.a().onTrue(self.intakeSubsystem.intakeCommand())
-        # self.operatorController.b().onTrue(
-        #     loadShooterCommand(
-        #         self.shooterSubsystem, self.intakeSubsystem, self.elevationSubsystem
-        #     )
-        # )
-        # self.operatorController.x().onTrue(self.intakeSubsystem.stopIntakeCommand())
-        # self.operatorController.y().onTrue(
-        #     self.elevationSubsystem.homeShooterCommand().withInterruptBehavior(
-        #         commands2.InterruptionBehavior.kCancelIncoming
-        #     )
-        # )
-        # self.operatorController.povDown().whileTrue(
-        #     FindTargetAndDrive(
-        #         self.operatorController, self.targetingSubsystem, self.driveSubsystem
-        #     )
-        # )
+        self.operatorController.leftBumper().onTrue(
+            self.climberSubsystem.get_homeLeftClimber()
+        )
+        self.operatorController.rightBumper().onTrue(
+            self.climberSubsystem.get_homeRightClimber()
+        )
 
+        self.operatorController.a().onTrue(self.intakeSubsystem.intakeCommand())
+        self.operatorController.b().onTrue(
+            loadShooterCommand(
+                self.shooterSubsystem, self.intakeSubsystem, self.elevationSubsystem
+            )
+        )
+        self.operatorController.x().onTrue(self.intakeSubsystem.stopIntakeCommand())
+        self.operatorController.y().onTrue(
+            self.elevationSubsystem.homeShooterCommand().withInterruptBehavior(
+                commands2.InterruptionBehavior.kCancelIncoming
+            )
+        )
+        self.operatorController.povDown().whileTrue(
+            FindTargetAndDrive(
+                self.operatorController, self.targetingSubsystem, self.driveSubsystem
+            )
+        )
         # self.operatorController.a().onTrue(
         #     runOnce(
         #         lambda: self.elevationSubsystem.setLeadscrewPosition(
