@@ -102,7 +102,7 @@ class ShooterSubsystem(Subsystem):
 
     def runFlywheels(self):
         # self.flyWheelSpeed = SmartDashboard.getNumber("Flywheel Speed", 0)
-        speedOverride = SmartDashboard.getNumber("Flywheen Speed Override", 0)
+        speedOverride = SmartDashboard.getNumber("Flywheel Speed Override", 0)
         leftFactor = SmartDashboard.getNumber("Left Flywheel Speed Factor Override", 0)
         rightFactor = SmartDashboard.getNumber(
             "Right Flywheel Speed Factor Override", 0
