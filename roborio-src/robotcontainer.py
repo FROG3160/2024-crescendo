@@ -312,11 +312,19 @@ class RobotContainer:
         )
 
         self.intakeSubsystem.getNoteInIntakeTrigger().onTrue(
-            runOnce(lambda: self.driverController.rumble()).alongWith(
+            runOnce(lambda: self.driverController.rightRumble()).alongWith(
                 self.ledSubsystem.ledIntakeCommand()
             )
         ).onFalse(
-            runOnce(lambda: self.driverController.stopRumble()).alongWith(
+            runOnce(lambda: self.driverController.stopRightRumble())
+        )
+
+        self.shooterSubsystem.hasNote().onTrue(
+            runOnce(lambda: self.driverController.leftRumble()).alongWith(
+                self.ledSubsystem.ledShooterCommand()
+            )
+        ).onFalse(
+            runOnce(lambda: self.driverController.stopLeftRumble()).alongWith(
                 self.ledSubsystem.ledDefaultCommand()
             )
         )
