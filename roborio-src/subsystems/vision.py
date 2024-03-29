@@ -2,8 +2,8 @@ from commands2 import Subsystem
 from ntcore import NetworkTableInstance
 from wpimath.geometry import Pose3d, Pose2d
 from wpimath.kinematics import ChassisSpeeds
-from FROGlib.limelight import FROGPositioning, FROGTargeting
-from constants import kLimelightPositioning, kLimelightTargeting
+from FROGlib.limelight import FROGPositioning, FROGTargeting, BotPoseResult
+from constants import kLimelightPositioning, kLimelightTargeting, kTargetSizeThreshold
 from wpilib import SmartDashboard
 import math
 from wpimath.filter import MedianFilter
@@ -27,19 +27,20 @@ class PositioningSubsystem(Subsystem):
         )
 
     def periodic(self) -> None:
-        self.latestPose = self.estimator.getBotPoseEstimateBlue()
+        self.latestData = self.estimator.getBotPoseEstimateBlue()
         # self.latestTransform = self.estimator.getTargetTransform()
-        pose, latency = self.latestPose
-        if latency != -1:
-            SmartDashboard.putString("Vision Estimate", pose.__str__())
-            self._visionPosePub.set(pose.toPose2d())
+
+        if self.latestData.tagCount > 0:
+            SmartDashboard.putString(
+                "Vision Estimate", self.latestData.botPose.__str__()
+            )
+            self._visionPosePub.set(self.latestData.botPose.toPose2d())
 
         # if self.latestTransform:
         #     SmartDashboard.putString("Target Transform", self.latestTransform.__str__())
 
-    def getLatestPoseEstimate(self) -> tuple[Pose3d, float]:
-        if self.latestPose:
-            return (self.latestPose[0], self.latestPose[1])
+    def getLatestData(self) -> BotPoseResult:
+        return self.latestData
 
 
 class TargetingSubsystem(Subsystem):
@@ -53,7 +54,8 @@ class TargetingSubsystem(Subsystem):
 
     def getTargetInRange(self):
         """Returns true if ta is more than 18"""
-        return float(self.camera.ta or 0) > 18.0
+
+        return float(self.camera.ta or 0) > kTargetSizeThreshold
 
     def hasSeenTarget(self):
         """Returns true if tv is 1 (there is a valid target)"""

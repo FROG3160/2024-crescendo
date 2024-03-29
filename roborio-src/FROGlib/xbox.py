@@ -80,6 +80,12 @@ class FROGXboxDriver(CommandXboxController):
         # self.update_nt("button_pov", val)
         return val
 
+    def rumble(self):
+        self._hid.setRumble(RIGHT_RUMBLE, 1)
+
+    def stopRumble(self):
+        self._hid.setRumble(RIGHT_RUMBLE, 0)
+
 
 class FROGXboxOperator(CommandXboxController):
     """Custom Xbox Controller class for the operator controller"""

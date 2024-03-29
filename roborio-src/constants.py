@@ -190,3 +190,5 @@ kFrameWidth = inchesToMeters(28)
 kBumperDepth = inchesToMeters(3.25)
 kTotalLength = kFrameLength + kBumperDepth * 2
 kTotalWidth = kFrameWidth + kBumperDepth * 2
+
+kTargetSizeThreshold = 14.0

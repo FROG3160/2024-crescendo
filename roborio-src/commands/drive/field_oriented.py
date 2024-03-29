@@ -134,13 +134,13 @@ class ManualDrive(Command):
         )
 
 
-class AutoRotateDrive(Command):
+class AutoRotateShooterToSpeaker(Command):
 
     def __init__(
         self, controller: FROGXboxDriver, drive: DriveTrain, table: str = "Undefined"
     ) -> None:
         """Allows manual control of the lateral movement of the drivetrain through use of the specified
-        controller.  Rotation is calculated.
+        controller.  Rotation is calculated to aim the shooter at the speaker.
 
         Args:
             controller (FROGXboxDriver): The controller used to control the drive.
@@ -159,18 +159,30 @@ class AutoRotateDrive(Command):
         )
 
     def execute(self) -> None:
+        if self.drive.resetController:
+            # this is the first time we hit this conditional, so
+            # reset the controller
+            self.drive.resetController = False
+            self.drive.resetRotationController()
 
-        vT = self.drive.getvTtoTag()
+        # we need the change in rotation to point at the speaker
+        changeInRotation = self.drive.getFiringHeadingForSpeaker()
+        currentRotation = self.drive.getRotation2d()
+
+        vT = self.drive.profiledRotationController.calculate(
+            currentRotation.radians(), (currentRotation + changeInRotation).radians()
+        )
         self._calculated_vTPub.set(vT)
-
+        # Only rotation is calculated/automated.  The driver still needs
+        # to use the controller to move the joystick across the field
         if self.drive.onRedAlliance():
             vX = -self.controller.getSlewLimitedFieldForward()
             vY = -self.controller.getSlewLimitedFieldLeft()
         else:
             vX = self.controller.getSlewLimitedFieldForward()
             vY = self.controller.getSlewLimitedFieldLeft()
-
-        self.drive.fieldOrientedDrive(
+        # vT is calculated by the controller and should not be throttled
+        self.drive.fieldOrientedAutoRotateDrive(
             # self._vX, self._vY, self._vT, self._throttle
             vX,
             vY,
@@ -179,7 +191,7 @@ class AutoRotateDrive(Command):
         )
 
 
-class AutoRotateDriveTowardsAmpCorner(Command):
+class AutoRotateShooterTowardsAmpCorner(Command):
 
     def __init__(
         self, controller: FROGXboxDriver, drive: DriveTrain, table: str = "Undefined"
@@ -202,15 +214,6 @@ class AutoRotateDriveTowardsAmpCorner(Command):
             .getFloatTopic(f"{self.nt_table}/calculated_vT")
             .publish()
         )
-        profiledRotationConstraints = TrapezoidProfileRadians.Constraints(
-            constants.kProfiledMaxVelocity, constants.kProfiledMaxAccel
-        )
-        self.profiledRotationController = ProfiledPIDControllerRadians(
-            constants.kProfiledP,
-            constants.kProfiledI,
-            constants.kProfiledD,
-            profiledRotationConstraints,
-        )
 
     def execute(self) -> None:
 
@@ -219,13 +222,23 @@ class AutoRotateDriveTowardsAmpCorner(Command):
         self.current_x_pos = self.drive.getPose().x
         self.current_y_pos = self.drive.getPose().y
         if self.drive.onRedAlliance():
-            vT = self.profiledRotationController.calculate(
+            if self.drive.resetController:
+                # this is the first time we hit this conditional, so
+                # reset the controller
+                self.drive.resetController = False
+                self.drive.resetRotationController()
+            vT = self.drive.profiledRotationController.calculate(
                 driveRotation2d.radians(),
                 math.atan2(8.21 - self.current_y_pos, 16.54 - self.current_x_pos)
                 - math.pi,
             )
         else:
-            vT = self.profiledRotationController.calculate(
+            if self.drive.resetController:
+                # this is the first time we hit this conditional, so
+                # reset the controller
+                self.drive.resetController = False
+                self.drive.resetRotationController()
+            vT = self.drive.profiledRotationController.calculate(
                 driveRotation2d.radians(),
                 -math.atan2(8.21 - self.current_y_pos, self.current_x_pos),
             )
@@ -238,7 +251,7 @@ class AutoRotateDriveTowardsAmpCorner(Command):
             vX = self.controller.getSlewLimitedFieldForward()
             vY = self.controller.getSlewLimitedFieldLeft()
 
-        self.drive.fieldOrientedDrive(
+        self.drive.fieldOrientedAutoRotateDrive(
             # self._vX, self._vY, self._vT, self._throttle
             vX,
             vY,

@@ -1,51 +1,32 @@
 {
   "version": 1.0,
-  "startingPose": null,
+  "startingPose": {
+    "position": {
+      "x": 1.3984820622261451,
+      "y": 5.507130871149041
+    },
+    "rotation": 0
+  },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
-          "type": "sequential",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "Fire"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Simple Auto Pt.1"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 1.25
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake And Load"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Auto Aim"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Fire"
-                }
-              }
-            ]
+            "name": "Set Flywheel for Speaker"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Fire"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Simple Auto Pt.1"
           }
         }
       ]

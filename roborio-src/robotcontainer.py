@@ -23,8 +23,11 @@ from constants import (
     kRotSlew,
 )
 from commands2.cmd import runOnce
-from commands2 import DeferredCommand
+from commands2 import DeferredCommand, PrintCommand
+
 from FROGlib.xbox import FROGXboxDriver, FROGXboxOperator
+from FROGlib.led import FROGLED
+
 from subsystems.drivetrain import DriveTrain
 from pathplannerlib.auto import PathPlannerAuto, NamedCommands, AutoBuilder
 from pathplannerlib.path import PathPlannerPath, PathConstraints
@@ -40,8 +43,8 @@ from subsystems.climber import ClimberSubsystem
 from subsystems.elevation import ElevationSubsystem
 from commands.drive.field_oriented import (
     ManualDrive,
-    AutoRotateDrive,
-    AutoRotateDriveTowardsAmpCorner,
+    AutoRotateShooterToSpeaker,
+    AutoRotateShooterTowardsAmpCorner,
 )
 from commands.drive.robot_oriented import DriveToTarget
 from commands.shooter.load import IntakeAndLoad, loadShooterCommand
@@ -85,6 +88,7 @@ class RobotContainer:
             self.positioningSubsystem, self.elevationSubsystem
         )
         self.shooterSubsystem = ShooterSubsystem()
+        self.ledSubsystem = FROGLED(9)
 
         self.registerNamedCommands()
 
@@ -104,16 +108,11 @@ class RobotContainer:
         # )
 
         # Chooser
-        self.chooser = wpilib.SendableChooser()
+        # self.chooser = wpilib.SendableChooser()
+        self.autochooser = AutoBuilder.buildAutoChooser()
 
-        autosPath = os.path.join(wpilib.getDeployDirectory(), "pathplanner", "autos")
-        for autoFile in os.listdir(autosPath):
-            autoName = autoFile.split(".")[0]
-            ppAuto = PathPlannerAuto(autoName)
-            self.chooser.addOption(autoName, ppAuto)
-
-        # Put the chooser on the dashboard
-        wpilib.SmartDashboard.putData("PathPlanner Autos", self.chooser)
+        # Put the chooser on the dashboard0.5
+        wpilib.SmartDashboard.putData("PathPlanner Autos", self.autochooser)
 
     def registerNamedCommands(self):
 
@@ -149,7 +148,12 @@ class RobotContainer:
         NamedCommands.registerCommand(
             "Retract Arms", self.climberSubsystem.get_RetractCommand()
         )
-        NamedCommands.registerCommand("Auto Aim", self.autoAimCommand())
+        NamedCommands.registerCommand("Auto Aim", self.autoAimAtSpeakerCommand())
+
+        NamedCommands.registerCommand(
+            "Set Flywheel for Speaker",
+            self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand(),
+        )
 
     def configureButtonBindings(self):
         """
@@ -161,12 +165,12 @@ class RobotContainer:
         """DRIVER CONTROLS"""
 
         self.driverController.a().and_(self.shooterSubsystem.hasNote()).whileTrue(
-            self.autoAimCommand()
+            self.autoAimAtSpeakerCommand()
         )  # .whileFalse(self.elevationSubsystem.moveToLoadPositionCommand())
 
-        self.driverController.start().and_(self.shooterSubsystem.hasNote()).whileTrue(
+        self.driverController.back().and_(self.shooterSubsystem.hasNote()).whileTrue(
             self.autoAimTowardsAmpCommand()
-        ).whileFalse(self.elevationSubsystem.moveToLoadPositionCommand())
+        )  # .whileFalse(self.elevationSubsystem.moveToLoadPositionCommand())
 
         self.driverController.b().whileTrue(
             ThrottledDriveToTarget(
@@ -307,21 +311,41 @@ class RobotContainer:
             )
         )
 
-    def getAutonomousCommand(self) -> commands2.Command:
-        return self.chooser.getSelected()
+        self.intakeSubsystem.getNoteInIntakeTrigger().onTrue(
+            runOnce(lambda: self.driverController.rumble()).alongWith(
+                self.ledSubsystem.ledIntakeCommand()
+            )
+        ).onFalse(
+            runOnce(lambda: self.driverController.stopRumble()).alongWith(
+                self.ledSubsystem.ledDefaultCommand()
+            )
+        )
 
-    def autoAimCommand(self):
-        return self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand().andThen(
-            self.elevationSubsystem.autoMoveRunWithDistanceCommand().alongWith(
-                AutoRotateDrive(self.driverController, self.driveSubsystem)
+    def getAutonomousCommand(self):
+        return self.autochooser.getSelected()
+
+    def autoAimAtSpeakerCommand(self):
+        return (
+            self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand()
+            .andThen(self.driveSubsystem.resetRotationControllerCommand())
+            .andThen(
+                self.elevationSubsystem.autoMoveRunWithDistanceCommand().alongWith(
+                    AutoRotateShooterToSpeaker(
+                        self.driverController, self.driveSubsystem
+                    )
+                )
             )
         )
 
     def autoAimTowardsAmpCommand(self):
-        return self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand().andThen(
-            self.elevationSubsystem.moveToLoadPositionCommand().alongWith(
-                AutoRotateDriveTowardsAmpCorner(
-                    self.driverController, self.driveSubsystem
+        return (
+            self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand()
+            .andThen(self.driveSubsystem.resetRotationControllerCommand())
+            .andThen(
+                self.elevationSubsystem.moveToLoadPositionCommand().alongWith(
+                    AutoRotateShooterTowardsAmpCorner(
+                        self.driverController, self.driveSubsystem
+                    )
                 )
             )
         )
