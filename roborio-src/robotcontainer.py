@@ -113,6 +113,7 @@ class RobotContainer:
 
         # Put the chooser on the dashboard0.5
         wpilib.SmartDashboard.putData("PathPlanner Autos", self.autochooser)
+        wpilib.SmartDashboard.putNumber("TranslationP", 1)
 
     def registerNamedCommands(self):
 
@@ -186,9 +187,9 @@ class RobotContainer:
             Fire(self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem)
         )
 
-        self.driverController.povRight().whileTrue(
+        self.driverController.povLeft().whileTrue(
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Amp Approach"))
-            .withName("Approach Amp Red")
+            .withName("Approach Amp")
             .alongWith(self.elevationSubsystem.moveToAmpPositionCommand())
             .andThen(self.shooterSubsystem.setFlywheelSpeedForAmpCommand())
             .andThen(
@@ -198,14 +199,14 @@ class RobotContainer:
             )
             .withName("FollowPath")
         )
-        self.driverController.povLeft().whileTrue(
+        self.driverController.povRight().whileTrue(
             AutoBuilder.pathfindToPoseFlipped(
-                Pose2d(1.84, 7.72, Rotation2d().fromDegrees(-90)),
+                Pose2d(1.84, 7.60, Rotation2d().fromDegrees(-90)),
                 PathConstraints(
-                    2.0,
-                    2.0,
-                    constants.kMaxChassisRadiansPerSec,
-                    constants.kMaxChassisRadiansPerSec * 2,
+                    constants.kMaxTrajectorySpeed / 2,
+                    constants.kMaxTrajectoryAccel,
+                    constants.kProfiledRotationMaxVelocity,
+                    constants.kProfiledRotationMaxAccel,
                 ),
                 #     PathPlannerPath.fromPathFile("Amp Approach"))
                 # .withName("Approach Amp Blue")
@@ -222,7 +223,8 @@ class RobotContainer:
         self.driverController.povUp().whileTrue(
             # we use a "deffered command" so that driveToStageCommand can assess the robot's location
             # at the time the command is run instead of when the key binding occurs.
-            DeferredCommand(lambda: self.driveSubsystem.driveToStageCommand())
+            # DeferredCommand(lambda: self.driveSubsystem.driveToStageCommand())
+            DeferredCommand(lambda: self.testFollowPathCommand())
         )
 
         self.driverController.povDown().whileTrue(
@@ -231,12 +233,12 @@ class RobotContainer:
             AutoBuilder.pathfindThenFollowPath(
                 PathPlannerPath.fromPathFile("Amp Approach"),
                 PathConstraints(
-                    2.0,
-                    3.0,
-                    constants.kMaxChassisRadiansPerSec,
-                    constants.kMaxChassisRadiansPerSec * 2,
+                    constants.kMaxTrajectorySpeed / 2,
+                    constants.kMaxTrajectoryAccel,
+                    constants.kProfiledRotationMaxVelocity,
+                    constants.kProfiledRotationMaxAccel,
                 ),
-            ).withName("PahtFindThenFollowPath")
+            ).withName("PathFindThenFollowPath")
         )
 
         # followPath(
@@ -346,3 +348,15 @@ class RobotContainer:
                 )
             )
         )
+
+    def testFollowPathCommand(self):
+        pathCommand = AutoBuilder.followPath(
+            PathPlannerPath.fromPathFile("Slalom Run")
+        ).withName("Straight Run Test")
+        pathCommand._command._controller._xController.setP(
+            wpilib.SmartDashboard.getNumber("TranslationP", 1)
+        )
+        pathCommand._command._controller._yController.setP(
+            wpilib.SmartDashboard.getNumber("TranslationP", 1)
+        )
+        return pathCommand
