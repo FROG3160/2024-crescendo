@@ -124,6 +124,14 @@ class IntakeSubsystem(Subsystem):
         # used to kill the intake outside normal operations
         return self.runOnce(self.stopIntake).withName("StopIntake")
 
+    def reverseIntake(self) -> None:
+        # used to reverse intake
+        self.controlIntake(-kRollerVoltage)
+
+    def reverseIntakeCommand(self) -> Command:
+        # used to reverse intake motor outside normal operations
+        return self.run(self.reverseIntake).withName("ReverseIntake")
+
     # Intake Methods
     def runIntake(self) -> None:
         self.state = self.State.Intaking
@@ -135,11 +143,6 @@ class IntakeSubsystem(Subsystem):
         else:
             self.state = self.State.Waiting
         self.controlIntake(0)
-
-    def reverseIntake(self, interrupted) -> None:
-        # used to reverse intake if note undetected after a set amount of seconds
-        if interrupted:
-            self.controlIntake(-kRollerVoltage)
 
     def controlIntake(self, voltage):
         # setting it to an attribute so we can log the value if needed
