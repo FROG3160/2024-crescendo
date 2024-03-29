@@ -39,12 +39,12 @@ class ManualDrive(Command):
         self.addRequirements(self.drive)
         self.resetController = True
         profiledRotationConstraints = TrapezoidProfileRadians.Constraints(
-            constants.kProfiledMaxVelocity, constants.kProfiledMaxAccel
+            constants.kProfiledRotationMaxVelocity, constants.kProfiledRotationMaxAccel
         )
         self.profiledRotationController = ProfiledPIDControllerRadians(
-            constants.kProfiledP,
-            constants.kProfiledI,
-            constants.kProfiledD,
+            constants.kProfiledRotationP,
+            constants.kProfiledRotationI,
+            constants.kProfiledRotationD,
             profiledRotationConstraints,
         )
         self.nt_table = f"{table}/{type(self).__name__}"

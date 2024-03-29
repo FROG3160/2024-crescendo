@@ -70,12 +70,12 @@ class DriveTrain(SwerveChassis):
         self.estimatorPose = Pose2d(0, 0, Rotation2d(0))
 
         self.profiledRotationConstraints = TrapezoidProfileRadians.Constraints(
-            constants.kProfiledMaxVelocity, constants.kProfiledMaxAccel
+            constants.kProfiledRotationMaxVelocity, constants.kProfiledRotationMaxAccel
         )
         self.profiledRotationController = ProfiledPIDControllerRadians(
-            constants.kProfiledP,
-            constants.kProfiledI,
-            constants.kProfiledD,
+            constants.kProfiledRotationP,
+            constants.kProfiledRotationI,
+            constants.kProfiledRotationD,
             self.profiledRotationConstraints,
         )
 
