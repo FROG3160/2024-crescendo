@@ -86,8 +86,8 @@ class DriveTrain(SwerveChassis):
             self.getRobotRelativeSpeeds,  # ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
             self.setChassisSpeeds,  # Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
             HolonomicPathFollowerConfig(  # HolonomicPathFollowerConfig, this should likely live in your Constants class
-                configs.holonomicTranslationPID,  # Translation PID constants
-                configs.holonomicRotationPID,  # Rotation PID constants
+                configs.autobuilderHolonomicTranslationPID,  # Translation PID constants
+                configs.autobuilderHolonomicRotationPID,  # Rotation PID constants
                 self.max_speed,  # Max module speed, in m/s
                 constants.kDriveBaseRadius,  # Drive base radius in meters. Distance from robot center to furthest module.
                 ReplanningConfig(),  # Default path replanning config. See the API for the options here
