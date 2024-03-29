@@ -31,8 +31,8 @@ driveVoltageGains = (
 )
 
 
-holonomicTranslationPID = PIDConstants(1.0, 0.0, 0.0)
-holonomicRotationPID = PIDConstants(1.0, 0.0, 0.0)
+autobuilderHolonomicTranslationPID = PIDConstants(1.0, 0.0, 0.0)
+autobuilderHolonomicRotationPID = PIDConstants(0.4, 0.0, 0.0)
 
 motorOutputCCWPandBrake = (
     MotorOutputConfigs()
