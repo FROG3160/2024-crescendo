@@ -3,7 +3,7 @@ from ntcore import NetworkTableInstance
 from wpimath.geometry import Pose3d, Pose2d
 from wpimath.kinematics import ChassisSpeeds
 from FROGlib.limelight import FROGPositioning, FROGTargeting, BotPoseResult
-from constants import kLimelightPositioning, kLimelightTargeting
+from constants import kLimelightPositioning, kLimelightTargeting, kTargetSizeThreshold
 from wpilib import SmartDashboard
 import math
 from wpimath.filter import MedianFilter
@@ -54,7 +54,8 @@ class TargetingSubsystem(Subsystem):
 
     def getTargetInRange(self):
         """Returns true if ta is more than 18"""
-        return float(self.camera.ta or 0) > 18.0
+
+        return float(self.camera.ta or 0) > kTargetSizeThreshold
 
     def hasSeenTarget(self):
         """Returns true if tv is 1 (there is a valid target)"""
