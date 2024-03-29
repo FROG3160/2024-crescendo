@@ -87,9 +87,26 @@ class ShooterSubsystem(Subsystem):
         SmartDashboard.putNumber("Left Flywheel Speed Factor Override", 0)
         SmartDashboard.putNumber("Right Flywheel Speed Factor Override", 0)
 
-    def setFlywheelSpeed(self, flywheelSpeed: float):
-        self.flyWheelSpeed = flywheelSpeed
+    # Flywheel Bools
+    def flywheelAtSpeed(self) -> bool:
+        flywheelTolerance = self.flyWheelSpeed * 0.1
+        if (
+            abs(
+                self.flyWheelSpeed * self.leftFlyWheelSpeedFactor
+                - self.leftFlyWheel.get_velocity().value
+            )
+            < flywheelTolerance
+            and abs(
+                self.flyWheelSpeed * self.rightFlyWheelSpeedFactor
+                - abs(self.rightFlyWheel.get_velocity().value)
+            )
+            < flywheelTolerance
+        ):
+            return True
+        else:
+            return False
 
+    # Flywheel commands
     def setFlywheelSpeedForAmpCommand(self) -> Command:
         return self.runOnce(lambda: self.setFlywheelSpeed(20)).withName(
             "Set Flywheel Speed for Amp"
@@ -99,6 +116,16 @@ class ShooterSubsystem(Subsystem):
         return self.runOnce(lambda: self.setFlywheelSpeed(100)).withName(
             "Set Flywheel Speed for Speaker"
         )
+
+    def runFlywheelsCommand(self) -> Command:
+        return self.runOnce(self.runFlywheels).withName("RunFlywheels")
+
+    def stopFlywheelsCommand(self) -> Command:
+        return self.runOnce(self.stopFlywheels).withName("StopFlywheels")
+
+    # Flywheel Methods
+    def setFlywheelSpeed(self, flywheelSpeed: float):
+        self.flyWheelSpeed = flywheelSpeed
 
     def runFlywheels(self):
         # self.flyWheelSpeed = SmartDashboard.getNumber("Flywheel Speed", 0)
@@ -124,33 +151,9 @@ class ShooterSubsystem(Subsystem):
             )
         )
 
-    def runFlywheelsCommand(self) -> Command:
-        return self.runOnce(self.runFlywheels).withName("RunFlywheels")
-
     def stopFlywheels(self):
         self.leftFlyWheel.set_control(VelocityVoltage(velocity=0, slot=0))
         self.rightFlyWheel.set_control(VelocityVoltage(velocity=0, slot=0))
-
-    def stopFlywheelsCommand(self) -> Command:
-        return self.runOnce(self.stopFlywheels).withName("StopFlywheels")
-
-    def flywheelAtSpeed(self) -> bool:
-        flywheelTolerance = self.flyWheelSpeed * 0.1
-        if (
-            abs(
-                self.flyWheelSpeed * self.leftFlyWheelSpeedFactor
-                - self.leftFlyWheel.get_velocity().value
-            )
-            < flywheelTolerance
-            and abs(
-                self.flyWheelSpeed * self.rightFlyWheelSpeedFactor
-                - abs(self.rightFlyWheel.get_velocity().value)
-            )
-            < flywheelTolerance
-        ):
-            return True
-        else:
-            return False
 
     def leftFlywheelActualSpeed(self):
         return self.leftFlyWheel.get_velocity().value
@@ -158,25 +161,7 @@ class ShooterSubsystem(Subsystem):
     def rightFlywheelActualSpeed(self):
         return self.rightFlyWheel.get_velocity().value
 
-    def controlSequencer(self, percent):
-        self.sequencerCommandedPercent = percent
-        self.sequencer.set(
-            TalonSRXControlMode.PercentOutput, self.sequencerCommandedPercent
-        )
-
-    def loadWithSequencer(self):
-        self.controlSequencer(constants.kLoadWheelsPercent)
-
-    def fireWithSequencer(self):
-        self.controlSequencer(constants.kSequencerShootPercent)
-
-    def stopSequencer(self):
-        self.controlSequencer(0)
-
-    def stopShooting(self):
-        self.stopSequencer()
-        self.stopFlywheels()
-
+    # Sequencer Commands
     def homeNoteCommand(self) -> Command:
         return (
             self.startEnd(
@@ -197,6 +182,34 @@ class ShooterSubsystem(Subsystem):
     def fireSequencerCommand(self) -> Command:
         return self.runOnce(self.fireWithSequencer).withName("RunSequencer")
 
+    # sequencer methods
+    def controlSequencer(self, percent):
+        self.sequencerCommandedPercent = percent
+        self.sequencer.set(
+            TalonSRXControlMode.PercentOutput, self.sequencerCommandedPercent
+        )
+
+    def loadWithSequencer(self):
+        self.controlSequencer(constants.kLoadWheelsPercent)
+
+    def fireWithSequencer(self):
+        self.controlSequencer(constants.kSequencerShootPercent)
+
+    def stopSequencer(self):
+        self.controlSequencer(0)
+
+    # Shooter Bools
+    def noteInShooter(self) -> bool:
+        return not self.shooterSensor.get()
+
+    # Shooter Triggers
+    def hasNote(self):
+        return Trigger(lambda: self.noteInShooter())
+
+    # Shooting Commands
+    def stopShootingCommand(self) -> Command:
+        return self.runOnce(self.stopShooting)
+
     def shootCommand(self) -> Command:
         return (
             self.runFlywheelsCommand()  # run the flywheel at the commanded speed
@@ -214,19 +227,16 @@ class ShooterSubsystem(Subsystem):
             .andThen(self.stopFlywheelsCommand())
         )
 
-    def stopShootingCommand(self) -> Command:
-        return self.runOnce(self.stopShooting)
-
-    def noteInShooter(self) -> bool:
-        return not self.shooterSensor.get()
-
-    def hasNote(self):
-        return Trigger(lambda: self.noteInShooter())
+    # shooting Methods
+    def stopShooting(self):
+        self.stopSequencer()
+        self.stopFlywheels()
 
     def periodic(self) -> None:
         self.logTelemetry()
         self.publishOnSmartDashboard()
 
+    # Smart Dashboard publishing
     def publishOnSmartDashboard(self):
         SmartDashboard.putBoolean("Note in Shooter", self.noteInShooter())
         SmartDashboard.putBoolean("Flywheel At Speed", self.flywheelAtSpeed())
