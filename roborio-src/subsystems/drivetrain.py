@@ -229,10 +229,11 @@ class DriveTrain(SwerveChassis):
             ):
                 # TODO:  We may want to validate the first instance of tagData
                 # is a valid tag by checking tagData[0].id > 0
-                stddev = remap(
-                    latestVisionResult.tagData[0].distanceToRobot, 0, 3, 0.3, 0.9
+                translationStdDev = remap(
+                    latestVisionResult.tagData[0].distanceToRobot, 2, 6, 0.3, 1.0
                 )
-                SmartDashboard.putNumber("stddev", stddev)
+                rotationStdDev = math.pi
+                SmartDashboard.putNumber("TranslationStdDev", translationStdDev)
                 SmartDashboard.putNumber(
                     "distanceToTag", latestVisionResult.tagData[0].distanceToRobot
                 )
@@ -243,7 +244,7 @@ class DriveTrain(SwerveChassis):
                 self.estimator.addVisionMeasurement(
                     latestVisionResult.botPose.toPose2d(),
                     latestVisionResult.timestamp,
-                    (stddev, stddev, math.pi / 4),
+                    (translationStdDev, translationStdDev, rotationStdDev),
                 )
             # self.estimator.addVisionMeasurement(
             #     visionPose.toPose2d(), visionTimestamp, (0.2, 0.2, math.pi / 8)
