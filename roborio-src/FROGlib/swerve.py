@@ -294,11 +294,38 @@ class SwerveChassis(Subsystem):
             vY (float): velocity requested in the Y direction, to the left when at the
                 driver station facing the field.  A proportion of the maximum speed.  (-1 to 1)
             vT (float): rotational velocity requested, CCW positive (-1 to 1)
-                throttle (float, optional): a proportion of all 3 speeds commanded. Defaults to 1.0.
+            throttle (float, optional): a proportion of all 3 speeds commanded.
+                Defaults to 1.0.
         """
         xSpeed = vX * self.max_speed * throttle
         ySpeed = vY * self.max_speed * throttle
         rotSpeed = vT * self.max_rotation_speed * throttle
+        self.chassisSpeeds = ChassisSpeeds.discretize(
+            ChassisSpeeds.fromFieldRelativeSpeeds(
+                xSpeed, ySpeed, rotSpeed, self.getRotation2d()
+            ),
+            self.loopTime,
+        )
+
+    def fieldOrientedAutoRotateDrive(
+        self, vX: float, vY: float, vT: float, throttle=1.0
+    ):
+        """Calculates the necessary chassis speeds given the commanded field-oriented
+        x, y, and rotational speeds.  An optional throttle value adjusts only the x
+        and y speeds.  The rotational speed is not affected by the throttle.
+
+        Args:
+            vX (float): velocity requested in the X direction, downfield, away from
+                the driver station.  A proportion of the maximum speed.  (-1 to 1)
+            vY (float): velocity requested in the Y direction, to the left when at the
+                driver station facing the field.  A proportion of the maximum speed.  (-1 to 1)
+            vT (float): rotational velocity requested, CCW positive (-1 to 1)
+            throttle (float, optional): a proportion of the x and y speeds commanded.
+                Defaults to 1.0.
+        """
+        xSpeed = vX * self.max_speed * throttle
+        ySpeed = vY * self.max_speed * throttle
+        rotSpeed = vT * self.max_rotation_speed
         self.chassisSpeeds = ChassisSpeeds.discretize(
             ChassisSpeeds.fromFieldRelativeSpeeds(
                 xSpeed, ySpeed, rotSpeed, self.getRotation2d()
