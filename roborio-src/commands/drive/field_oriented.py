@@ -166,11 +166,11 @@ class AutoRotateShooterToSpeaker(Command):
             self.drive.resetRotationController()
 
         # we need the change in rotation to point at the speaker
-        changeInRotation = self.drive.getFiringHeadingForSpeaker()
+        goalFiringHeading = self.drive.getFiringHeadingForSpeaker()
         currentRotation = self.drive.getRotation2d()
 
         vT = self.drive.profiledRotationController.calculate(
-            currentRotation.radians(), (currentRotation + changeInRotation).radians()
+            currentRotation.radians(), goalFiringHeading.radians()
         )
         self._calculated_vTPub.set(vT)
         # Only rotation is calculated/automated.  The driver still needs
