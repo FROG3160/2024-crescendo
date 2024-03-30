@@ -3,7 +3,13 @@ from ntcore import NetworkTableInstance
 from wpimath.geometry import Pose3d, Pose2d
 from wpimath.kinematics import ChassisSpeeds
 from FROGlib.limelight import FROGPositioning, FROGTargeting, BotPoseResult
-from constants import kLimelightPositioning, kLimelightTargeting, kTargetSizeThreshold
+from constants import (
+    kLimelightPositioning,
+    kLimelightTargeting,
+    kTargetSizeThreshold,
+    kMaxChassisRadiansPerSec,
+    kMaxMetersPerSecond,
+)
 from wpilib import SmartDashboard
 from commands2.button import Trigger
 import math
@@ -103,10 +109,10 @@ class TargetingSubsystem(Subsystem):
             to the left is negative, to the right is positive.
 
         Returns:
-            Float: Rotational velocity with CCW (left, robot oriented) positive.
+            Float: Rotational velocity (radians/sec) with CCW (left, robot oriented) positive.
         """
         if tv := self.camera.tv:
-            return self.filterVT.calculate(-(tv / 25))
+            return self.filterVT.calculate(-(tv / 25) * kMaxChassisRadiansPerSec)
         else:
             return self.filterVT.calculate(0)
 
