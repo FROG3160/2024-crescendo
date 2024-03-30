@@ -284,9 +284,10 @@ class RobotContainer:
         ).onFalse(runOnce(lambda: self.driverController.stopRightRumble()))
 
         self.shooterSubsystem.hasNote().onTrue(
-            runOnce(lambda: self.driverController.leftRumble()).alongWith(
-                self.ledSubsystem.ledShooterCommand()
-            )
+            runOnce(lambda: self.driverController.leftRumble())
+            .alongWith(self.ledSubsystem.ledShooterCommand())
+            .withTimeout(1)
+            .finallyDo(lambda: self.driverController.stopLeftRumble())
         ).onFalse(
             runOnce(lambda: self.driverController.stopLeftRumble()).alongWith(
                 self.ledSubsystem.ledDefaultCommand()
