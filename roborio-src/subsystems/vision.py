@@ -111,8 +111,8 @@ class TargetingSubsystem(Subsystem):
         Returns:
             Float: Rotational velocity (radians/sec) with CCW (left, robot oriented) positive.
         """
-        if tv := self.camera.tv:
-            return self.filterVT.calculate(-(tv / 25) * kMaxChassisRadiansPerSec)
+        if tx := self.camera.tx:
+            return self.filterVT.calculate(-(tx / 25))
         else:
             return self.filterVT.calculate(0)
 

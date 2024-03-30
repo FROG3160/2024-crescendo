@@ -178,9 +178,7 @@ class RobotContainer:
         )  # .whileFalse(self.elevationSubsystem.moveToLoadPositionCommand())
 
         self.driverController.b().whileTrue(
-            ThrottledDriveToTarget(
-                self.driveSubsystem, self.targetingSubsystem, self.driverController
-            )
+            DriveToTarget(self.driveSubsystem, self.targetingSubsystem)
         )
         self.driverController.x().onTrue(
             self.elevationSubsystem.moveToLoadPositionCommand()
