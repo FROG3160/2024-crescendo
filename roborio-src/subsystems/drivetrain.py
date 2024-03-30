@@ -78,6 +78,7 @@ class DriveTrain(SwerveChassis):
             constants.kProfiledRotationD,
             self.profiledRotationConstraints,
         )
+        self.profiledRotationController.enableContinuousInput(-math.pi, math.pi)
 
         # Configure the AutoBuilder last
         AutoBuilder.configureHolonomic(
