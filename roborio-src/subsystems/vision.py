@@ -70,14 +70,12 @@ class TargetingSubsystem(Subsystem):
         Returns:
             Float: Velocity (m/s) in the X direction (robot oriented)
         """
-        # speed(distance(ty))
-        if self.camera.tv == 0:
-            targetVertical = 0
-        else:
-            targetVertical = min(
-                2, (0.020833 * (14.7 * math.exp(0.0753 * self.camera.ty))) * 2
+        if ty := self.camera.ty:
+            return self.filterVX.calculate(
+                min(2.0, (0.020833 * (14.7 * math.exp(0.0753 * ty) * 2)))
             )
-        return self.filterVX.calculate(float(targetVertical))
+        else:
+            return self.filterVX.calculate(0)
 
     def calculate_vt(self):
         """Calculate the rotational speed from the X value of the target in the camera frame.
@@ -91,11 +89,11 @@ class TargetingSubsystem(Subsystem):
         Returns:
             Float: Rotational velocity with CCW (left, robot oriented) positive.
         """
-        if self.camera.tv == 0:
-            targetHorizontal = 0
+        if tv := self.camera.tv:
+            return self.filterVT.calculate(-(tv / 25))
         else:
-            targetHorizontal = -(self.camera.tx / 25)
-        return self.filterVT.calculate(targetHorizontal)
+            return self.filterVT.calculate(0)
+
 
     def getChassisSpeeds(self):
         """Get calculated velocities from vision target data"""
