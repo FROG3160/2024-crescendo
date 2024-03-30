@@ -13,7 +13,6 @@ import commands2
 import constants
 import configs
 from commands2.cmd import runOnce
-from FROGlib.led import FROGLED
 from wpimath.geometry import Pose2d
 from wpilib import DataLogManager, DriverStation
 from wpilib import RobotController
@@ -60,10 +59,6 @@ class MyRobot(commands2.TimedCommandRobot):
         wpilib.SmartDashboard.putData("Intake", self.container.intakeSubsystem)
         wpilib.SmartDashboard.putData("Elevation", self.container.elevationSubsystem)
 
-        self.led = FROGLED(9)
-        # ADD CAN ID
-        self.led.default()
-
     def disabledInit(self) -> None:
         """This function is called once each time the robot enters Disabled mode."""
 
@@ -83,14 +78,14 @@ class MyRobot(commands2.TimedCommandRobot):
         if self.container.shooterSubsystem.noteInShooter():
             self.container.intakeSubsystem.disallowIntake()
         if self.autonomousCommand:
-            if self.isReal():
-                self.container.elevationSubsystem.homeShooterCommand().andThen(
-                    self.autonomousCommand
-                ).withName(self.autonomousCommand.getName()).schedule()
-            else:
-                self.autonomousCommand.schedule()
+            # if self.isReal():
+            #     self.container.elevationSubsystem.homeShooterCommand().andThen(
+            #         self.autonomousCommand
+            #     ).withName(self.autonomousCommand.getName()).schedule()
+            # else:
+            #     self.autonomousCommand.schedule()
 
-            # self.autonomousCommand.schedule()
+            self.autonomousCommand.schedule()
 
         # self.container.elevationSubsystem.homeShooterCommand().schedule()
         self.container.climberSubsystem.get_homeLeftClimber().andThen(

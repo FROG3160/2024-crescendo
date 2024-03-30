@@ -7,6 +7,7 @@ from wpilib.interfaces import GenericHID
 import constants
 
 RIGHT_RUMBLE = GenericHID.RumbleType.kRightRumble
+LEFT_RUMBLE = GenericHID.RumbleType.kLeftRumble
 
 
 class FROGXboxDriver(CommandXboxController):
@@ -79,6 +80,18 @@ class FROGXboxDriver(CommandXboxController):
             self.setRumble(RIGHT_RUMBLE, 0)
         # self.update_nt("button_pov", val)
         return val
+    
+    def leftRumble(self):
+        self._hid.setRumble(LEFT_RUMBLE, 1)
+
+    def stopLeftRumble(self):
+        self._hid.setRumble(LEFT_RUMBLE, 0)
+
+    def rightRumble(self):
+        self._hid.setRumble(RIGHT_RUMBLE, 1)
+
+    def stopRightRumble(self):
+        self._hid.setRumble(RIGHT_RUMBLE, 0)
 
 
 class FROGXboxOperator(CommandXboxController):

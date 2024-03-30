@@ -3,48 +3,59 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.3950925173499227,
-        "y": 1.499681670774967
+        "x": 2.8947741881248894,
+        "y": 4.119255498297474
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.105980582067926,
-        "y": 1.4899434781075978
+        "x": 3.985451766870319,
+        "y": 4.138731883632214
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.0700616561375482,
-        "y": 2.0352822674803126
+        "x": 2.8947741881248894,
+        "y": 5.560508013068222
       },
       "prevControl": {
-        "x": 3.0522516023578845,
-        "y": 1.305070062514087
+        "x": 3.9950692204796785,
+        "y": 5.544207345922226
       },
       "nextControl": {
-        "x": 3.0895380414722875,
-        "y": 2.833814066204645
+        "x": 1.580118178029951,
+        "y": 5.57998439840296
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.6647280672971791,
-        "y": 4.391924892983831
+        "x": 2.8947741881248894,
+        "y": 7.001760527838968
       },
       "prevControl": {
-        "x": 0.6355134892950695,
-        "y": 3.0091015342173035
+        "x": 1.5995945633646906,
+        "y": 6.972545949836858
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": -88.50478276012993,
+      "rotateFast": false
+    },
+    {
+      "waypointRelativePos": 1.3,
+      "rotationDegrees": 179.1284175988026,
+      "rotateFast": false
+    }
+  ],
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
@@ -54,8 +65,8 @@
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
-    "velocity": 0.0,
-    "rotation": -60.0,
+    "velocity": 0,
+    "rotation": -1.0416266760100406,
     "rotateFast": false
   },
   "reversed": false,

@@ -37,7 +37,7 @@ kDutyCycleDriveS = 0.01125
 # factooring in the wheel diameter (4 inches) and the 8.14 gear reduction
 # resulting in a value of 25.5024 rotations for every meter of travel
 # The calculated kV was near 3, so 3/25.5024 = 0.117
-kVoltageDriveV = 0.117
+kVoltageDriveV = 0.113
 kVoltageDriveS = 0.14
 kVoltageDriveP = 0.02
 kVoltageDriveA = 0.01
@@ -119,7 +119,7 @@ kTrackWidthMeters = inchesToMeters(21.5)
 kCenterToFrontModulesMeters = inchesToMeters(8.75)
 kBackModulesToCenterMeters = inchesToMeters(12.75)
 kWheelBaseMeters = kCenterToFrontModulesMeters + kBackModulesToCenterMeters
-kWheelDiameter = inchesToMeters(4)  # .1000125  # 3 15/16 inches in meters
+kWheelDiameter = inchesToMeters(3.91)  # The tread has worn down
 kSwerveDriveGearing = [(14 / 50), (25 / 19), (15 / 45)]
 # kDriveBaseRadius is the distance from the center of the robot
 # to the farthest module. This is needed for the construction
@@ -133,12 +133,15 @@ kMaxMetersPerSecond = feetToMeters(13.5)  # max fps for L1=13.5, L2=16.3, L3=18
 kMaxChassisRadiansPerSec = 2 * math.tau  # revolutions per sec * tau
 
 # Swerve Drive Trajectory Constraints
-kMaxTrajectorySpeed = feetToMeters(
-    5
-)  # Unit: m/s, around 1.524 m/s, same value used 2023
-kMaxTrajectoryAccel = feetToMeters(
-    5
-)  # Unit: m/s/s, around 1.524 m/s/s, same value used 2023
+kMaxTrajectorySpeed = kMaxMetersPerSecond
+kMaxTrajectoryAccel = 2.8  # determined from testing pathplanner
+
+kProfiledRotationMaxVelocity = 1.5 * math.tau  # 1.5 rotations per second
+kProfiledRotationMaxAccel = 2 * math.tau  # 2 rotations per second per second
+
+kProfiledRotationP = 0.4
+kProfiledRotationI = 0.0
+kProfiledRotationD = 0.0
 
 # Xbox controller ports
 kDriverControllerPort = 0
@@ -152,13 +155,6 @@ kRotSlew = 2
 
 kLimelightTargeting = "limelight-targets"
 kLimelightPositioning = "limelight-field"
-
-kProfiledMaxVelocity = math.pi * 8
-kProfiledMaxAccel = math.pi * 4
-
-kProfiledP = 0.4
-kProfiledI = 0.0
-kProfiledD = 0.0
 
 kRollerVoltage = 4
 kRollerTransferVoltage = 2
@@ -190,3 +186,5 @@ kFrameWidth = inchesToMeters(28)
 kBumperDepth = inchesToMeters(3.25)
 kTotalLength = kFrameLength + kBumperDepth * 2
 kTotalWidth = kFrameWidth + kBumperDepth * 2
+
+kTargetSizeThreshold = 14.0

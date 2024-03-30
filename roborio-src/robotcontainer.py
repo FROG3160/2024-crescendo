@@ -23,8 +23,11 @@ from constants import (
     kRotSlew,
 )
 from commands2.cmd import runOnce
-from commands2 import DeferredCommand
+from commands2 import DeferredCommand, PrintCommand
+
 from FROGlib.xbox import FROGXboxDriver, FROGXboxOperator
+from FROGlib.led import FROGLED
+
 from subsystems.drivetrain import DriveTrain
 from pathplannerlib.auto import PathPlannerAuto, NamedCommands, AutoBuilder
 from pathplannerlib.path import PathPlannerPath, PathConstraints
@@ -38,7 +41,11 @@ from subsystems.intake import IntakeSubsystem
 from subsystems.shooter import ShooterSubsystem
 from subsystems.climber import ClimberSubsystem
 from subsystems.elevation import ElevationSubsystem
-from commands.drive.field_oriented import ManualDrive, AutoRotateDrive
+from commands.drive.field_oriented import (
+    ManualDrive,
+    AutoRotateShooterToSpeaker,
+    AutoRotateShooterTowardsAmpCorner,
+)
 from commands.drive.robot_oriented import DriveToTarget
 from commands.shooter.load import IntakeAndLoad, loadShooterCommand
 from commands.shooter.fire import Fire
@@ -81,6 +88,7 @@ class RobotContainer:
             self.positioningSubsystem, self.elevationSubsystem
         )
         self.shooterSubsystem = ShooterSubsystem()
+        self.ledSubsystem = FROGLED(9)
 
         self.registerNamedCommands()
 
@@ -100,16 +108,11 @@ class RobotContainer:
         # )
 
         # Chooser
-        self.chooser = wpilib.SendableChooser()
+        # self.chooser = wpilib.SendableChooser()
+        self.autochooser = AutoBuilder.buildAutoChooser()
 
-        autosPath = os.path.join(wpilib.getDeployDirectory(), "pathplanner", "autos")
-        for autoFile in os.listdir(autosPath):
-            autoName = autoFile.split(".")[0]
-            ppAuto = PathPlannerAuto(autoName)
-            self.chooser.addOption(autoName, ppAuto)
-
-        # Put the chooser on the dashboard
-        wpilib.SmartDashboard.putData("PathPlanner Autos", self.chooser)
+        # Put the chooser on the dashboard0.5
+        wpilib.SmartDashboard.putData("PathPlanner Autos", self.autochooser)
 
     def registerNamedCommands(self):
 
@@ -145,7 +148,12 @@ class RobotContainer:
         NamedCommands.registerCommand(
             "Retract Arms", self.climberSubsystem.get_RetractCommand()
         )
-        NamedCommands.registerCommand("Auto Aim", self.autoAimCommand())
+        NamedCommands.registerCommand("Auto Aim", self.autoAimAtSpeakerCommand())
+
+        NamedCommands.registerCommand(
+            "Set Flywheel for Speaker",
+            self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand(),
+        )
 
     def configureButtonBindings(self):
         """
@@ -157,8 +165,12 @@ class RobotContainer:
         """DRIVER CONTROLS"""
 
         self.driverController.a().and_(self.shooterSubsystem.hasNote()).whileTrue(
-            self.autoAimCommand()
-        ).whileFalse(self.elevationSubsystem.moveToLoadPositionCommand())
+            self.autoAimAtSpeakerCommand()
+        )  # .whileFalse(self.elevationSubsystem.moveToLoadPositionCommand())
+
+        self.driverController.back().and_(self.shooterSubsystem.hasNote()).whileTrue(
+            self.autoAimTowardsAmpCommand()
+        )  # .whileFalse(self.elevationSubsystem.moveToLoadPositionCommand())
 
         self.driverController.b().whileTrue(
             ThrottledDriveToTarget(
@@ -174,65 +186,35 @@ class RobotContainer:
             Fire(self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem)
         )
 
-        self.driverController.povRight().whileTrue(
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Amp Approach"))
-            .withName("Approach Amp Red")
-            .alongWith(self.elevationSubsystem.moveToAmpPositionCommand())
-            .andThen(self.shooterSubsystem.setFlywheelSpeedForAmpCommand())
-            .andThen(
-                Fire(
-                    self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
-                )
-            )
-            .withName("FollowPath")
-        )
-        self.driverController.povLeft().whileTrue(
-            AutoBuilder.pathfindToPoseFlipped(
-                Pose2d(1.84, 7.72, Rotation2d().fromDegrees(-90)),
-                PathConstraints(
-                    2.0,
-                    2.0,
-                    constants.kMaxChassisRadiansPerSec,
-                    constants.kMaxChassisRadiansPerSec * 2,
-                ),
-                #     PathPlannerPath.fromPathFile("Amp Approach"))
-                # .withName("Approach Amp Blue")
-                # .alongWith(self.elevationSubsystem.moveToAmpPositionCommand())
-                # .andThen(self.shooterSubsystem.setFlywheelSpeedForAmpCommand())
-                # .andThen(
-                #     Fire(
-                #         self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
-                #     )
-                # )
-            ).withName("PathFindToPoseFlipped")
-        )
+        # self.driverController.povLeft().whileTrue(
+        #     AutoBuilder.followPath(PathPlannerPath.fromPathFile("Amp Approach"))
+        #     .withName("Approach Amp")
+        #     .alongWith(self.elevationSubsystem.moveToAmpPositionCommand())
+        #     .andThen(self.shooterSubsystem.setFlywheelSpeedForAmpCommand())
+        #     .andThen(
+        #         Fire(
+        #             self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
+        #         )
+        #     )
+        #     .withName("FollowPath")
+        # )
 
         self.driverController.povUp().whileTrue(
             # we use a "deffered command" so that driveToStageCommand can assess the robot's location
             # at the time the command is run instead of when the key binding occurs.
             DeferredCommand(lambda: self.driveSubsystem.driveToStageCommand())
+            # DeferredCommand(lambda: self.testFollowPathCommand())
         )
 
-        self.driverController.povDown().whileTrue(
-            # AutoBuilder.pathfindToPoseFlipped(
-            #     Pose2d(1.83, 7.60, Rotation2d().fromDegrees(-90)),
-            AutoBuilder.pathfindThenFollowPath(
-                PathPlannerPath.fromPathFile("Amp Approach"),
-                PathConstraints(
-                    2.0,
-                    3.0,
-                    constants.kMaxChassisRadiansPerSec,
-                    constants.kMaxChassisRadiansPerSec * 2,
-                ),
-            ).withName("PahtFindThenFollowPath")
-        )
-
-        # followPath(
-        #     PathPlannerPath.fromPathFile("Straight Run")
-        # ).withName("Straight Run Test")
+        self.driverController.povLeft().whileTrue(self.placeInAmpCommand())
+        self.driverController.povRight().whileTrue(self.placeInAmpCommand())
 
         self.driverController.leftBumper().whileTrue(
             ManualRobotOrientedDrive(self.driverController, self.driveSubsystem)
+        )
+
+        self.driverController.start().onTrue(
+            runOnce(lambda: self.driveSubsystem.setFieldPositionFromVision())
         )
 
         """OPERATOR CONTROLS"""
@@ -269,6 +251,9 @@ class RobotContainer:
                 self.operatorController, self.targetingSubsystem, self.driveSubsystem
             )
         )
+        self.operatorController.start().whileTrue(
+            self.intakeSubsystem.reverseIntakeCommand()
+        )  # temporary mapping to test how well the command works
         # self.operatorController.a().onTrue(
         #     runOnce(
         #         lambda: self.elevationSubsystem.setLeadscrewPosition(
@@ -292,12 +277,88 @@ class RobotContainer:
             )
         )
 
-    def getAutonomousCommand(self) -> commands2.Command:
-        return self.chooser.getSelected()
-
-    def autoAimCommand(self):
-        return self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand().andThen(
-            self.elevationSubsystem.autoMoveRunWithDistanceCommand().alongWith(
-                AutoRotateDrive(self.driverController, self.driveSubsystem)
+        self.intakeSubsystem.getNoteInIntakeTrigger().onTrue(
+            runOnce(lambda: self.driverController.rightRumble()).alongWith(
+                self.ledSubsystem.ledIntakeCommand()
             )
+        ).onFalse(runOnce(lambda: self.driverController.stopRightRumble()))
+
+        self.shooterSubsystem.hasNote().onTrue(
+            runOnce(lambda: self.driverController.leftRumble())
+            .alongWith(self.ledSubsystem.ledShooterCommand())
+            .withTimeout(1)
+            .finallyDo(lambda: self.driverController.stopLeftRumble())
+        ).onFalse(
+            runOnce(lambda: self.driverController.stopLeftRumble()).alongWith(
+                self.ledSubsystem.ledDefaultCommand()
+            )
+        )
+
+    def getAutonomousCommand(self):
+        return self.autochooser.getSelected()
+
+    def autoAimAtSpeakerCommand(self):
+        return (
+            self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand()
+            .andThen(self.driveSubsystem.resetRotationControllerCommand())
+            .andThen(
+                self.elevationSubsystem.autoMoveRunWithDistanceCommand().alongWith(
+                    AutoRotateShooterToSpeaker(
+                        self.driverController, self.driveSubsystem
+                    )
+                )
+            )
+        )
+
+    def autoAimTowardsAmpCommand(self):
+        return (
+            self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand()
+            .andThen(self.driveSubsystem.resetRotationControllerCommand())
+            .andThen(
+                self.elevationSubsystem.moveToLoadPositionCommand().alongWith(
+                    AutoRotateShooterTowardsAmpCorner(
+                        self.driverController, self.driveSubsystem
+                    )
+                )
+            )
+        )
+
+    # def testFollowPathCommand(self):
+    #     pathCommand = AutoBuilder.followPath(
+    #         PathPlannerPath.fromPathFile("Rotation Tests")
+    #     ).withName("Rotation Tests")
+
+    #     # The follow path command uses PPHolonomicDriveController
+    #     # at pathCommand._command._controller
+
+    #     pathCommand._command._controller._xController.setP(
+    #         wpilib.SmartDashboard.getNumber("TranslationP", 1)
+    #     )
+    #     pathCommand._command._controller._yController.setP(
+    #         wpilib.SmartDashboard.getNumber("TranslationP", 1)
+    #     )
+    #     pathCommand._command._controller._rotationController.setP(
+    #         wpilib.SmartDashboard.getNumber("RotationP", 1)
+    #     )
+    #     return pathCommand
+
+    def placeInAmpCommand(self):
+        return (
+            AutoBuilder.pathfindThenFollowPath(
+                PathPlannerPath.fromPathFile("Amp Approach"),
+                PathConstraints(
+                    constants.kMaxTrajectorySpeed / 2,
+                    constants.kMaxTrajectoryAccel / 2,
+                    constants.kProfiledRotationMaxVelocity,
+                    constants.kProfiledRotationMaxAccel,
+                ),
+            )
+            .alongWith(self.elevationSubsystem.moveToAmpPositionCommand())
+            .andThen(self.shooterSubsystem.setFlywheelSpeedForAmpCommand())
+            .andThen(
+                Fire(
+                    self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
+                )
+            )
+            .withName("PathFindThenFollowPath")
         )
