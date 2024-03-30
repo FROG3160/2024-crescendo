@@ -211,8 +211,12 @@ class RobotContainer:
             # DeferredCommand(lambda: self.testFollowPathCommand())
         )
 
-        self.driverController.povLeft().whileTrue(self.placeInAmpCommand())
-        self.driverController.povRight().whileTrue(self.placeInAmpCommand())
+        self.driverController.povLeft().and_(self.shooterSubsystem.hasNote()).whileTrue(
+            self.placeInAmpCommand()
+        )
+        self.driverController.povRight().and_(
+            self.shooterSubsystem.hasNote()
+        ).whileTrue(self.placeInAmpCommand())
 
         self.driverController.leftBumper().whileTrue(
             ManualRobotOrientedDrive(self.driverController, self.driveSubsystem)
