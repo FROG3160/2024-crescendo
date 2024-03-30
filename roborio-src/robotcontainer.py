@@ -294,6 +294,10 @@ class RobotContainer:
             )
         )
 
+        self.noteNotAtHomeTrigger().onTrue(
+            runOnce(self.shooterSubsystem.homeNoteCommand, self.shooterSubsystem)
+        )
+
     def getAutonomousCommand(self):
         return self.autochooser.getSelected()
 
@@ -361,4 +365,10 @@ class RobotContainer:
                 )
             )
             .withName("PathFindThenFollowPath")
+        )
+
+    def noteNotAtHomeTrigger(self):
+        return commands2.button.Trigger(
+            lambda: not self.intakeSubsystem.intakeAllowed()
+            and not self.shooterSubsystem.noteInShooter()
         )

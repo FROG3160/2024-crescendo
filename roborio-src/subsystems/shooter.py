@@ -163,18 +163,9 @@ class ShooterSubsystem(Subsystem):
 
     # Sequencer Commands
     def homeNoteCommand(self) -> Command:
-        return (
-            self.startEnd(
-                lambda: self.controlSequencer(-0.5), lambda: self.controlSequencer(0)
-            )
-            .onlyWhile(self.noteInShooter)
-            .andThen(
-                self.startEnd(
-                    lambda: self.controlSequencer(0.2), lambda: self.controlSequencer(0)
-                )
-            )
-            .until(self.noteInShooter)
-        )
+        return self.startEnd(
+            lambda: self.controlSequencer(0.2), lambda: self.controlSequencer(0)
+        ).until(self.noteInShooter)
 
     def stopSequencerCommand(self) -> Command:
         return self.runOnce(self.stopSequencer).withName("StopSequencer")
