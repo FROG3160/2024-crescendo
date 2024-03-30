@@ -129,10 +129,10 @@ class ShooterSubsystem(Subsystem):
 
     def ejectNote(self):
         self.leftFlyWheel.set_control(
-            VelocityVoltage(velocity=self.flyWheelSpeed * 0.15, slot=0)
+            VelocityVoltage(velocity=constants.kFlywheelMMV * 0.15, slot=0)
         )
         self.rightFlyWheel.set_control(
-            VelocityVoltage(velocity=self.flyWheelSpeed * 0.15, slot=0)
+            VelocityVoltage(velocity=constants.kFlywheelMMV * 0.15, slot=0)
         )
 
     def ejectNoteCommand(self) -> Command:
