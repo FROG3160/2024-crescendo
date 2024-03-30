@@ -22,7 +22,7 @@ from constants import (
     kTranslationSlew,
     kRotSlew,
 )
-from commands2.cmd import runOnce
+from commands2.cmd import runOnce, startEnd
 from commands2 import DeferredCommand, PrintCommand
 
 from FROGlib.xbox import FROGXboxDriver, FROGXboxOperator
@@ -162,6 +162,9 @@ class RobotContainer:
         instantiating a :GenericHID or one of its subclasses (Joystick or XboxController),
         and then passing it to a JoystickButton.
         """
+        self.configureDriverControls()
+        self.configureOperatorControls()
+        self.configureTriggers()
 
     def configureDriverControls(self):
         """DRIVER CONTROLS"""
@@ -289,10 +292,12 @@ class RobotContainer:
         ).onFalse(runOnce(lambda: self.driverController.stopRightRumble()))
 
         self.shooterSubsystem.hasNote().onTrue(
-            runOnce(lambda: self.driverController.leftRumble())
-            .alongWith(self.ledSubsystem.ledShooterCommand())
+            startEnd(
+                lambda: self.driverController.leftRumble(),
+                lambda: self.driverController.stopLeftRumble(),
+            )
             .withTimeout(1)
-            .finallyDo(lambda: self.driverController.stopLeftRumble())
+            .alongWith(self.ledSubsystem.ledShooterCommand())
         ).onFalse(
             runOnce(lambda: self.driverController.stopLeftRumble()).alongWith(
                 self.ledSubsystem.ledDefaultCommand()
@@ -301,12 +306,10 @@ class RobotContainer:
 
         # when the vision system sees an april tag for half a second
         # after initialization, then it uses that for initial pose setting
-        self.positioningSubsystem.readyToInitializePose().onTrue(
-            runOnce(
-                self.driveSubsystem(
-                    lambda: self.driveSubsystem.setFieldPositionFromVision()
-                )
-            ).andThen(self.ledSubsystem.getDefaultCommand())
+        self.positioningSubsystem.readyToInitializePoseCommand().onTrue(
+            runOnce(lambda: self.driveSubsystem.setFieldPositionFromVision()).andThen(
+                self.ledSubsystem.getDefaultCommand()
+            )
         )
 
     def getAutonomousCommand(self):

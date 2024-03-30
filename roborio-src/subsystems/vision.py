@@ -52,8 +52,11 @@ class PositioningSubsystem(Subsystem):
     def getLatestData(self) -> BotPoseResult:
         return self.latestData
 
-    def readyToInitializePose(self) -> Trigger:
-        return Trigger(lambda: self.readyToInitializePose)
+    def readyToInitializePoseCommand(self) -> Trigger:
+        return Trigger(lambda: self.getReadyToInitializePose())
+
+    def getReadyToInitializePose(self):
+        return self.readyToInitializePose
 
 
 class TargetingSubsystem(Subsystem):
@@ -106,7 +109,6 @@ class TargetingSubsystem(Subsystem):
             return self.filterVT.calculate(-(tv / 25))
         else:
             return self.filterVT.calculate(0)
-
 
     def getChassisSpeeds(self):
         """Get calculated velocities from vision target data"""
