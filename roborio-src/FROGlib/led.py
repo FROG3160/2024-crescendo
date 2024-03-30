@@ -88,6 +88,9 @@ class FROGLED(Subsystem):
     def green(self):
         self.candle.setLEDs(0, 255, 0)
 
+    def red(self):
+        self.candle.setLEDs(255, 0, 0)
+
     def rainbow(self):
         self.candle.animate(RAINBOW)
 
@@ -108,16 +111,3 @@ class FROGLED(Subsystem):
 
     def lightPink(self):
         self.candle.setLEDs(255, 153, 255)
-
-    def ledIntakeCommand(self) -> Command:
-        return self.runOnce(lambda: self.orange())
-
-    def ledShooterCommand(self) -> Command:
-        return self.runOnce(lambda: self.larsonAnimation(252, 157, 3, 1))
-
-    def ledDefaultCommand(self) -> Command:
-        return self.runOnce(lambda: self.default())
-
-
-if __name__ == "__main__":
-    pass

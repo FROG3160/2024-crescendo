@@ -26,7 +26,6 @@ from commands2.cmd import runOnce
 from commands2 import DeferredCommand, PrintCommand
 
 from FROGlib.xbox import FROGXboxDriver, FROGXboxOperator
-from FROGlib.led import FROGLED
 
 from subsystems.drivetrain import DriveTrain
 from pathplannerlib.auto import PathPlannerAuto, NamedCommands, AutoBuilder
@@ -36,6 +35,8 @@ from pathplannerlib.config import (
     ReplanningConfig,
     PIDConstants,
 )
+
+from subsystems.leds import LEDSubsystem
 from subsystems.vision import PositioningSubsystem, TargetingSubsystem
 from subsystems.intake import IntakeSubsystem
 from subsystems.shooter import ShooterSubsystem
@@ -88,7 +89,7 @@ class RobotContainer:
             self.positioningSubsystem, self.elevationSubsystem
         )
         self.shooterSubsystem = ShooterSubsystem()
-        self.ledSubsystem = FROGLED(9)
+        self.ledSubsystem = LEDSubsystem(9)
 
         self.registerNamedCommands()
 
@@ -162,6 +163,7 @@ class RobotContainer:
         and then passing it to a JoystickButton.
         """
 
+    def configureDriverControls(self):
         """DRIVER CONTROLS"""
 
         self.driverController.a().and_(self.shooterSubsystem.hasNote()).whileTrue(
@@ -217,6 +219,7 @@ class RobotContainer:
             runOnce(lambda: self.driveSubsystem.setFieldPositionFromVision())
         )
 
+    def configureOperatorControls(self):
         """OPERATOR CONTROLS"""
 
         # Operator Controller Bindings
@@ -271,6 +274,8 @@ class RobotContainer:
         #         self.elevationSubsystem.setLeadscrewCommand()
         #     )
         # )
+
+    def configureTriggers(self):
         self.intakeSubsystem.getTargetInRangeTrigger().not_().onTrue(
             IntakeAndLoad(
                 self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
@@ -292,6 +297,16 @@ class RobotContainer:
             runOnce(lambda: self.driverController.stopLeftRumble()).alongWith(
                 self.ledSubsystem.ledDefaultCommand()
             )
+        )
+
+        # when the vision system sees an april tag for half a second
+        # after initialization, then it uses that for initial pose setting
+        self.positioningSubsystem.readyToInitializePose().onTrue(
+            runOnce(
+                self.driveSubsystem(
+                    lambda: self.driveSubsystem.setFieldPositionFromVision()
+                )
+            ).andThen(self.ledSubsystem.getDefaultCommand())
         )
 
     def getAutonomousCommand(self):
