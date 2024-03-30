@@ -8,6 +8,7 @@ import constants
 from wpimath.controller import ProfiledPIDControllerRadians
 from wpimath.trajectory import TrapezoidProfileRadians
 from ntcore import NetworkTableInstance
+from wpilib import SmartDashboard
 
 # povSpeed = 0.1
 # povSpeeds = {
@@ -172,6 +173,8 @@ class AutoRotateShooterToSpeaker(Command):
         vT = self.drive.profiledRotationController.calculate(
             currentRotation.radians(), goalFiringHeading.radians()
         )
+        SmartDashboard.putNumber("Firing Goal", goalFiringHeading.degrees())
+        SmartDashboard.putNumber("Current Rotation", currentRotation.degrees())
         self._calculated_vTPub.set(vT)
         # Only rotation is calculated/automated.  The driver still needs
         # to use the controller to move the joystick across the field
