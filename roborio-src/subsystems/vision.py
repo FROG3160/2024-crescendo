@@ -5,6 +5,7 @@ from wpimath.kinematics import ChassisSpeeds
 from FROGlib.limelight import FROGPositioning, FROGTargeting, BotPoseResult
 from constants import kLimelightPositioning, kLimelightTargeting, kTargetSizeThreshold
 from wpilib import SmartDashboard
+from commands2.button import Trigger
 import math
 from wpimath.filter import MedianFilter
 
@@ -25,6 +26,8 @@ class PositioningSubsystem(Subsystem):
             .getStructTopic(f"{nt_table}/pose2d", Pose2d)
             .publish()
         )
+        self.validAprilTagFoundCount = 0
+        self.readyToInitializePose = False
 
     def periodic(self) -> None:
         self.latestData = self.estimator.getBotPoseEstimateBlue()
@@ -35,12 +38,22 @@ class PositioningSubsystem(Subsystem):
                 "Vision Estimate", self.latestData.botPose.__str__()
             )
             self._visionPosePub.set(self.latestData.botPose.toPose2d())
+            if (
+                self.latestData.tagData[0].distanceToCamera < 4
+                and not self.readyToInitializePose
+            ):
+                self.validAprilTagFoundCount += 1
+                if self.validAprilTagFoundCount > 25:
+                    self.readyToInitializePose = True
 
         # if self.latestTransform:
         #     SmartDashboard.putString("Target Transform", self.latestTransform.__str__())
 
     def getLatestData(self) -> BotPoseResult:
         return self.latestData
+
+    def readyToInitializePose(self) -> Trigger:
+        return Trigger(lambda: self.readyToInitializePose)
 
 
 class TargetingSubsystem(Subsystem):
