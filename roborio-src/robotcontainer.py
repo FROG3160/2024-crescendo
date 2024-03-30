@@ -306,6 +306,8 @@ class RobotContainer:
             )
         )
 
+        self.noteNotAtHomeTrigger().onTrue(self.shooterSubsystem.homeNoteCommand())
+
     def configureTriggers(self):
         pass
 
@@ -419,3 +421,9 @@ class RobotContainer:
                 constants.kProfiledRotationMaxAccel,
             ),
         ).withName("PathFindToSpeakerApproach")
+
+    def noteNotAtHomeTrigger(self):
+        return commands2.button.Trigger(
+            lambda: not self.intakeSubsystem.intakeAllowed()
+            and not self.shooterSubsystem.noteInShooter()
+        )
