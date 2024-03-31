@@ -174,7 +174,7 @@ class AutoRotateShooterToSpeaker(Command):
             currentRotation.radians(),
             (currentRotation + robotRelativeFiringHeading).radians(),
         )
-        SmartDashboard.putNumber("Firing Goal", goalFiringHeading.degrees())
+        SmartDashboard.putNumber("Firing Goal", robotRelativeFiringHeading.degrees())
         SmartDashboard.putNumber("Current Rotation", currentRotation.degrees())
         self._calculated_vTPub.set(vT)
         # Only rotation is calculated/automated.  The driver still needs
@@ -193,6 +193,52 @@ class AutoRotateShooterToSpeaker(Command):
             vT,
             self.controller.getFieldThrottle(),
         )
+
+
+class RotateInPlaceTowardsSpeaker(Command):
+
+    def __init__(
+        self, controller: FROGXboxDriver, drive: DriveTrain, table: str = "Undefined"
+    ) -> None:
+        """Allows manual control of the lateral movement of the drivetrain through use of the specified
+        controller.  Rotation is calculated to aim the shooter at the speaker.
+
+        Args:
+            controller (FROGXboxDriver): The controller used to control the drive.
+            drive (DriveTrain): The drive to be controlled.
+            table (str): The name of the network table telemetry data will go into
+        """
+        self.controller = controller
+        self.drive = drive
+        self.addRequirements(self.drive)
+
+        self.nt_table = f"{table}/{type(self).__name__}"
+
+    def execute(self) -> None:
+        if self.drive.resetController:
+            # this is the first time we hit this conditional, so
+            # reset the controller
+            self.drive.resetController = False
+            self.drive.resetRotationController()
+
+        # we need the change in rotation to point at the speaker
+        robotRelativeFiringHeading = self.drive.getFiringHeadingForSpeaker()
+        currentRotation = self.drive.getRotation2d()
+
+        vT = self.drive.profiledRotationController.calculate(
+            currentRotation.radians(),
+            (currentRotation + robotRelativeFiringHeading).radians(),
+        )
+
+        self.drive.fieldOrientedAutoRotateDrive(
+            # self._vX, self._vY, self._vT, self._throttle
+            0,
+            0,
+            vT,
+        )
+
+    def isFinished(self):
+        return self.drive.profiledRotationController.atGoal()
 
 
 class AutoRotateShooterTowardsAmpCorner(Command):

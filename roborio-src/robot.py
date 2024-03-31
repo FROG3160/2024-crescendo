@@ -38,6 +38,8 @@ class MyRobot(commands2.TimedCommandRobot):
         """
         # Start recording to log
         DataLogManager.start()
+        # start logging DS and joystick data
+        DriverStation.startDataLog(DataLogManager.getLog())
         # Set log path for ctre on the first USB drive found
         # TODO: https://github.com/FROG3160/2024-crescendo/issues/162 this doesn't work, check the Roborio to see if USB
         #   is really on /media/sda1
@@ -101,9 +103,6 @@ class MyRobot(commands2.TimedCommandRobot):
         # continue until interrupted by another command, remove
         # this line or comment it out.
 
-        # start logging DS and joystick data
-        DriverStation.startDataLog(DataLogManager.getLog())
-
         if self.container.shooterSubsystem.noteInShooter():
             self.container.intakeSubsystem.disallowIntake()
         if self.autonomousCommand:
@@ -116,6 +115,8 @@ class MyRobot(commands2.TimedCommandRobot):
             self.container.climberSubsystem.get_homeLeftClimber().andThen(
                 self.container.climberSubsystem.get_homeRightClimber()
             ).schedule()
+
+        self.container.configureTeleopTriggers()
 
     def teleopPeriodic(self) -> None:
         """This function is called periodically during operator control"""

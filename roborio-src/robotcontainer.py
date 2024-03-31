@@ -22,7 +22,7 @@ from constants import (
     kTranslationSlew,
     kRotSlew,
 )
-from commands2.cmd import runOnce, startEnd
+from commands2.cmd import runOnce, startEnd, waitUntil
 from commands2 import DeferredCommand, PrintCommand
 
 from FROGlib.xbox import FROGXboxDriver, FROGXboxOperator
@@ -149,12 +149,21 @@ class RobotContainer:
         NamedCommands.registerCommand(
             "Retract Arms", self.climberSubsystem.get_RetractCommand()
         )
-        NamedCommands.registerCommand("Auto Aim", self.autoAimAtSpeakerCommand())
+        NamedCommands.registerCommand(
+            "Aim At Speaker",
+            self.autoAimAtSpeakerCommand().until(self.shooterAimed),
+        )
 
         NamedCommands.registerCommand(
             "Set Flywheel for Speaker",
             self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand(),
         )
+
+        NamedCommands.registerCommand(
+            "Wait Until Loaded", self.waitUntilShooterLoaded()
+        )
+
+        NamedCommands.registerCommand("After Path", PrintCommand("Launched After Path"))
 
     def configureButtonBindings(self):
         """
@@ -280,7 +289,8 @@ class RobotContainer:
         #     )
         # )
 
-    def configureTriggers(self):
+    def configureTeleopTriggers(self):
+        # Thesse triggers are created by teleopInit in robot.py
         self.intakeSubsystem.getTargetInRangeTrigger().not_().onTrue(
             IntakeAndLoad(
                 self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
@@ -306,6 +316,7 @@ class RobotContainer:
             )
         )
 
+    def configureTriggers(self):
         # when the vision system sees an april tag for half a second
         # after initialization, then it uses that for initial pose setting
         self.positioningSubsystem.readyToInitializePoseCommand().onTrue(
@@ -341,6 +352,32 @@ class RobotContainer:
                     )
                 )
             )
+        )
+
+    # def adjustToSpeaker(self):
+    #     return (
+    #         self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand()
+    #         .andThen(self.driveSubsystem.resetRotationControllerCommand())
+    #         .andThen(
+    #             self.elevationSubsystem.autoMoveRunWithDistanceCommand().alongWith(
+
+    #             )
+    #         )
+    #     )
+
+    def waitUntilShooterLoaded(self):
+        return waitUntil(self.shooterSubsystem.noteInShooter)
+
+    def waitUntilAimed(self):
+        return waitUntil(
+            self.elevationSubsystem.leadscrewAtPosition()
+            and self.driveSubsystem.profiledRotationController.atGoal()
+        )
+
+    def shooterAimed(self):
+        return (
+            self.elevationSubsystem.leadscrewAtPosition()
+            and self.driveSubsystem.profiledRotationController.atGoal()
         )
 
     # def testFollowPathCommand(self):
