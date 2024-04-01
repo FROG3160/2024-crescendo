@@ -24,9 +24,34 @@
           }
         },
         {
-          "type": "path",
+          "type": "deadline",
           "data": {
-            "pathName": "Simple Auto Pt.1"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake and Load"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Simple Auto Pt.1"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Aim At Speaker"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Fire"
           }
         }
       ]
