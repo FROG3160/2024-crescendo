@@ -1,4 +1,4 @@
-from commands2 import Command, Subsystem
+from commands2 import Command, Subsystem, button
 from FROGlib.motors import FROGTalonFX, FROGTalonFXConfig
 from phoenix6.controls import (
     PositionDutyCycle,
@@ -59,6 +59,8 @@ class ClimberSubsystem(Subsystem):
             .publish()
         )
 
+        self.climbersActive = False
+
     def getTorque(self, motor: FROGTalonFX) -> float:
         return motor.get_torque_current().value
 
@@ -118,6 +120,7 @@ class ClimberSubsystem(Subsystem):
     def extend(self):
         if DriverStation.getMatchTime() < 20:
             self.setPosition(0)
+            self.climbersActive = True
         # self.setVoltage(-3)
 
     def retract(self):
@@ -130,10 +133,21 @@ class ClimberSubsystem(Subsystem):
 
     def stop(self):
         self.setVoltage(0)
+        self.climbersActive = False
 
     def periodic(self) -> None:
         # self.logTelemet
         pass
+
+    def isLeftClimberNotAtHomeTrigger(self):
+        return button.Trigger(
+            lambda: not self.leftClimberAtHome() and not self.climbersActive
+        )
+
+    def isRightClimberNotAtHomeTrigger(self):
+        return button.Trigger(
+            lambda: not self.rightClimberAtHome() and not self.climbersActive
+        )
 
     def get_ExtendCommand(self) -> Command:
         return self.startEnd(self.extend, self.stop)

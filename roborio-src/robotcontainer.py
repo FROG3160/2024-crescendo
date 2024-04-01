@@ -314,6 +314,13 @@ class RobotContainer:
             )
         )
 
+        self.climberSubsystem.isLeftClimberNotAtHomeTrigger().onTrue(
+            runOnce(lambda: self.climberSubsystem.get_homeLeftClimber())
+        )
+        self.climberSubsystem.isRightClimberNotAtHomeTrigger().onTrue(
+            runOnce(lambda: self.climberSubsystem.get_homeRightClimber())
+        )
+
     def getAutonomousCommand(self):
         return self.autochooser.getSelected()
 
