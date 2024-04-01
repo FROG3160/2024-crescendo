@@ -122,7 +122,7 @@ class RobotContainer:
             Fire(self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem),
         )
         NamedCommands.registerCommand(
-            "Intake And Load",
+            "Intake and Load",
             IntakeAndLoad(
                 self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
             ),
