@@ -251,7 +251,17 @@ class DriveTrain(SwerveChassis):
             #     visionPose.toPose2d(), visionTimestamp, (0.2, 0.2, math.pi / 8)
             # )
         self.field.setRobotPose(self.estimator.getEstimatedPosition())
-        # SmartDashboard.putValue("Drive Pose", self.estimatorPose)
+        SmartDashboard.putNumberArray(
+            "Drive Pose",
+            [
+                self.estimatorPose.x,
+                self.estimatorPose.y,
+                self.estimatorPose.rotation().radians(),
+            ],
+        )
+        SmartDashboard.putNumber(
+            "Pose Rotation", self.estimatorPose.rotation().degrees()
+        )
         # SmartDashboard.putData(
         #     "Drive Pose w/Vision ", self.estimator.getEstimatedPosition()
         # )

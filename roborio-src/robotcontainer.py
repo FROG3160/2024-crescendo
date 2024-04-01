@@ -412,10 +412,5 @@ class RobotContainer:
             )
             .alongWith(self.elevationSubsystem.moveToAmpPositionCommand())
             .andThen(self.shooterSubsystem.setFlywheelSpeedForAmpCommand())
-            .andThen(
-                Fire(
-                    self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
-                )
-            )
             .withName("PathFindThenFollowPath")
         )
