@@ -89,7 +89,7 @@ class TargetingSubsystem(Subsystem):
         if ty := self.camera.ty:
             return self.filterVX.calculate(
                 min(
-                    2.0, ((0.45 * math.log(ty + 11.5))) + 0.4
+                    2.0, ((0.45 * math.log(max(ty, -11) + 11.5))) + 0.4
                 )  # (0.020833 * (14.7 * math.exp(0.0753 * ty) * 2))
             )
         else:
