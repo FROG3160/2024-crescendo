@@ -47,7 +47,6 @@ from commands.drive.field_oriented import (
     AutoRotateShooterToSpeaker,
     AutoRotateShooterTowardsAmpCorner,
 )
-from commands.drive.robot_oriented import DriveToTarget
 from commands.shooter.load import IntakeAndLoad, loadShooterCommand
 from commands.shooter.fire import Fire
 from commands.drive.robot_oriented import (
