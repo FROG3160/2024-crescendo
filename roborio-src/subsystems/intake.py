@@ -86,7 +86,7 @@ class IntakeSubsystem(Subsystem):
         return button.Trigger(
             lambda: self.camera.getTargetInRange() and self.intakeAllowed()
         )
-      
+
     def getNoteInIntakeTrigger(self):
         return button.Trigger(lambda: self.noteInIntake())
 

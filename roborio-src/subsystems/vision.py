@@ -58,12 +58,6 @@ class PositioningSubsystem(Subsystem):
     def getLatestData(self) -> BotPoseResult:
         return self.latestData
 
-    def readyToInitializePoseCommand(self) -> Trigger:
-        return Trigger(lambda: self.getReadyToInitializePose())
-
-    def getReadyToInitializePose(self):
-        return self.readyToInitializePose
-
 
 class TargetingSubsystem(Subsystem):
     def __init__(self):

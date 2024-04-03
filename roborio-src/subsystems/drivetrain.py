@@ -23,7 +23,7 @@ from pathplannerlib.config import (
 )
 from pathplannerlib.path import PathPlannerPath, PathConstraints
 from wpilib import DriverStation, Field2d
-from wpimath.geometry import Pose2d, Rotation2d, Transform2d
+from wpimath.geometry import Pose2d, Rotation2d, Transform2d, Transform3d, Rotation3d
 from subsystems.vision import PositioningSubsystem
 from subsystems.elevation import ElevationSubsystem
 from wpilib import SmartDashboard
@@ -33,6 +33,7 @@ import constants
 from wpimath.units import degreesToRadians
 from wpimath.controller import ProfiledPIDControllerRadians
 from wpimath.trajectory import TrapezoidProfileRadians
+from subsystems.leds import LEDSubsystem
 
 
 class DriveTrain(SwerveChassis):
@@ -40,6 +41,7 @@ class DriveTrain(SwerveChassis):
         self,
         vision: PositioningSubsystem,
         elevation: ElevationSubsystem,
+        leds: LEDSubsystem,
         parent_nt: str = "Subsystems",
     ):
         super().__init__(
@@ -65,6 +67,7 @@ class DriveTrain(SwerveChassis):
         self.vision = vision
         # We need to send data to the elevation system
         self.elevation = elevation
+        self.leds = leds
         self.fieldLayout = loadAprilTagLayoutField(AprilTagField.k2024Crescendo)
 
         self.estimatorPose = Pose2d(0, 0, Rotation2d(0))
@@ -224,7 +227,29 @@ class DriveTrain(SwerveChassis):
         )
         latestVisionResult = self.vision.getLatestData()
         if latestVisionResult.tagCount > 0:
-            if (
+            if not self.enabled:
+                # the drivetrain isn't enabled yet, but we want the apriltags to update
+                # the drivetrain's pose
+                translationStdDev = remap(
+                    latestVisionResult.tagData[0].distanceToRobot, 2, 6, 0.3, 1.0
+                )
+                rotationStdDev = math.pi
+                SmartDashboard.putNumber("TranslationStdDev", translationStdDev)
+                SmartDashboard.putNumber(
+                    "distanceToTag", latestVisionResult.tagData[0].distanceToRobot
+                )
+                SmartDashboard.putNumber("tagID", latestVisionResult.tagData[0].id)
+                SmartDashboard.putNumber(
+                    "tagAmbiguity", latestVisionResult.tagData[0].ambiguity
+                )
+                self.estimator.addVisionMeasurement(
+                    latestVisionResult.botPose.toPose2d(),
+                    latestVisionResult.timestamp,
+                    (translationStdDev, translationStdDev, rotationStdDev),
+                )
+                self.leds.drivePoseSet()
+
+            elif (
                 abs(latestVisionResult.botPose.x - self.estimatorPose.x) < 0.5
                 and abs(latestVisionResult.botPose.y - self.estimatorPose.y) < 0.5
             ):
@@ -250,8 +275,19 @@ class DriveTrain(SwerveChassis):
             # self.estimator.addVisionMeasurement(
             #     visionPose.toPose2d(), visionTimestamp, (0.2, 0.2, math.pi / 8)
             # )
+
         self.field.setRobotPose(self.estimator.getEstimatedPosition())
-        # SmartDashboard.putValue("Drive Pose", self.estimatorPose)
+        SmartDashboard.putNumberArray(
+            "Drive Pose",
+            [
+                self.estimatorPose.x,
+                self.estimatorPose.y,
+                self.estimatorPose.rotation().radians(),
+            ],
+        )
+        SmartDashboard.putNumber(
+            "Pose Rotation", self.estimatorPose.rotation().degrees()
+        )
         # SmartDashboard.putData(
         #     "Drive Pose w/Vision ", self.estimator.getEstimatedPosition()
         # )

@@ -73,10 +73,20 @@ class ElevationSubsystem(Subsystem):
 
     def calcPositionForSpeaker(self):
         # calculatedPosition = self.tagDistance * 3.9877 - 6.3804
+        # calculatedPosition = (
+        #     (self.speakerDistance**2 * -1.4822)
+        #     + (self.speakerDistance * 13.764)
+        #     - 15.187
+        # )
+        # calculatedPosition = (
+        #     (self.speakerDistance**2 * -2.2617)
+        #     + (self.speakerDistance * 16.854)
+        #     - 18.734
+        # )
         calculatedPosition = (
-            (self.speakerDistance**2 * -1.4822)
-            + (self.speakerDistance * 13.764)
-            - 15.187
+            (self.speakerDistance**2 * -1.3149)
+            + (self.speakerDistance * 12.415)
+            - 13.887
         )
         return clamp(calculatedPosition, 1, 17)
 

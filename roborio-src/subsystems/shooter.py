@@ -14,6 +14,7 @@ from phoenix6.controls import (
     PositionVoltage,
     VoltageOut,
     MotionMagicVoltage,
+    DutyCycleOut,
 )
 import constants
 from configs import (
@@ -152,8 +153,8 @@ class ShooterSubsystem(Subsystem):
         )
 
     def stopFlywheels(self):
-        self.leftFlyWheel.set_control(VelocityVoltage(velocity=0, slot=0))
-        self.rightFlyWheel.set_control(VelocityVoltage(velocity=0, slot=0))
+        self.leftFlyWheel.set_control(DutyCycleOut(0))
+        self.rightFlyWheel.set_control(DutyCycleOut(0))
 
     def leftFlywheelActualSpeed(self):
         return self.leftFlyWheel.get_velocity().value
