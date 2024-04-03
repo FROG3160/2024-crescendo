@@ -85,11 +85,11 @@ class RobotContainer:
         self.intakeSubsystem = IntakeSubsystem(self.targetingSubsystem)
         self.climberSubsystem = ClimberSubsystem()
         self.elevationSubsystem = ElevationSubsystem()
+        self.ledSubsystem = LEDSubsystem(9)
         self.driveSubsystem = DriveTrain(
-            self.positioningSubsystem, self.elevationSubsystem
+            self.positioningSubsystem, self.elevationSubsystem, self.ledSubsystem
         )
         self.shooterSubsystem = ShooterSubsystem()
-        self.ledSubsystem = LEDSubsystem(9)
 
         self.registerNamedCommands()
 
