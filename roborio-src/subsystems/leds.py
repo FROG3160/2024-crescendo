@@ -7,7 +7,7 @@ class LEDSubsystem(FROGLED):
         super().__init__(canID)
         # set initial sequence to show robot isn't
         # set with an initial pose yet
-        self.red()
+        self.drivePoseNotSet()
 
     def ledIntakeCommand(self) -> Command:
         return self.runOnce(lambda: self.orange())
@@ -17,6 +17,3 @@ class LEDSubsystem(FROGLED):
 
     def ledDefaultCommand(self) -> Command:
         return self.runOnce(lambda: self.default())
-
-    def ledErrorCommand(self) -> Command:
-        return self.runOnce(lambda: self.red())

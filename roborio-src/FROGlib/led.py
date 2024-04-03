@@ -111,3 +111,9 @@ class FROGLED(Subsystem):
 
     def lightPink(self):
         self.candle.setLEDs(255, 153, 255)
+
+    def drivePoseNotSet(self):
+        self.candle.setLEDs(255, 0, 0, 0, 0, 8)
+
+    def drivePoseSet(self):
+        self.candle.setLEDs(0, 255, 0, 0, 0, 8)
