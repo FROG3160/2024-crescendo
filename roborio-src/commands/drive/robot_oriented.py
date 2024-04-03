@@ -33,16 +33,23 @@ class DriveToTarget(Command):
             .getFloatTopic(f"{self.nt_table}/calculated_vX")
             .publish()
         )
-        self._caluclated_vT = (
+        self._calculated_vT = (
             NetworkTableInstance.getDefault()
             .getFloatTopic(f"{self.nt_table}/calculated_vT")
             .publish()
         )
 
     def execute(self):
-        self.drive.robotOrientedDrive(*self.targeting.getChassisSpeeds())
-        self._calculated_vX = self.targeting.calculate_vx()
-        self._caluclated_vT = self.targeting.calculate_vt()
+        vX = self.targeting.calculate_vx()
+        vT = self.targeting.calculate_vt()
+        chassisSpeeds = ChassisSpeeds(
+            vX,
+            0,
+            vT * self.drive.max_rotation_speed * 0.12,
+        )
+        self.drive.robotOrientedDrive(*chassisSpeeds)
+        self._calculated_vX = vX
+        self._calculated_vT = vT
 
 
 class ThrottledDriveToTarget(Command):
@@ -125,10 +132,9 @@ class ManualRobotOrientedDrive(Command):
         )
 
 
-class FindTargetAndDrive(Command):
+class FindTarget(Command):
     def __init__(
         self,
-        controller: FROGXboxDriver,
         targeting: TargetingSubsystem,
         drive: DriveTrain,
         table: str = "Undefined",
@@ -140,7 +146,6 @@ class FindTargetAndDrive(Command):
             drive (DriveTrain): The drive to be controlled.
             table (str): The name of the network table telemetry data will go into
         """
-        self.controller = controller
         self.drive = drive
         self.targeting = targeting
         self.addRequirements(self.drive)
@@ -167,13 +172,11 @@ class FindTargetAndDrive(Command):
         # might also want to make this rotate the other direction if
         # on the source side.
         if self.drive.onRedAlliance():
-            vT = -0.1 * constants.kMaxChassisRadiansPerSec
+            vT = -0.12 * constants.kMaxChassisRadiansPerSec
         else:
-            vT = 0.1 * constants.kMaxChassisRadiansPerSec
-        if self.targeting.hasSeenTarget():
-            self.drive.robotOrientedDrive(*self.targeting.getChassisSpeeds())
-        else:
-            self.drive.robotOrientedDrive(0, 0, vT)
+            vT = 0.12 * constants.kMaxChassisRadiansPerSec
+
+        self.drive.robotOrientedDrive(0, 0, vT)
         self._calculated_vX = self.targeting.calculate_vx()
         self._caluclated_vT = self.targeting.calculate_vt()
         self._hasSeenTarget = self.targeting.hasSeenTarget()
