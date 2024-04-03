@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.3984820622261451,
-        "y": 5.507130871149041
-      },
-      "prevControl": null,
-      "nextControl": {
-        "x": 1.6921957086874269,
-        "y": 5.507130871149041
-      },
-      "isLocked": true,
-      "linkedName": "Speaker Mid"
-    },
-    {
-      "anchor": {
         "x": 2.8967218266583643,
         "y": 5.548822181867377
       },
-      "prevControl": {
-        "x": 2.5586320299980723,
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.8967218266583643,
         "y": 5.548822181867377
       },
-      "nextControl": null,
-      "isLocked": true,
+      "isLocked": false,
       "linkedName": "Alliance Mid Note"
+    },
+    {
+      "anchor": {
+        "x": 6.400050800101601,
+        "y": 3.3856997713995436
+      },
+      "prevControl": {
+        "x": 5.400050800101601,
+        "y": 3.3856997713995436
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -39,7 +39,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0,
+    "rotation": 0,
     "rotateFast": false
   },
   "reversed": false,

@@ -53,7 +53,7 @@ from commands.drive.robot_oriented import (
     DriveToTarget,
     ThrottledDriveToTarget,
     ManualRobotOrientedDrive,
-    FindTargetAndDrive,
+    FindTarget,
 )
 
 
@@ -127,7 +127,7 @@ class RobotContainer:
             ),
         )
         NamedCommands.registerCommand(
-            "Drive To Note", DriveToTarget(self.driveSubsystem, self.targetingSubsystem)
+            "Seek and Drive to Target", self.seekAndDriveToTargetCommand()
         )
         NamedCommands.registerCommand(
             "Home Shooter", self.elevationSubsystem.homeShooterCommand()
@@ -135,13 +135,7 @@ class RobotContainer:
         NamedCommands.registerCommand(
             "Move to Amp Elevation", self.elevationSubsystem.moveToAmpPositionCommand()
         )
-        NamedCommands.registerCommand(
-            "Drive to Target",
-            DriveToTarget(
-                self.driveSubsystem,
-                self.targetingSubsystem,
-            ),
-        )
+        NamedCommands.registerCommand("Drive to Target", self.driveToTargetCommand())
         NamedCommands.registerCommand(
             "Extend Arms", self.climberSubsystem.get_ExtendCommand()
         )
@@ -163,6 +157,9 @@ class RobotContainer:
         )
 
         NamedCommands.registerCommand("After Path", PrintCommand("Launched After Path"))
+        NamedCommands.registerCommand(
+            "Source Side Speaker Approach", self.moveToSpeakerSourceSideCommand()
+        )
 
     def configureButtonBindings(self):
         """
@@ -185,9 +182,7 @@ class RobotContainer:
             self.autoAimTowardsAmpCommand()
         )  # .whileFalse(self.elevationSubsystem.moveToLoadPositionCommand())
 
-        self.driverController.b().whileTrue(
-            DriveToTarget(self.driveSubsystem, self.targetingSubsystem)
-        )
+        self.driverController.b().whileTrue(self.driveToTargetCommand())
         self.driverController.x().onTrue(
             self.elevationSubsystem.moveToLoadPositionCommand()
         )
@@ -262,11 +257,7 @@ class RobotContainer:
                 commands2.InterruptionBehavior.kCancelIncoming
             )
         )
-        self.operatorController.povDown().whileTrue(
-            FindTargetAndDrive(
-                self.operatorController, self.targetingSubsystem, self.driveSubsystem
-            )
-        )
+        self.operatorController.povDown().whileTrue(self.seekAndDriveToTargetCommand())
         self.operatorController.start().whileTrue(
             self.intakeSubsystem.reverseIntakeCommand()
         )  # temporary mapping to test how well the command works
@@ -347,6 +338,16 @@ class RobotContainer:
             )
         )
 
+    def driveToTargetCommand(self):
+        return DriveToTarget(self.driveSubsystem, self.targetingSubsystem)
+
+    def seekAndDriveToTargetCommand(self):
+        return (
+            FindTarget(self.targetingSubsystem, self.driveSubsystem)
+            .until(self.targetingSubsystem.hasSeenTarget)
+            .andThen(self.driveToTargetCommand())
+        )
+
     # def adjustToSpeaker(self):
     #     return (
     #         self.shooterSubsystem.setFlywheelSpeedForSpeakerCommand()
@@ -407,3 +408,14 @@ class RobotContainer:
             .andThen(self.shooterSubsystem.setFlywheelSpeedForAmpCommand())
             .withName("PathFindThenFollowPath")
         )
+
+    def moveToSpeakerSourceSideCommand(self):
+        return AutoBuilder.pathfindThenFollowPath(
+            PathPlannerPath.fromPathFile("Source Side Speaker Approach"),
+            PathConstraints(
+                constants.kMaxTrajectorySpeed / 2,
+                constants.kMaxTrajectoryAccel / 2,
+                constants.kProfiledRotationMaxVelocity,
+                constants.kProfiledRotationMaxAccel,
+            ),
+        ).withName("PathFindToSpeakerApproach")
