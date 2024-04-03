@@ -174,8 +174,7 @@ class AutoRotateShooterToSpeaker(Command):
             currentRotation.radians(),
             (currentRotation + robotRelativeFiringHeading).radians(),
         )
-        SmartDashboard.putNumber("Firing Goal", robotRelativeFiringHeading.degrees())
-        SmartDashboard.putNumber("Current Rotation", currentRotation.degrees())
+
         self._calculated_vTPub.set(vT)
         # Only rotation is calculated/automated.  The driver still needs
         # to use the controller to move the joystick across the field
