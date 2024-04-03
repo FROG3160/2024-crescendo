@@ -116,6 +116,7 @@ class MyRobot(commands2.TimedCommandRobot):
                 self.container.climberSubsystem.get_homeRightClimber()
             ).schedule()
 
+        # now we can initialize triggers for Teleop
         self.container.configureTeleopTriggers()
 
     def teleopPeriodic(self) -> None:

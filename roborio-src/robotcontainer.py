@@ -218,12 +218,12 @@ class RobotContainer:
             # DeferredCommand(lambda: self.testFollowPathCommand())
         )
 
-        self.driverController.povLeft().and_(self.shooterSubsystem.hasNote()).whileTrue(
-            self.placeInAmpCommand()
-        )
-        self.driverController.povRight().and_(
+        self.driverController.rightBumper().and_(
             self.shooterSubsystem.hasNote()
         ).whileTrue(self.placeInAmpCommand())
+        # self.driverController.povRight().and_(
+        #     self.shooterSubsystem.hasNote()
+        # ).whileTrue(self.placeInAmpCommand())
 
         self.driverController.leftBumper().whileTrue(
             ManualRobotOrientedDrive(self.driverController, self.driveSubsystem)
@@ -317,13 +317,7 @@ class RobotContainer:
         )
 
     def configureTriggers(self):
-        # when the vision system sees an april tag for half a second
-        # after initialization, then it uses that for initial pose setting
-        self.positioningSubsystem.readyToInitializePoseCommand().onTrue(
-            runOnce(lambda: self.driveSubsystem.setFieldPositionFromVision()).andThen(
-                self.ledSubsystem.getDefaultCommand()
-            )
-        )
+        pass
 
     def getAutonomousCommand(self):
         return self.autochooser.getSelected()
