@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.3984820622261451,
-      "y": 5.507130871149041
+      "x": 0.7328954159687686,
+      "y": 4.3140193516448715
     },
-    "rotation": 0
+    "rotation": -60.0
   },
   "command": {
     "type": "sequential",
@@ -34,36 +34,12 @@
           "data": {
             "commands": [
               {
-                "type": "named",
-                "data": {
-                  "name": "Intake and Load"
-                }
-              },
-              {
                 "type": "path",
                 "data": {
-                  "pathName": "Simple Auto Pt.1"
+                  "pathName": "Source Side Speaker to Stage End"
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Aim At Speaker"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Fire"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Test to Source Side Stage"
           }
         },
         {
