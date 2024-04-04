@@ -118,7 +118,11 @@ class RobotContainer:
 
         NamedCommands.registerCommand(
             "Fire",
-            Fire(self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem),
+            self.shooterSubsystem.homeNoteCommand().andThen(
+                Fire(
+                    self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
+                ),
+            ),
         )
         NamedCommands.registerCommand(
             "Intake and Load",
@@ -306,6 +310,8 @@ class RobotContainer:
             )
         )
 
+        self.noteNotAtHomeTrigger().onTrue(self.shooterSubsystem.homeNoteCommand())
+
     def configureTriggers(self):
         pass
 
@@ -419,3 +425,9 @@ class RobotContainer:
                 constants.kProfiledRotationMaxAccel,
             ),
         ).withName("PathFindToSpeakerApproach")
+
+    def noteNotAtHomeTrigger(self):
+        return commands2.button.Trigger(
+            lambda: not self.intakeSubsystem.intakeAllowed()
+            and not self.shooterSubsystem.noteInShooter()
+        )
