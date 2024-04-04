@@ -25,9 +25,6 @@ class Fire(SequentialCommandGroup):
         command_list = [
             self.shooter.runFlywheelsCommand(),
             waitUntil(self.readyToFire),
-            PrintCommand(
-                f"distance: {self.elevation.speakerDistance}, elevation: {self.elevation.getCurrentLeadscrewPosition()}"
-            ),
             self.shooter.fireSequencerCommand(),
             waitUntil(self.shooter.shooterSensor.get),
             self.shooter.stopSequencerCommand(),
