@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.6630730971658731,
-        "y": 6.667299774671107
+        "x": 0.76,
+        "y": 6.72
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.6630730971658725,
-        "y": 6.667299774671107
+        "x": 1.76,
+        "y": 6.72
       },
-      "isLocked": false,
-      "linkedName": null
+      "isLocked": true,
+      "linkedName": "Speaker Amp Side"
     },
     {
       "anchor": {
-        "x": 2.410669293610502,
-        "y": 7.328155479208991
+        "x": 3.7175766499737466,
+        "y": 6.31406577210647
       },
       "prevControl": {
-        "x": 1.410669293610502,
-        "y": 7.328155479208991
+        "x": 2.7175766499737466,
+        "y": 6.31406577210647
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,7 +45,7 @@
   "reversed": false,
   "folder": null,
   "previewStartingState": {
-    "rotation": 59.26451229807989,
+    "rotation": 60.0,
     "velocity": 0
   },
   "useDefaultConstraints": true
