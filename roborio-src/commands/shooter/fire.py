@@ -1,4 +1,9 @@
-from commands2 import SequentialCommandGroup, ParallelCommandGroup, StartEndCommand
+from commands2 import (
+    SequentialCommandGroup,
+    ParallelCommandGroup,
+    StartEndCommand,
+    PrintCommand,
+)
 from commands2.cmd import runOnce, startEnd, waitUntil, waitSeconds
 from subsystems.intake import IntakeSubsystem
 from subsystems.shooter import ShooterSubsystem
@@ -20,6 +25,9 @@ class Fire(SequentialCommandGroup):
         command_list = [
             self.shooter.runFlywheelsCommand(),
             waitUntil(self.readyToFire),
+            PrintCommand(
+                f"distance: {self.elevation.speakerDistance}, elevation: {self.elevation.getCurrentLeadscrewPosition()}"
+            ),
             self.shooter.fireSequencerCommand(),
             waitUntil(self.shooter.shooterSensor.get),
             self.shooter.stopSequencerCommand(),
