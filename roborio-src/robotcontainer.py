@@ -437,7 +437,9 @@ class RobotContainer:
 
     def loadCommand(self):
         return waitUntil(self.elevationSubsystem.readyToLoad).andThen(
-            loadShooterCommand(self.shooter, self.intake, self.elevation)
+            loadShooterCommand(
+                self.shooterSubsystem, self.intakeSubsystem, self.elevationSubsystem
+            )
         )
 
     def noteNotAtHomeTrigger(self):
