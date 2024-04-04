@@ -118,7 +118,11 @@ class RobotContainer:
 
         NamedCommands.registerCommand(
             "Fire",
-            Fire(self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem),
+            self.shooterSubsystem.homeNoteCommand().andThen(
+                Fire(
+                    self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
+                ),
+            ),
         )
         NamedCommands.registerCommand(
             "Intake and Load",
@@ -126,6 +130,8 @@ class RobotContainer:
                 self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
             ),
         )
+        NamedCommands.registerCommand("Intake", self.intakeCommand())
+        NamedCommands.registerCommand("Load", self.loadCommand())
         NamedCommands.registerCommand(
             "Seek and Drive to Target", self.seekAndDriveToTargetCommand()
         )
@@ -306,6 +312,8 @@ class RobotContainer:
             )
         )
 
+        # self.noteNotAtHomeTrigger().onTrue(self.shooterSubsystem.homeNoteCommand())
+
     def configureTriggers(self):
         pass
 
@@ -419,3 +427,23 @@ class RobotContainer:
                 constants.kProfiledRotationMaxAccel,
             ),
         ).withName("PathFindToSpeakerApproach")
+
+    def intakeCommand(self):
+        return (
+            self.intakeSubsystem.intakeCommand()
+            .andThen(runOnce(self.intakeSubsystem.disallowIntake, self.intakeSubsystem))
+            .andThen(runOnce(self.elevationSubsystem.moveToLoadPosition))
+        )
+
+    def loadCommand(self):
+        return waitUntil(self.elevationSubsystem.readyToLoad).andThen(
+            loadShooterCommand(
+                self.shooterSubsystem, self.intakeSubsystem, self.elevationSubsystem
+            )
+        )
+
+    def noteNotAtHomeTrigger(self):
+        return commands2.button.Trigger(
+            lambda: not self.intakeSubsystem.intakeAllowed()
+            and not self.shooterSubsystem.noteInShooter()
+        )
