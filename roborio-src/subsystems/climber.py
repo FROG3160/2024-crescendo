@@ -115,6 +115,14 @@ class ClimberSubsystem(Subsystem):
         self.leftClimber.set_control(MotionMagicVoltage(position, slot=0))
         self.rightClimber.set_control(MotionMagicVoltage(position, slot=0))
 
+    def stopAtPosition(self):
+        self.leftClimber.set_control(
+            MotionMagicVoltage(self.leftClimber.get_position().value)
+        )
+        self.rightClimber.set_control(
+            MotionMagicVoltage(self.rightClimber.get_position().value)
+        )
+
     def extend(self):
         if DriverStation.getMatchTime() < 20:
             self.setPosition(0)
@@ -122,14 +130,14 @@ class ClimberSubsystem(Subsystem):
 
     def retract(self):
         self.setPosition(85)
-
         # self.setVoltage(3)
 
     def retractSlow(self):
         self.setVoltage(0.5)
 
     def stop(self):
-        self.setVoltage(0)
+        self.stopAtPosition()
+        # self.setVoltage(0)
 
     def periodic(self) -> None:
         # self.logTelemet
