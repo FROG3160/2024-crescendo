@@ -312,7 +312,7 @@ class RobotContainer:
             )
         )
 
-        self.noteNotAtHomeTrigger().onTrue(self.shooterSubsystem.homeNoteCommand())
+        # self.noteNotAtHomeTrigger().onTrue(self.shooterSubsystem.homeNoteCommand())
 
     def configureTriggers(self):
         pass
