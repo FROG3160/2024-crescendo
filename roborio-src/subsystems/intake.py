@@ -128,9 +128,9 @@ class IntakeSubsystem(Subsystem):
         # used to reverse intake
         self.controlIntake(-kRollerVoltage)
 
-    def reverseIntakeCommand(self) -> Command:
+    def reverseTransferCommand(self) -> Command:
         # used to reverse intake motor outside normal operations
-        return self.run(self.reverseIntake).withName("ReverseIntake")
+        return self.run(self.reverseTransfer).withName("ReverseTransfer")
 
     # Intake Methods
     def runIntake(self) -> None:
@@ -176,6 +176,10 @@ class IntakeSubsystem(Subsystem):
         self.state = self.State.Transferring
         self.controlTransfer(kLoadWheelsPercent)
         self.controlIntake(kRollerTransferVoltage)
+
+    def reverseTransfer(self):
+        self.controlTransfer(-kLoadWheelsPercent * 0.5)
+        self.controlIntake(-kRollerTransferVoltage * 0.5)
 
     def stopTransfer(self):
         if self.noteInIntake():

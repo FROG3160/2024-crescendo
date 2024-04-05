@@ -245,10 +245,14 @@ class RobotContainer:
         ).whileTrue(self.climberSubsystem.get_RetractCommand())
 
         self.operatorController.leftBumper().onTrue(
-            self.climberSubsystem.get_homeLeftClimber()
+            self.climberSubsystem.get_homeLeftClimber().andThen(
+                self.climberSubsystem.get_homeRightClimber
+            )
         )
         self.operatorController.rightBumper().onTrue(
-            self.climberSubsystem.get_homeRightClimber()
+            self.elevationSubsystem.homeShooterCommand().withInterruptBehavior(
+                commands2.InterruptionBehavior.kCancelIncoming
+            )
         )
 
         self.operatorController.a().onTrue(self.intakeSubsystem.intakeCommand())
@@ -259,13 +263,11 @@ class RobotContainer:
         )
         self.operatorController.x().onTrue(self.intakeSubsystem.stopIntakeCommand())
         self.operatorController.y().onTrue(
-            self.elevationSubsystem.homeShooterCommand().withInterruptBehavior(
-                commands2.InterruptionBehavior.kCancelIncoming
-            )
+            self.elevationSubsystem.moveToLoadPositionCommand()
         )
         self.operatorController.povDown().whileTrue(self.seekAndDriveToTargetCommand())
         self.operatorController.start().whileTrue(
-            self.intakeSubsystem.reverseIntakeCommand()
+            self.intakeSubsystem.reverseTransferCommand()
         )  # temporary mapping to test how well the command works
         # self.operatorController.a().onTrue(
         #     runOnce(
