@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7328954159687686,
-      "y": 4.3140193516448715
+      "x": 0.7952442380734501,
+      "y": 4.185419462073272
     },
     "rotation": -60.0
   },
@@ -30,16 +30,9 @@
           }
         },
         {
-          "type": "deadline",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Source Side Speaker to Stage End for Test"
-                }
-              }
-            ]
+            "pathName": "Source Side Speaker to Stage End Optimized (1)"
           }
         },
         {
@@ -49,22 +42,35 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Intake and Load"
+                  "name": "Intake"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Seek and Drive to Target"
+                  "name": "Drive to Target"
                 }
               }
             ]
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "Source Side Speaker Approach"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Load"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Source Side Speaker Approach Optimized (2)"
+                }
+              }
+            ]
           }
         },
         {
