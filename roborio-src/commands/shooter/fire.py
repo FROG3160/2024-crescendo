@@ -39,6 +39,35 @@ class Fire(SequentialCommandGroup):
         return self.elevation.leadscrewAtPosition() and self.shooter.flywheelAtSpeed()
 
 
+class FireOnlyOptimized(SequentialCommandGroup):
+
+    def __init__(
+        self,
+        intake: IntakeSubsystem,
+        shooter: ShooterSubsystem,
+        elevation: ElevationSubsystem,
+    ):
+        self.intake = intake
+        self.shooter = shooter
+        self.elevation = elevation
+
+        command_list = [
+            self.shooter.runFlywheelsCommand(),
+            waitUntil(self.readyToFire),
+            self.shooter.fireSequencerCommand(),
+            waitUntil(self.shooter.shooterSensor.get),
+            self.shooter.stopSequencerCommand(),
+            # waitSeconds(0.5),
+            runOnce(self.intake.allowIntake, self.intake),
+            self.shooter.stopFlywheelsCommand(),
+            # self.elevation.moveToLoadPositionCommand(),
+        ]
+        super().__init__(command_list)
+
+    def readyToFire(self):
+        return self.elevation.leadscrewAtPosition() and self.shooter.flywheelAtSpeed()
+
+
 # self.runFlywheelsCommand()  # run the flywheel at the commanded speed
 #             .andThen(waitUntil(self.flywheelAtSpeed))
 #             .andThen(

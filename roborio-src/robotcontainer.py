@@ -48,7 +48,7 @@ from commands.drive.field_oriented import (
     AutoRotateShooterTowardsAmpCorner,
 )
 from commands.shooter.load import IntakeAndLoad, loadShooterCommand
-from commands.shooter.fire import Fire
+from commands.shooter.fire import Fire, FireOnlyOptimized
 from commands.drive.robot_oriented import (
     DriveToTarget,
     ThrottledDriveToTarget,
@@ -125,6 +125,14 @@ class RobotContainer:
             ),
         )
         NamedCommands.registerCommand(
+            "Fire Only",
+            self.shooterSubsystem.homeNoteCommand().andThen(
+                FireOnlyOptimized(
+                    self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
+                ),
+            ),
+        )
+        NamedCommands.registerCommand(
             "Intake and Load",
             IntakeAndLoad(
                 self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
@@ -140,6 +148,9 @@ class RobotContainer:
         )
         NamedCommands.registerCommand(
             "Move to Amp Elevation", self.elevationSubsystem.moveToAmpPositionCommand()
+        )
+        NamedCommands.registerCommand(
+            "Move to Load Position", self.elevationSubsystem.moveToLoadPositionCommand()
         )
         NamedCommands.registerCommand("Drive to Target", self.driveToTargetCommand())
         NamedCommands.registerCommand(
@@ -195,7 +206,9 @@ class RobotContainer:
         self.driverController.y().onTrue(self.shooterSubsystem.stopShootingCommand())
 
         self.driverController.leftTrigger().onTrue(
-            Fire(self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem)
+            FireOnlyOptimized(
+                self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
+            ).andThen(self.elevationSubsystem.moveToLoadPositionCommand())
         )
 
         # self.driverController.povLeft().whileTrue(
