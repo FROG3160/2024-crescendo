@@ -246,7 +246,7 @@ class RobotContainer:
 
         self.operatorController.leftBumper().onTrue(
             self.climberSubsystem.get_homeLeftClimber().andThen(
-                self.climberSubsystem.get_homeRightClimber
+                self.climberSubsystem.get_homeRightClimber()
             )
         )
         self.operatorController.rightBumper().onTrue(
