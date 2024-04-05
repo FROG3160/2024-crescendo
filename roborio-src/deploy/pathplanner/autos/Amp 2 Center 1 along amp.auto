@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7328954159687686,
-      "y": 4.3140193516448715
+      "x": 0.8115243659058746,
+      "y": 6.801988461119779
     },
-    "rotation": -60.0
+    "rotation": 60.12400730831061
   },
   "command": {
     "type": "sequential",
@@ -30,16 +30,9 @@
           }
         },
         {
-          "type": "deadline",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Source Side Speaker to Stage End for Test"
-                }
-              }
-            ]
+            "pathName": "Amp Side Note 1 Approach (1)"
           }
         },
         {
@@ -49,13 +42,13 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Intake and Load"
+                  "name": "Intake"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Seek and Drive to Target"
+                  "name": "Drive to Target"
                 }
               }
             ]
@@ -64,7 +57,63 @@
         {
           "type": "named",
           "data": {
-            "name": "Source Side Speaker Approach"
+            "name": "Load"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Aim At Speaker"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Fire"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Note 1 to Note 4"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Drive to Target"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Load"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Note 4 to Note 1"
+                }
+              }
+            ]
           }
         },
         {

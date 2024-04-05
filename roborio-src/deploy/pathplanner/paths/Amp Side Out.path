@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.76,
-        "y": 6.72
+        "x": 0.8467070648427011,
+        "y": 6.778533328495229
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.76,
-        "y": 6.72
+        "x": 1.846707064842701,
+        "y": 6.778533328495229
       },
       "isLocked": true,
       "linkedName": "Speaker Amp Side"

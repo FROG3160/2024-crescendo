@@ -421,8 +421,8 @@ class RobotContainer:
         return AutoBuilder.pathfindThenFollowPath(
             PathPlannerPath.fromPathFile("Source Side Speaker Approach"),
             PathConstraints(
-                constants.kMaxTrajectorySpeed / 2,
-                constants.kMaxTrajectoryAccel / 2,
+                constants.kMaxTrajectorySpeed,
+                constants.kMaxTrajectoryAccel,
                 constants.kProfiledRotationMaxVelocity,
                 constants.kProfiledRotationMaxAccel,
             ),
