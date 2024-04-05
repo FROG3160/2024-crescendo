@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.6750115754256556,
-        "y": 0.8517695747377186
+        "x": 1.624348927710201,
+        "y": 3.348165708677097
       },
       "isLocked": false,
       "linkedName": "Speaker Source Side"
@@ -20,8 +20,8 @@
         "y": 0.7489697984762701
       },
       "prevControl": {
-        "x": 5.803061910238312,
-        "y": 1.027997762614488
+        "x": 6.005450035591429,
+        "y": 1.166897148609112
       },
       "nextControl": null,
       "isLocked": false,

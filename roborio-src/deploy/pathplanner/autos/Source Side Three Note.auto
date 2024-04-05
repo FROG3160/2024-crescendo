@@ -26,13 +26,26 @@
         {
           "type": "named",
           "data": {
-            "name": "Fire"
+            "name": "Fire Only"
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Source Side Speaker to Stage End Optimized (1)"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Move to Load Position"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Source Side Speaker to Stage End Optimized (1)"
+                }
+              }
+            ]
           }
         },
         {
@@ -82,13 +95,26 @@
         {
           "type": "named",
           "data": {
-            "name": "Fire"
+            "name": "Fire Only"
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Speaker Source Side to Note 3"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Move to Load Position"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Speaker Source Side to Note 3"
+                }
+              }
+            ]
           }
         },
         {

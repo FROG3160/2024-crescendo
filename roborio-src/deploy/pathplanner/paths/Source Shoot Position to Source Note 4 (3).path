@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.1610126941184125,
-        "y": 1.9385100666444632
+        "x": 1.8285527929080552,
+        "y": 2.958321966026648
       },
       "isLocked": false,
       "linkedName": "Source Side Shoot Position"
@@ -20,8 +20,8 @@
         "y": 2.4525089479517073
       },
       "prevControl": {
-        "x": 5.200948934992683,
-        "y": 0.587427292922565
+        "x": 5.420684421615757,
+        "y": 0.6471054917418486
       },
       "nextControl": null,
       "isLocked": false,

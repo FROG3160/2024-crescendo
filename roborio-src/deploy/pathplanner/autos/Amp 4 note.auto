@@ -26,13 +26,26 @@
         {
           "type": "named",
           "data": {
-            "name": "Fire"
+            "name": "Fire Only"
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Amp Side Note 1 Approach (1)"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Move to Load Position"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Amp Side Note 1 Approach (1)"
+                }
+              }
+            ]
           }
         },
         {
@@ -69,13 +82,26 @@
         {
           "type": "named",
           "data": {
-            "name": "Fire"
+            "name": "Fire Only"
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Amp Side Note 1 to Note 2 (2)"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Move to Load Position"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Amp Side Note 1 to Note 2 (2)"
+                }
+              }
+            ]
           }
         },
         {
@@ -112,13 +138,26 @@
         {
           "type": "named",
           "data": {
-            "name": "Fire"
+            "name": "Fire Only"
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Amp Side Note 2 to Note 3 (3)"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Move to Load Position"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Amp Side Note 2 to Note 3 (3)"
+                }
+              }
+            ]
           }
         },
         {

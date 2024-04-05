@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.8115243659058746,
-      "y": 6.801988461119779
+      "x": 0.7952442380734501,
+      "y": 4.185419462073272
     },
-    "rotation": 60.12400730831061
+    "rotation": -60.0
   },
   "command": {
     "type": "sequential",
@@ -42,63 +42,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Amp Side Note 1 Approach (1)"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "deadline",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Drive to Target"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Load"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Aim At Speaker"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Fire Only"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "Move to Load Position"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Note 1 to Note 4"
+                  "pathName": "Source Side Speaker to Stage End Optimized (1)"
                 }
               }
             ]
@@ -136,7 +80,76 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Note 4 to Note 1"
+                  "pathName": "Source Side Speaker Approach Optimized (2)"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Aim At Speaker"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Fire Only"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Move to Load Position"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Source Shoot Position to Source Note 4 (3)"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Drive to Target"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Load"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Source Side Speaker Approach (4)"
                 }
               }
             ]
