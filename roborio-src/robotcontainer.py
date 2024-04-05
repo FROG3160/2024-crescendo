@@ -252,10 +252,10 @@ class RobotContainer:
         # Operator Controller Bindings
         self.operatorController.axisLessThan(
             wpilib.XboxController.Axis.kLeftY, -0.5
-        ).whileTrue(self.climberSubsystem.get_ExtendCommand())
+        ).onTrue(self.climberSubsystem.get_ExtendCommand())
         self.operatorController.axisGreaterThan(
             wpilib.XboxController.Axis.kLeftY, 0.5
-        ).whileTrue(self.climberSubsystem.get_RetractCommand())
+        ).onTrue(self.climberSubsystem.get_RetractCommand())
 
         self.operatorController.leftBumper().onTrue(
             self.climberSubsystem.get_homeLeftClimber().andThen(

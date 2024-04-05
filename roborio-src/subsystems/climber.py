@@ -144,10 +144,12 @@ class ClimberSubsystem(Subsystem):
         pass
 
     def get_ExtendCommand(self) -> Command:
-        return self.startEnd(self.extend, self.stop)
+        return self.runOnce(self.extend)
+        # return self.startEnd(self.extend, self.stop)
 
     def get_RetractCommand(self) -> Command:
-        return self.startEnd(self.retract, self.stop)
+        return self.runOnce(self.retract)
+        # return self.startEnd(self.retract, self.stop)
 
     def get_homeLeftClimber(self) -> Command:
         return (
