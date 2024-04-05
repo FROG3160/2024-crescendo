@@ -42,75 +42,6 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Source Side Speaker to Stage End Optimized (1)"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "deadline",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Drive to Target"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "Load"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Source Side Speaker Approach Optimized (2)"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Aim At Speaker"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Fire Only"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "Move to Load Position"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
                   "pathName": "Source Shoot Position to Source Note 4 (3)"
                 }
               }
@@ -150,6 +81,75 @@
                 "type": "path",
                 "data": {
                   "pathName": "Source Side Speaker Approach (4)"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Aim At Speaker"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Fire Only"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Move to Load Position"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Source Side Speaker to Stage End Optimized (1)"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Drive to Target"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Load"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Source Side Speaker Approach Optimized (2)"
                 }
               }
             ]
