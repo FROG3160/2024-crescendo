@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.639443576759494,
-        "y": 6.989513732666882
+        "x": 7.425871766029247,
+        "y": 7.388366776733554
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.0559876282126583,
-        "y": 6.989513732666882
+        "x": 6.507974661745388,
+        "y": 7.2106700206244785
       },
-      "isLocked": true,
-      "linkedName": "Amp Note"
+      "isLocked": false,
+      "linkedName": "Note 4"
     },
     {
       "anchor": {
-        "x": 0.8467070648427011,
-        "y": 6.778533328495229
+        "x": 2.0875842825030917,
+        "y": 6.138615211040798
       },
       "prevControl": {
-        "x": 1.7728276180916467,
-        "y": 7.361989277042063
+        "x": 3.2036961390559635,
+        "y": 6.314843398917567
       },
       "nextControl": null,
-      "isLocked": true,
-      "linkedName": "Speaker Amp Side"
+      "isLocked": false,
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -39,7 +39,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 60.0,
+    "rotation": 1.5074357587750362,
     "rotateFast": false
   },
   "reversed": false,
