@@ -250,13 +250,13 @@ class DriveTrain(SwerveChassis):
                 self.leds.drivePoseSet()
 
             elif (
-                abs(latestVisionResult.botPose.x - self.estimatorPose.x) < 0.5
-                and abs(latestVisionResult.botPose.y - self.estimatorPose.y) < 0.5
+                abs(latestVisionResult.botPose.x - self.estimatorPose.x) < 1
+                and abs(latestVisionResult.botPose.y - self.estimatorPose.y) < 1
             ):
                 # TODO:  We may want to validate the first instance of tagData
                 # is a valid tag by checking tagData[0].id > 0
                 translationStdDev = remap(
-                    latestVisionResult.tagData[0].distanceToRobot, 2, 6, 0.3, 1.0
+                    latestVisionResult.tagData[0].distanceToRobot, 2, 8, 0.3, 1.0
                 )
                 rotationStdDev = math.pi
                 SmartDashboard.putNumber("TranslationStdDev", translationStdDev)

@@ -418,18 +418,19 @@ class RobotContainer:
 
     def placeInAmpCommand(self):
         return (
-            AutoBuilder.pathfindThenFollowPath(
+            # AutoBuilder.pathfindThenFollowPath(
+            AutoBuilder.followPath(
                 PathPlannerPath.fromPathFile("Amp Approach"),
-                PathConstraints(
-                    constants.kMaxTrajectorySpeed / 2,
-                    constants.kMaxTrajectoryAccel / 2,
-                    constants.kProfiledRotationMaxVelocity,
-                    constants.kProfiledRotationMaxAccel,
-                ),
+                # PathConstraints(
+                #     constants.kMaxTrajectorySpeed / 2,
+                #     constants.kMaxTrajectoryAccel / 2,
+                #     constants.kProfiledRotationMaxVelocity,
+                #     constants.kProfiledRotationMaxAccel,
+                # ),
             )
             .alongWith(self.elevationSubsystem.moveToAmpPositionCommand())
             .andThen(self.shooterSubsystem.setFlywheelSpeedForAmpCommand())
-            .withName("PathFindThenFollowPath")
+            .withName("Place in Amp")
         )
 
     def moveToSpeakerSourceSideCommand(self):
