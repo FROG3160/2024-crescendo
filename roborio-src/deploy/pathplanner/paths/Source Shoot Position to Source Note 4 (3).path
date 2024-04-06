@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.3826715309960145,
-        "y": 3.6420492161198994
+        "x": 1.6397537279137229,
+        "y": 3.69806077267476
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.8285527929080552,
-        "y": 2.958321966026648
+        "x": 2.095489096434703,
+        "y": 3.0680736456016406
       },
       "isLocked": false,
       "linkedName": "Source Side Shoot Position"
     },
     {
       "anchor": {
-        "x": 7.359744236483107,
-        "y": 2.4525089479517073
+        "x": 6.545610930227805,
+        "y": 1.8170353790734597
       },
       "prevControl": {
-        "x": 5.420684421615757,
-        "y": 0.6471054917418486
+        "x": 5.02202504134884,
+        "y": 1.3210880662712163
       },
       "nextControl": null,
       "isLocked": false,
@@ -38,8 +38,8 @@
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": 0,
+    "velocity": 1.63,
+    "rotation": 16.39,
     "rotateFast": false
   },
   "reversed": false,
