@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.545610930227805,
-        "y": 1.8170353790734597
+        "x": 6.554546917845863,
+        "y": 1.9108632490630737
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.708653047959382,
-        "y": -0.20185393620688374
+        "x": 4.981813097067578,
+        "y": 1.1602402891461645
       },
       "isLocked": false,
       "linkedName": "Source Note 4"
@@ -20,8 +20,8 @@
         "y": 3.69806077267476
       },
       "prevControl": {
-        "x": 1.8050694988478038,
-        "y": 3.4567891069871823
+        "x": 1.8050694988478033,
+        "y": 3.456789106987182
       },
       "nextControl": null,
       "isLocked": false,
@@ -38,14 +38,14 @@
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
-    "velocity": 0,
+    "velocity": 0.0,
     "rotation": -44.27477570094076,
     "rotateFast": false
   },
   "reversed": false,
   "folder": null,
   "previewStartingState": {
-    "rotation": 0,
+    "rotation": 19.983106521899842,
     "velocity": 0
   },
   "useDefaultConstraints": true
