@@ -23,7 +23,7 @@ from constants import (
     kRotSlew,
 )
 from commands2.cmd import runOnce, startEnd, waitUntil
-from commands2 import DeferredCommand, PrintCommand
+from commands2 import DeferredCommand, PrintCommand, RepeatCommand
 
 from FROGlib.xbox import FROGXboxDriver, FROGXboxOperator
 
@@ -48,7 +48,7 @@ from commands.drive.field_oriented import (
     AutoRotateShooterTowardsAmpCorner,
 )
 from commands.shooter.load import IntakeAndLoad, loadShooterCommand
-from commands.shooter.fire import Fire, FireOnlyOptimized
+from commands.shooter.fire import Fire, FireOnlyOptimized, FireForDemo
 from commands.drive.robot_oriented import (
     DriveToTarget,
     ThrottledDriveToTarget,
@@ -280,7 +280,7 @@ class RobotContainer:
         )
         self.operatorController.povDown().whileTrue(self.seekAndDriveToTargetCommand())
         self.operatorController.start().whileTrue(
-            self.intakeSubsystem.reverseTransferCommand()
+            self.demoLoopCommand()  # intakeSubsystem.reverseTransferCommand()
         )  # temporary mapping to test how well the command works
         # self.operatorController.a().onTrue(
         #     runOnce(
@@ -361,6 +361,19 @@ class RobotContainer:
             )
         )
 
+    def autoAimForDemoCommand(self):
+        return (
+            self.shooterSubsystem.setFlywheelSpeedForAmpCommand()
+            .andThen(self.driveSubsystem.resetRotationControllerCommand())
+            .andThen(
+                self.elevationSubsystem.autoMoveRunWithDistanceCommand().alongWith(
+                    AutoRotateShooterToSpeaker(
+                        self.driverController, self.driveSubsystem
+                    )
+                )
+            )
+        )
+
     def driveToTargetCommand(self):
         return DriveToTarget(self.driveSubsystem, self.targetingSubsystem)
 
@@ -370,6 +383,20 @@ class RobotContainer:
             .until(self.targetingSubsystem.hasSeenTarget)
             .andThen(self.driveToTargetCommand())
         )
+
+    def demoSequentialCommand(self):
+        return (
+            self.seekAndDriveToTargetCommand()
+            .andThen(
+                IntakeAndLoad(
+                    self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
+                )
+            )
+            .andThen(self.demoDriveAndShootCommand)
+        )
+
+    def demoLoopCommand(self):
+        RepeatCommand(self.demoSequentialCommand())
 
     # def adjustToSpeaker(self):
     #     return (
@@ -431,6 +458,28 @@ class RobotContainer:
             .alongWith(self.elevationSubsystem.moveToAmpPositionCommand())
             .andThen(self.shooterSubsystem.setFlywheelSpeedForAmpCommand())
             .withName("Place in Amp")
+        )
+
+    def demoDriveAndShootCommand(self):
+        return (
+            # AutoBuilder.pathfindThenFollowPath(
+            AutoBuilder.followPath(
+                PathPlannerPath.fromPathFile("Rotary Demo"),
+                PathConstraints(
+                    constants.kMaxTrajectorySpeed / 2,
+                    constants.kMaxTrajectoryAccel / 2,
+                    constants.kProfiledRotationMaxVelocity,
+                    constants.kProfiledRotationMaxAccel,
+                ),
+            )
+            .alongWith(self.autoAimForDemoCommand)
+            .andThen(
+                FireForDemo(
+                    self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
+                )
+            )
+            .andThen(self.elevationSubsystem.moveToLoadPositionCommand())
+            .withName("Impress Rotarians")
         )
 
     def moveToSpeakerSourceSideCommand(self):
