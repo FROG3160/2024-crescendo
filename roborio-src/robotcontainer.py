@@ -392,7 +392,7 @@ class RobotContainer:
                     self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
                 )
             )
-            .andThen(self.demoDriveAndShootCommand)
+            .andThen(self.demoDriveAndShootCommand())
         )
 
     def demoLoopCommand(self):
