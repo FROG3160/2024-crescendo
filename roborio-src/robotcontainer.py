@@ -465,12 +465,12 @@ class RobotContainer:
             # AutoBuilder.pathfindThenFollowPath(
             AutoBuilder.followPath(
                 PathPlannerPath.fromPathFile("Rotary Demo"),
-                PathConstraints(
-                    constants.kMaxTrajectorySpeed / 2,
-                    constants.kMaxTrajectoryAccel / 2,
-                    constants.kProfiledRotationMaxVelocity,
-                    constants.kProfiledRotationMaxAccel,
-                ),
+                # PathConstraints(
+                # constants.kMaxTrajectorySpeed / 2,
+                # constants.kMaxTrajectoryAccel / 2,
+                # constants.kProfiledRotationMaxVelocity,
+                # constants.kProfiledRotationMaxAccel,
+                # )
             )
             .alongWith(self.autoAimForDemoCommand)
             .andThen(
