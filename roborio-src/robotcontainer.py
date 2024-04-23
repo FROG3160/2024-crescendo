@@ -23,7 +23,7 @@ from constants import (
     kRotSlew,
 )
 from commands2.cmd import runOnce, startEnd, waitUntil
-from commands2 import DeferredCommand, PrintCommand, RepeatCommand
+from commands2 import DeferredCommand, PrintCommand, RepeatCommand, InterruptionBehavior
 
 from FROGlib.xbox import FROGXboxDriver, FROGXboxOperator
 
@@ -278,10 +278,14 @@ class RobotContainer:
         self.operatorController.y().onTrue(
             self.elevationSubsystem.moveToLoadPositionCommand()
         )
-        self.operatorController.povDown().whileTrue(self.seekAndDriveToTargetCommand())
+        self.operatorController.povDown().whileTrue(
+            self.demoDriveAndShootCommand()
+        )  # self.seekAndDriveToTargetCommand())
         self.operatorController.start().whileTrue(
             # self.seekAndDriveToTargetCommand()
-            self.demoDriveAndShootCommand()  # intakeSubsystem.reverseTransferCommand()
+            self.demoLoopCommand().withInterruptBehavior(
+                InterruptionBehavior.kCancelIncoming
+            )  # intakeSubsystem.reverseTransferCommand()
         )  # temporary mapping to test how well the command works
         # self.operatorController.a().onTrue(
         #     runOnce(
@@ -373,6 +377,7 @@ class RobotContainer:
                     )
                 )
             )
+            .until(self.shooterAimed)
         )
 
     def driveToTargetCommand(self):
@@ -383,17 +388,21 @@ class RobotContainer:
             FindTarget(self.targetingSubsystem, self.driveSubsystem)
             .until(self.targetingSubsystem.hasSeenTarget)
             .andThen(self.driveToTargetCommand())
+            .withName("Find Target")
+        )
+
+    def demoFindDriveIntakeCommand(self):
+        return (
+            IntakeAndLoad(
+                self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
+            )
+            .deadlineWith(self.seekAndDriveToTargetCommand())
+            .withName("Find Target")
         )
 
     def demoSequentialCommand(self):
-        return (
-            self.seekAndDriveToTargetCommand()
-            .andThen(
-                IntakeAndLoad(
-                    self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
-                )
-            )
-            .andThen(self.demoDriveAndShootCommand())
+        return self.demoFindDriveIntakeCommand().andThen(
+            self.demoDriveAndShootCommand().withName("DemoSequence")
         )
 
     def demoLoopCommand(self):
@@ -473,7 +482,7 @@ class RobotContainer:
                 # constants.kProfiledRotationMaxAccel,
                 # )
             )
-            .alongWith(self.autoAimForDemoCommand)
+            .andThen(self.autoAimForDemoCommand())
             .andThen(
                 FireForDemo(
                     self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem

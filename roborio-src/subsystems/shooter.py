@@ -114,7 +114,7 @@ class ShooterSubsystem(Subsystem):
         )
 
     def setFlywheelSpeedForSpeakerCommand(self) -> Command:
-        return self.runOnce(lambda: self.setFlywheelSpeed(100)).withName(
+        return self.runOnce(lambda: self.setFlywheelSpeed(20)).withName(
             "Set Flywheel Speed for Speaker"
         )
 
