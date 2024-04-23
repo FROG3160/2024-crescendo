@@ -280,7 +280,8 @@ class RobotContainer:
         )
         self.operatorController.povDown().whileTrue(self.seekAndDriveToTargetCommand())
         self.operatorController.start().whileTrue(
-            self.demoLoopCommand()  # intakeSubsystem.reverseTransferCommand()
+            # self.seekAndDriveToTargetCommand()
+            self.demoDriveAndShootCommand()  # intakeSubsystem.reverseTransferCommand()
         )  # temporary mapping to test how well the command works
         # self.operatorController.a().onTrue(
         #     runOnce(
@@ -396,7 +397,7 @@ class RobotContainer:
         )
 
     def demoLoopCommand(self):
-        RepeatCommand(self.demoSequentialCommand())
+        return RepeatCommand(self.demoSequentialCommand())
 
     # def adjustToSpeaker(self):
     #     return (
