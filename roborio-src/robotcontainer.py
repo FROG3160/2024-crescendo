@@ -23,7 +23,7 @@ from constants import (
     kRotSlew,
 )
 from commands2.cmd import runOnce, startEnd, waitUntil
-from commands2 import DeferredCommand, PrintCommand
+from commands2 import DeferredCommand, PrintCommand, RepeatCommand, InterruptionBehavior
 
 from FROGlib.xbox import FROGXboxDriver, FROGXboxOperator
 
@@ -48,7 +48,7 @@ from commands.drive.field_oriented import (
     AutoRotateShooterTowardsAmpCorner,
 )
 from commands.shooter.load import IntakeAndLoad, loadShooterCommand
-from commands.shooter.fire import Fire, FireOnlyOptimized
+from commands.shooter.fire import Fire, FireOnlyOptimized, FireForDemo
 from commands.drive.robot_oriented import (
     DriveToTarget,
     ThrottledDriveToTarget,
@@ -278,9 +278,14 @@ class RobotContainer:
         self.operatorController.y().onTrue(
             self.elevationSubsystem.moveToLoadPositionCommand()
         )
-        self.operatorController.povDown().whileTrue(self.seekAndDriveToTargetCommand())
+        self.operatorController.povDown().whileTrue(
+            self.demoDriveAndShootCommand()
+        )  # self.seekAndDriveToTargetCommand())
         self.operatorController.start().whileTrue(
-            self.intakeSubsystem.reverseTransferCommand()
+            # self.seekAndDriveToTargetCommand()
+            self.demoLoopCommand().withInterruptBehavior(
+                InterruptionBehavior.kCancelIncoming
+            )  # intakeSubsystem.reverseTransferCommand()
         )  # temporary mapping to test how well the command works
         # self.operatorController.a().onTrue(
         #     runOnce(
@@ -361,6 +366,20 @@ class RobotContainer:
             )
         )
 
+    def autoAimForDemoCommand(self):
+        return (
+            self.shooterSubsystem.setFlywheelSpeedForAmpCommand()
+            .andThen(self.driveSubsystem.resetRotationControllerCommand())
+            .andThen(
+                self.elevationSubsystem.autoMoveRunWithDistanceCommand().alongWith(
+                    AutoRotateShooterToSpeaker(
+                        self.driverController, self.driveSubsystem
+                    )
+                )
+            )
+            .until(self.shooterAimed)
+        )
+
     def driveToTargetCommand(self):
         return DriveToTarget(self.driveSubsystem, self.targetingSubsystem)
 
@@ -369,7 +388,25 @@ class RobotContainer:
             FindTarget(self.targetingSubsystem, self.driveSubsystem)
             .until(self.targetingSubsystem.hasSeenTarget)
             .andThen(self.driveToTargetCommand())
+            .withName("Find Target")
         )
+
+    def demoFindDriveIntakeCommand(self):
+        return (
+            IntakeAndLoad(
+                self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
+            )
+            .deadlineWith(self.seekAndDriveToTargetCommand())
+            .withName("Find Target")
+        )
+
+    def demoSequentialCommand(self):
+        return self.demoFindDriveIntakeCommand().andThen(
+            self.demoDriveAndShootCommand().withName("DemoSequence")
+        )
+
+    def demoLoopCommand(self):
+        return RepeatCommand(self.demoSequentialCommand())
 
     # def adjustToSpeaker(self):
     #     return (
@@ -431,6 +468,28 @@ class RobotContainer:
             .alongWith(self.elevationSubsystem.moveToAmpPositionCommand())
             .andThen(self.shooterSubsystem.setFlywheelSpeedForAmpCommand())
             .withName("Place in Amp")
+        )
+
+    def demoDriveAndShootCommand(self):
+        return (
+            # AutoBuilder.pathfindThenFollowPath(
+            AutoBuilder.followPath(
+                PathPlannerPath.fromPathFile("Rotary Demo"),
+                # PathConstraints(
+                # constants.kMaxTrajectorySpeed / 2,
+                # constants.kMaxTrajectoryAccel / 2,
+                # constants.kProfiledRotationMaxVelocity,
+                # constants.kProfiledRotationMaxAccel,
+                # )
+            )
+            .andThen(self.autoAimForDemoCommand())
+            .andThen(
+                FireForDemo(
+                    self.intakeSubsystem, self.shooterSubsystem, self.elevationSubsystem
+                )
+            )
+            .andThen(self.elevationSubsystem.moveToLoadPositionCommand())
+            .withName("Impress Rotarians")
         )
 
     def moveToSpeakerSourceSideCommand(self):

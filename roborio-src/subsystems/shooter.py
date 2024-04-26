@@ -114,7 +114,7 @@ class ShooterSubsystem(Subsystem):
         )
 
     def setFlywheelSpeedForSpeakerCommand(self) -> Command:
-        return self.runOnce(lambda: self.setFlywheelSpeed(100)).withName(
+        return self.runOnce(lambda: self.setFlywheelSpeed(20)).withName(
             "Set Flywheel Speed for Speaker"
         )
 
@@ -155,6 +155,22 @@ class ShooterSubsystem(Subsystem):
     def stopFlywheels(self):
         self.leftFlyWheel.set_control(DutyCycleOut(0))
         self.rightFlyWheel.set_control(DutyCycleOut(0))
+
+    def runFlywheelsCommandForDemo(self):
+        return self.runOnce(self.runFlywheelsForDemo).withName("RunFlywheelsForDemo")
+
+    def runFlywheelsForDemo(self):
+        self.flyWheelSpeed = 20
+        self.leftFlyWheel.set_control(
+            VelocityVoltage(
+                velocity=self.flyWheelSpeed * self.leftFlyWheelSpeedFactor, slot=0
+            )
+        )
+        self.rightFlyWheel.set_control(
+            VelocityVoltage(
+                velocity=self.flyWheelSpeed * self.rightFlyWheelSpeedFactor, slot=0
+            )
+        )
 
     def leftFlywheelActualSpeed(self):
         return self.leftFlyWheel.get_velocity().value
