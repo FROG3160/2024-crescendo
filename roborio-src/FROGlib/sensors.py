@@ -1,5 +1,7 @@
 import math
 from navx import AHRS
+from rev import ColorSensorV3
+import wpilib
 from wpimath.geometry import Rotation2d
 from phoenix6.configs.cancoder_configs import CANcoderConfiguration
 from phoenix6.signals.spn_enums import AbsoluteSensorRangeValue, SensorDirectionValue
@@ -84,3 +86,23 @@ class FROGCanCoder(CANcoder):
     def __init__(self, id, config: FROGCANCoderConfig):
         super().__init__(id)
         self.configurator.apply(config)
+
+
+class FROGColor(ColorSensorV3):
+    def __init__(self, port=wpilib.I2C.Port.kMXP):
+        super().__init__(port)
+
+    def getRed(self):
+        return self.getColor().red
+
+    def getBlue(self):
+        return self.getColor().blue
+
+    def getGreen(self):
+        return self.getColor().green
+
+    def getProximity(self):
+        return self.getProximity()
+
+    def isNote(self):
+        return self.getRawColor()

@@ -103,8 +103,8 @@ class MyRobot(commands2.TimedCommandRobot):
         # continue until interrupted by another command, remove
         # this line or comment it out.
 
-        if self.container.shooterSubsystem.noteInShooter():
-            self.container.intakeSubsystem.disallowIntake()
+        # if self.container.shooterSubsystem.noteInShooter():
+        #     self.container.intakeSubsystem.disallowIntake()
         if self.autonomousCommand:
             self.autonomousCommand.cancel()
         self.container.driveSubsystem.enable()

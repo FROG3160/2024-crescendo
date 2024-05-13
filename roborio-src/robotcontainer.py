@@ -517,8 +517,8 @@ class RobotContainer:
             )
         )
 
-    def noteNotAtHomeTrigger(self):
-        return commands2.button.Trigger(
-            lambda: not self.intakeSubsystem.intakeAllowed()
-            and not self.shooterSubsystem.noteInShooter()
-        )
+    # def noteNotAtHomeTrigger(self):
+    #     return commands2.button.Trigger(
+    #         lambda: not self.intakeSubsystem.intakeAllowed()
+    #         and not self.shooterSubsystem.noteInShooter()
+    #     )

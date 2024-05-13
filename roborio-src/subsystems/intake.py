@@ -17,6 +17,7 @@ from constants import (
     kIntakeSensorChannel,
     kRollerTransferVoltage,
     kLoadWheelsPercent,
+    kIntakeSwitchChannel,
 )
 from wpilib import DigitalInput, SmartDashboard
 from ntcore import NetworkTableInstance
@@ -60,6 +61,7 @@ class IntakeSubsystem(Subsystem):
             StatusFrameEnhanced.Status_2_Feedback0, 200
         )
         self.intakeEmptySensor = DigitalInput(kIntakeSensorChannel)
+        self.intakeLoaded = DigitalInput(kIntakeSwitchChannel)
 
         self._intakeMotorCommandedVoltage = (
             NetworkTableInstance.getDefault()
@@ -79,7 +81,7 @@ class IntakeSubsystem(Subsystem):
         self.intakeMotorCommandedVoltage = 0
         self.transferMotorCommandedPercent = 0
 
-        self.state = self.State.Disabled
+        # self.state = self.State.Disabled
         self._intakeAllowed = True
 
     def getTargetInRangeTrigger(self):
@@ -95,7 +97,8 @@ class IntakeSubsystem(Subsystem):
         # intakeEmptySensor returns True when it's not detecting
         # anything, so we negate the boolean to determine when a
         # note is detected.
-        return not self.intakeEmptySensor.get()
+        # return not self.intakeEmptySensor.get()
+        return not self.intakeLoaded.get()
 
     def isIntakeRunning(self):
         return abs(self.intakeMotor.getMotorVoltage()) > 0.0
@@ -134,14 +137,14 @@ class IntakeSubsystem(Subsystem):
 
     # Intake Methods
     def runIntake(self) -> None:
-        self.state = self.State.Intaking
+        # self.state = self.State.Intaking
         self.controlIntake(kRollerVoltage)
 
     def stopIntake(self):
-        if self.noteInIntake():
-            self.state = self.State.Holding
-        else:
-            self.state = self.State.Waiting
+        # if self.noteInIntake():
+        #     self.state = self.State.Holding
+        # else:
+        #     self.state = self.State.Waiting
         self.controlIntake(0)
 
     def controlIntake(self, voltage):
@@ -173,7 +176,7 @@ class IntakeSubsystem(Subsystem):
         )
 
     def runTransfer(self):
-        self.state = self.State.Transferring
+        # self.state = self.State.Transferring
         self.controlTransfer(kLoadWheelsPercent)
         self.controlIntake(kRollerTransferVoltage)
 
@@ -182,10 +185,10 @@ class IntakeSubsystem(Subsystem):
         self.controlIntake(-kRollerTransferVoltage * 0.5)
 
     def stopTransfer(self):
-        if self.noteInIntake():
-            self.state = self.State.Holding
-        else:
-            self.state = self.State.Waiting
+        # if self.noteInIntake():
+        #     self.state = self.State.Holding
+        # else:
+        #     self.state = self.State.Waiting
         self.controlTransfer(0)
         self.stopIntake()
 

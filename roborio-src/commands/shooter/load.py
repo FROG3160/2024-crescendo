@@ -23,7 +23,7 @@ def loadShooterCommand(
         .until(shooter.noteInShooter)
         .withName("RunSequencer")
         .deadlineWith(intake.transferCommand())
-        .andThen(shooter.homeNoteCommand())
+        # .andThen(shooter.homeNoteCommand())
     ).beforeStarting(elevation.moveToLoadPositionCommand())
 
 

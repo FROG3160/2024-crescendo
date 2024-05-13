@@ -1,4 +1,4 @@
-from commands2 import Subsystem, Command, cmd
+from commands2 import Subsystem, Command, cmd, PrintCommand
 from phoenix5 import StatusFrameEnhanced, TalonSRXControlMode, NeutralMode
 from FROGlib.motors import (
     FROGTalonFX,
@@ -26,6 +26,7 @@ from ntcore import NetworkTableInstance
 from wpilib import DigitalInput, SmartDashboard
 from commands2.cmd import waitSeconds, waitUntil
 from commands2.button import Trigger
+from FROGlib.sensors import FROGColor
 
 
 class ShooterSubsystem(Subsystem):
@@ -64,6 +65,7 @@ class ShooterSubsystem(Subsystem):
         self.sequencer.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 200)
 
         self.shooterSensor = DigitalInput(constants.kShooterSensorChannel)
+        self.shooterLoaded = DigitalInput(constants.kShooterSwitchChannel)
 
         self._flywheelCommandedVelocity = (
             NetworkTableInstance.getDefault()
@@ -180,18 +182,19 @@ class ShooterSubsystem(Subsystem):
 
     # Sequencer Commands
     def homeNoteCommand(self) -> Command:
-        return (
-            self.startEnd(
-                lambda: self.controlSequencer(-0.5), lambda: self.controlSequencer(0)
-            )
-            .onlyWhile(self.noteInShooter)
-            .andThen(
-                self.startEnd(
-                    lambda: self.controlSequencer(0.2), lambda: self.controlSequencer(0)
-                )
-            )
-            .until(self.noteInShooter)
-        )
+        return PrintCommand("homeNoteCommand called.")
+        # return (
+        #     self.startEnd(
+        #         lambda: self.controlSequencer(-0.5), lambda: self.controlSequencer(0)
+        #     )
+        #     .onlyWhile(self.noteInShooter)
+        #     .andThen(
+        #         self.startEnd(
+        #             lambda: self.controlSequencer(0.2), lambda: self.controlSequencer(0)
+        #         )
+        #     )
+        #     .until(self.noteInShooter)
+        # )
 
     def stopSequencerCommand(self) -> Command:
         return self.runOnce(self.stopSequencer).withName("StopSequencer")
@@ -217,7 +220,8 @@ class ShooterSubsystem(Subsystem):
 
     # Shooter Bools
     def noteInShooter(self) -> bool:
-        return not self.shooterSensor.get()
+        # return not self.shooterSensor.get()
+        return not self.shooterLoaded.get()
 
     # Shooter Triggers
     def hasNote(self):
@@ -234,9 +238,7 @@ class ShooterSubsystem(Subsystem):
             .andThen(
                 self.fireSequencerCommand()
             )  # run the sequencer to move the note into the flywheel
-            .andThen(
-                waitUntil(self.shooterSensor.get)
-            )  # wait until we no longer detect the note
+            .andThen(waitSeconds(0.5))  # wait until we no longer detect the note
             .andThen(
                 self.stopSequencerCommand()
             )  # could also call stopShootingCommand at the very end
@@ -261,6 +263,10 @@ class ShooterSubsystem(Subsystem):
         SmartDashboard.putNumber(
             "Right Flywheel Speed", self.rightFlywheelActualSpeed()
         )
+        # color = self.colorSensor.getColor()
+        # SmartDashboard.putNumber("Color:Red", color.red)
+        # SmartDashboard.putNumber("Color:Green", color.green)
+        # SmartDashboard.putNumber("Color:Blue", color.blue)
 
     def logTelemetry(self):
         # self.leftFlyWheel.logData()

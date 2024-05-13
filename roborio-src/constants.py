@@ -70,6 +70,8 @@ kSequencerControllerID = 54
 kIntakeSensorChannel = 0
 kShooterSensorChannel = 1
 kShooterPositionSensorChannel = 2
+kIntakeSwitchChannel = 5
+kShooterSwitchChannel = 4
 
 # Shooter Motor Gains
 # TODO: Tune these gains
